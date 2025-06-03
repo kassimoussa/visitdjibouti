@@ -157,4 +157,7 @@ return [
     */
 
     'pagination_theme' => 'tailwind',
+
+    'asset_url' => env('LIVEWIRE_ASSET_URL', '/visitdjibouti'),
+    'app_url' => env('APP_URL', 'http://localhost/visitdjibouti'),
 ];

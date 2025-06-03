@@ -19,6 +19,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Forcer les URLs avec le sous-dossier
+        if (request()->server('REQUEST_URI')) {
+            $this->app['url']->forceRootUrl(config('app.url'));
+        }
+        
+        // Pour les assets
+        if (config('app.env') === 'production') {
+            URL::forceScheme('http');
+        }
     }
 }
