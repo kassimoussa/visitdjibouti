@@ -1,0 +1,165 @@
+<div>
+    <div class="container-fluid">
+        <!-- En-tête avec bouton d'ajout -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3">Liste des points d'intérêt</h1>
+            <a href="{{ route('pois.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-1"></i> Ajouter un nouveau
+            </a>
+        </div>
+        
+        <!-- Filtres -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Recherche</label>
+                        <input wire:model.live.debounce.300ms="search" type="text" class="form-control" id="search" placeholder="Rechercher...">
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">Catégorie</label>
+                        <select wire:model.live="category" id="category" class="form-select">
+                            <option value="">Toutes les catégories</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Statut</label>
+                        <select wire:model.live="status" id="status" class="form-select">
+                            <option value="">Tous les statuts</option>
+                            <option value="published">Publié</option>
+                            <option value="draft">Brouillon</option>
+                            <option value="archived">Archivé</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="region" class="form-label">Région</label>
+                        <select wire:model.live="region" id="region" class="form-select">
+                            <option value="">Toutes les régions</option>
+                            @foreach($regions as $regionKey => $regionName)
+                                <option value="{{ $regionKey }}">{{ $regionName }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tableau des POI -->
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th width="50">#</th>
+                                <th>Nom</th>
+                                <th>Catégories</th>
+                                <th>Région</th>
+                                <th>Statut</th>
+                                <th width="180">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($pois as $poi)
+                                <tr>
+                                    <td>{{ $poi->id }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="poi-image me-3" style="width:40px; height:40px; border-radius:6px; overflow:hidden; background-color:#e2e8f0; display:flex; align-items:center; justify-content:center">
+                                                @if($poi->featuredImage)
+                                                    <img src="{{ asset($poi->featuredImage->path) }}" alt="{{ $poi->name }}" class="img-fluid" style="width:100%; height:100%; object-fit:cover">
+                                                @else
+                                                    <i class="fas fa-map-marker-alt text-muted"></i>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">{{ $poi->name }}</div>
+                                                @if($poi->is_featured)
+                                                    <span class="badge bg-info">À la une</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if($poi->categories->isNotEmpty())
+                                            @foreach($poi->categories as $category)
+                                                <span class="badge rounded-pill" style="background-color: {{ $category->color ?? '#6c757d' }}">
+                                                    {{ $category->name }}
+                                                </span>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted">---</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $poi->region ?? 'Non spécifié' }}</td>
+                                    <td>
+                                        @if($poi->status === 'published')
+                                            <span class="badge bg-success">Publié</span>
+                                        @elseif($poi->status === 'draft')
+                                            <span class="badge bg-warning">Brouillon</span>
+                                        @else
+                                            <span class="badge bg-secondary">Archivé</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ route('pois.show', $poi) }}" class="btn btn-outline-secondary" title="Voir">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('pois.edit', $poi) }}" class="btn btn-outline-primary" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-outline-danger" title="Supprimer" 
+                                                    wire:click="confirmDelete({{ $poi->id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <div class="text-muted">Aucun point d'intérêt disponible</div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-4">
+            {{ $pois->links() }}
+        </div>
+    </div>
+
+    <!-- Modal de confirmation de suppression -->
+    @if($deleteModalVisible)
+    <div class="modal fade show" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" wire:click="cancelDelete"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer le point d'intérêt <strong>"{{ $poiToDelete->name ?? '' }}"</strong> ?</p>
+                    <p class="text-danger">Cette action est irréversible.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" wire:click="cancelDelete">Annuler</button>
+                    <button type="button" class="btn btn-danger" wire:click="delete">Supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+</div>

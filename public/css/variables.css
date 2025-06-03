@@ -1,0 +1,36 @@
+/* ========== VARIABLES GLOBALES ========== */
+:root {
+    /* Couleurs principales */
+    --dark-blue: #1d2233;
+    --darker-blue: #111525;
+    --active-blue: #3860f8;
+    --lighter-blue: #4a6ef5;
+    
+    /* Couleurs de texte */
+    --text-color: #a8b1cf;
+    --heading-color: #5f6b8a;
+    --highlight-color: #ffffff;
+    
+    /* Dimensions */
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 80px;
+    --topbar-height: 60px;
+    
+    /* Autres */
+    --transition-speed: 0.3s;
+    --border-radius: 4px;
+    
+    /* Couleurs d'accent pour les cartes et badges */
+    --primary-color: #3860f8;
+    --success-color: #10b981;
+    --warning-color: #f97316;
+    --danger-color: #ef4444;
+    --info-color: #0ea5e9;
+    
+    /* Couleurs de fond légères */
+    --primary-light: #e1e8ff;
+    --success-light: #dcfce7;
+    --warning-light: #fff7ed;
+    --danger-light: #fee2e2;
+    --info-light: #e0f7ff;
+}

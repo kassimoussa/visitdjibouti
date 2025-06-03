@@ -1,0 +1,102 @@
+/* ========== STYLES DE LA BARRE SUPÉRIEURE ========== */
+
+/* Structure principale de la topbar */
+.topbar {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    height: 60px;
+    background-color: var(--darker-blue);
+    color: var(--highlight-color);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1040;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all var(--transition-speed);
+}
+
+/* Ajuster la topbar quand le sidebar est réduit */
+#sidebar.active + #content-container .topbar {
+    left: var(--sidebar-collapsed-width);
+    width: calc(100% - var(--sidebar-collapsed-width));
+}
+
+/* Partie gauche de la topbar */
+.topbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.topbar-title {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    font-size: 1.1rem;
+}
+
+/* Partie droite de la topbar */
+.topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.topbar-right a {
+    color: var(--text-color);
+    margin-left: 20px;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.topbar-right a:hover {
+    color: var(--highlight-color);
+}
+
+/* Bouton de bascule du menu */
+#sidebarCollapse {
+    background-color: transparent;
+    border: none;
+    color: var(--text-color);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-right: 15px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+#sidebarCollapse:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--highlight-color);
+}
+
+#sidebarCollapse:focus {
+    outline: none;
+}
+
+#sidebarCollapse i {
+    font-size: 1.2rem;
+    transition: all 0.2s;
+}
+
+/* Badge de notification */
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}

@@ -1,0 +1,13 @@
+// Imports externes (librairies)
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+// Variables et styles de base
+@import 'variables';  // _variables.scss contenant toutes vos variables 
+
+// Composants du panneau d'administration
+@import 'admin/sidebar';
+@import 'admin/topbar';
+@import 'admin/content';
+
+@import 'admin/poidetail';

@@ -1,0 +1,172 @@
+/* ========== STYLES DU MENU LATÉRAL ========== */
+
+/* Structure principale du sidebar */
+#sidebar {
+    width: var(--sidebar-width);
+    background: var(--dark-blue);
+    color: var(--text-color);
+    transition: all var(--transition-speed);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 1050;
+}
+
+#sidebar.active {
+    width: var(--sidebar-collapsed-width);
+    text-align: center;
+}
+
+/* En-tête du sidebar */
+#sidebar .sidebar-header {
+    padding: 20px;
+    background: var(--darker-blue);
+}
+
+#sidebar .site-title {
+    color: var(--highlight-color);
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: 1.2rem;
+    margin-bottom: 0;
+}
+
+#sidebar .site-subtitle {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+/* Gestion de l'affichage des titres en mode replié */
+#sidebar.active .site-title {
+    display: none;
+}
+
+#sidebar.active .site-subtitle {
+    display: none;
+}
+
+#sidebar.active .site-title-short {
+    display: block;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--highlight-color);
+}
+
+#sidebar .site-title-short {
+    display: none;
+}
+
+/* Sections du menu */
+#sidebar .menu-section {
+    margin-top: 15px;
+    padding-bottom: 15px;
+}
+
+#sidebar .menu-section-title {
+    padding: 10px 20px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--heading-color);
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+#sidebar.active .menu-section-title {
+    display: none;
+}
+
+/* Démarcation entre les sections du menu */
+.menu-section:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Items du menu */
+#sidebar ul {
+    padding-left: 0;
+    list-style: none;
+}
+
+#sidebar ul li {
+    position: relative;
+}
+
+#sidebar ul li a {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+#sidebar ul li a:hover,
+#sidebar ul li a:focus {
+    color: var(--highlight-color);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#sidebar ul li.active > a {
+    color: var(--highlight-color);
+    background: var(--active-blue);
+    font-weight: 500;
+}
+
+/* Icônes dans les items du menu */
+#sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+}
+
+/* Animation pour les icônes au survol */
+#sidebar ul li a:hover i {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+}
+
+/* Styles spécifiques quand le menu est replié */
+#sidebar.active ul li a {
+    padding: 15px 0;
+    text-align: center;
+    font-size: 0.85em;
+}
+
+#sidebar.active ul li a i {
+    margin-right: 0;
+    display: block;
+    font-size: 1.5em;
+    margin-bottom: 5px;
+    margin: 0 auto;
+}
+
+#sidebar.active ul li a span {
+    display: none;
+}
+
+/* Zone de défilement du menu */
+.menu-items {
+    overflow-y: auto;
+    flex-grow: 1;
+    scrollbar-width: thin;
+    scrollbar-color: var(--heading-color) var(--dark-blue);
+}
+
+/* Styles du scrollbar pour webkit (Chrome, Safari) */
+.menu-items::-webkit-scrollbar {
+    width: 5px;
+}
+
+.menu-items::-webkit-scrollbar-track {
+    background: var(--dark-blue);
+}
+
+.menu-items::-webkit-scrollbar-thumb {
+    background-color: var(--heading-color);
+    border-radius: 10px;
+}
