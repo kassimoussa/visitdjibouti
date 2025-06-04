@@ -487,7 +487,7 @@ class IconSelector extends Component
             'fas fa-info',
             'fas fa-info-circle',
             'fas fa-italic',
-            'fas fa-island-tropical',
+            'fa-solid fa-island-tropical',
             'fas fa-jedi',
             'fas fa-joint',
             'fas fa-journal-whills',
