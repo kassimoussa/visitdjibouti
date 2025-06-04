@@ -158,6 +158,6 @@ return [
 
     'pagination_theme' => 'tailwind',
 
-    'asset_url' => env('LIVEWIRE_ASSET_URL', '/visitdjibouti'),
+   // 'asset_url' => env('LIVEWIRE_ASSET_URL', '/djvi.test'),
     'app_url' => env('APP_URL', 'http://localhost/visitdjibouti'),
 ];
