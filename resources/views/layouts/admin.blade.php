@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VISIT DJIBOUTI - @yield('title')</title>
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-    @yield('styles')
+    
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -14,6 +14,8 @@
 
     <link href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" rel="stylesheet">
 
+    
+    @livewireStyles
 
     <style>
         /* Rendre le contenu invisible pendant le chargement */
@@ -37,8 +39,137 @@
         .spinner-fade:not([wire\:loading]) {
             opacity: 0;
         }
-    </style>
 
+        /* Styles pour le modal "Bientôt disponible" */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .bg-gradient-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .feature-icon-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .coming-soon-animation {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .construction-icon {
+            position: relative;
+            display: inline-block;
+            animation: bounce 2s infinite;
+        }
+        
+        .construction-sparks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .spark {
+            position: absolute;
+            font-size: 1.2rem;
+            animation: sparkle 3s infinite;
+        }
+        
+        .spark-1 {
+            top: -10px;
+            left: -10px;
+            animation-delay: 0s;
+        }
+        
+        .spark-2 {
+            top: -15px;
+            right: -10px;
+            animation-delay: 1s;
+        }
+        
+        .spark-3 {
+            bottom: -10px;
+            left: 50%;
+            animation-delay: 2s;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .progress-bar-animated {
+            animation: progress-bar-stripes 1s linear infinite;
+        }
+        
+        @keyframes progress-bar-stripes {
+            0% {
+                background-position: 1rem 0;
+            }
+            100% {
+                background-position: 0 0;
+            }
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .coming-soon-link {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .coming-soon-link::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .coming-soon-link:hover::after {
+            left: 100%;
+        }
+    </style>
+    @yield('styles')
     @stack('style')
 
 </head>
@@ -96,7 +227,7 @@
                             </a>
                         </li>
                         <li class="{{ request()->is('news*') ? 'active' : '' }}">
-                            <a href="{{ route('news.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                            <a href="#" class="coming-soon-link" data-feature="Actualités" data-icon="fas fa-newspaper" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Actualités">
                                 <i class="fas fa-newspaper"></i>
                                 <span>Actualités</span>
@@ -116,7 +247,7 @@
                     <div class="menu-section-title">INTERACTIONS</div>
                     <ul class="list-unstyled components">
                         <li class="{{ request()->is('reviews*') ? 'active' : '' }}">
-                            <a href="{{ route('reviews.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                            <a href="#" class="coming-soon-link" data-feature="Avis & Commentaires" data-icon="fas fa-comments" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Avis & Commentaires">
                                 <i class="fas fa-comments"></i>
                                 <span>Avis & Commentaires</span>
@@ -129,21 +260,21 @@
                     <div class="menu-section-title">ADMINISTRATION</div>
                     <ul class="list-unstyled components">
                         <li class="{{ request()->is('users*') ? 'active' : '' }}">
-                            <a href="{{ route('users.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                            <a href="#" class="coming-soon-link" data-feature="Utilisateurs" data-icon="fas fa-users" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Utilisateurs">
                                 <i class="fas fa-users"></i>
                                 <span>Utilisateurs</span>
                             </a>
                         </li>
                         <li class="{{ request()->is('stats*') ? 'active' : '' }}">
-                            <a href="{{ route('stats.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                            <a href="#" class="coming-soon-link" data-feature="Statistiques" data-icon="fas fa-chart-line" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Statistiques">
                                 <i class="fas fa-chart-line"></i>
                                 <span>Statistiques</span>
                             </a>
                         </li>
                         <li class="{{ request()->is('settings*') ? 'active' : '' }}">
-                            <a href="{{ route('settings.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                            <a href="#" class="coming-soon-link" data-feature="Paramètres" data-icon="fas fa-cog" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Paramètres">
                                 <i class="fas fa-cog"></i>
                                 <span>Paramètres</span>
@@ -213,7 +344,89 @@
         </div>
     </div>
 
+    <!-- Modal "Bientôt disponible" -->
+    <div class="modal fade" id="comingSoonModal" tabindex="-1" aria-labelledby="comingSoonModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-gradient-primary text-white border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="feature-icon-container me-3">
+                            <i id="modalFeatureIcon" class="fas fa-rocket"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title mb-0" id="comingSoonModalLabel">
+                                <span id="modalFeatureName">Fonctionnalité</span> - Bientôt disponible
+                            </h5>
+                            <small class="opacity-75">En cours de développement</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="coming-soon-animation">
+                            <div class="construction-icon">
+                                <i class="fas fa-hard-hat text-warning" style="font-size: 3rem;"></i>
+                                <div class="construction-sparks">
+                                    <span class="spark spark-1">✨</span>
+                                    <span class="spark spark-2">⚡</span>
+                                    <span class="spark spark-3">💫</span>
+                                </div>
+                            </div>
+                        </div>
+                        <h6 class="text-muted mt-3">Cette fonctionnalité est en cours de développement</h6>
+                        <p class="text-muted small mb-4">
+                            Notre équipe travaille activement sur <strong id="modalFeatureNameInText">cette fonctionnalité</strong> 
+                            pour vous offrir la meilleure expérience possible.
+                        </p>
+                    </div>
+                    
+                    <div class="progress mb-3" style="height: 8px;">
+                        <div class="progress-bar bg-gradient-success progress-bar-animated" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="text-center">
+                        <small class="text-muted">Progression : 65% complété</small>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6 class="text-primary mb-2">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            En attendant, vous pouvez :
+                        </h6>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-1">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Gérer vos <strong>Points d'intérêt</strong>
+                            </li>
+                            <li class="mb-1">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Créer et modifier vos <strong>Événements</strong>
+                            </li>
+                            <li class="mb-1">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Organiser vos <strong>Catégories</strong>
+                            </li>
+                            <li>
+                                <i class="fas fa-check text-success me-2"></i>
+                                Gérer votre <strong>Bibliothèque de médias</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Fermer
+                    </button>
+                    <button type="button" class="btn btn-primary">
+                        <i class="fas fa-bell me-2"></i>Me notifier
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
     <!-- Initialisez GLightbox -->
     <script>
@@ -222,6 +435,25 @@
                 touchNavigation: true,
                 loop: true,
                 autoplayVideos: true
+            });
+
+            // Gestion des liens "Bientôt disponible"
+            document.querySelectorAll('.coming-soon-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const featureName = this.getAttribute('data-feature');
+                    const featureIcon = this.getAttribute('data-icon');
+                    
+                    // Mise à jour du contenu du modal
+                    document.getElementById('modalFeatureName').textContent = featureName;
+                    document.getElementById('modalFeatureNameInText').textContent = featureName.toLowerCase();
+                    document.getElementById('modalFeatureIcon').className = featureIcon;
+                    
+                    // Affichage du modal
+                    const modal = new bootstrap.Modal(document.getElementById('comingSoonModal'));
+                    modal.show();
+                });
             });
         });
     </script>

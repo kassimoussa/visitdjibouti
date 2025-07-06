@@ -9,6 +9,7 @@ use App\Models\PoiTranslation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 class PoiForm extends Component
 {
@@ -64,6 +65,8 @@ class PoiForm extends Component
 
     // Médias
     public $selectedMedia = [];
+    public $showMediaSelector = false;
+    public $mediaSelectorMode = 'single';
 
     // Mode édition
     public $isEditMode = false;
@@ -141,6 +144,51 @@ class PoiForm extends Component
         $this->selectedMedia = array_values(array_filter($this->selectedMedia, function ($id) use ($mediaId) {
             return $id != $mediaId;
         }));
+    }
+
+    /**
+     * Réorganiser la galerie
+     */
+    public function reorderGallery($oldIndex, $newIndex)
+    {
+        if (isset($this->selectedMedia[$oldIndex])) {
+            $item = $this->selectedMedia[$oldIndex];
+            unset($this->selectedMedia[$oldIndex]);
+            array_splice($this->selectedMedia, $newIndex, 0, $item);
+            $this->selectedMedia = array_values($this->selectedMedia);
+        }
+    }
+
+    /**
+     * Ouvrir le sélecteur de médias pour l'image principale
+     */
+    public function openFeaturedImageSelector()
+    {
+        $this->mediaSelectorMode = 'single';
+        $preselected = $this->featuredImageId ? [$this->featuredImageId] : [];
+        $this->dispatch('open-media-selector', 'single', $preselected);
+    }
+
+    /**
+     * Ouvrir le sélecteur de médias pour la galerie
+     */
+    public function openGallerySelector()
+    {
+        $this->mediaSelectorMode = 'multiple';
+        $this->dispatch('open-media-selector', 'multiple', $this->selectedMedia);
+    }
+
+    /**
+     * Gérer la sélection de médias depuis le modal
+     */
+    #[On('media-selected')]
+    public function handleMediaSelection($selectedIds)
+    {
+        if ($this->mediaSelectorMode === 'single') {
+            $this->featuredImageId = !empty($selectedIds) ? $selectedIds[0] : null;
+        } else {
+            $this->selectedMedia = $selectedIds;
+        }
     }
 
     /**

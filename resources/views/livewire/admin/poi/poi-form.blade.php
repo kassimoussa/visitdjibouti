@@ -323,126 +323,112 @@
 
                             <!-- Image mise en avant -->
                             <div class="card mb-4">
-                                <div class="card-header">
+                                <div class="card-header d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0">Image principale</h6>
+                                    <button type="button" class="btn btn-sm btn-primary" wire:click="openFeaturedImageSelector">
+                                        <i class="fas fa-images me-1"></i>Choisir une image
+                                    </button>
                                 </div>
                                 <div class="card-body">
-                                    <div class="mb-3">
-                                        <!-- Affichage de l'image sélectionnée si elle existe -->
-                                        @if ($featuredImageId)
-                                            <div class="mb-3">
-                                                @php $featuredImage = $media->firstWhere('id', $featuredImageId); @endphp
-                                                @if ($featuredImage)
+                                    @if ($featuredImageId)
+                                        <div class="text-center">
+                                            @php $featuredImage = $media->firstWhere('id', $featuredImageId); @endphp
+                                            @if ($featuredImage)
+                                                <div class="position-relative d-inline-block">
                                                     <img src="{{ asset($featuredImage->thumbnail_path ?? $featuredImage->path) }}"
                                                         alt="{{ $featuredImage->getTranslation($activeLocale)->title ?? $featuredImage->original_name }}"
-                                                        class="img-fluid rounded border mb-3"
-                                                        style="max-height: 150px;">
-                                                @endif
-                                            </div>
-                                        @endif
-
-                                        <!-- Sélecteur d'images avec miniatures -->
-                                        <div class="mb-3">
-                                            <label for="featuredImageId" class="form-label">Sélectionner une
-                                                image</label>
-                                            <select class="form-select @error('featuredImageId') is-invalid @enderror"
-                                                id="featuredImageId" wire:model.live="featuredImageId">
-                                                <option value="">Aucune image</option>
-                                                @foreach ($media as $mediaItem)
-                                                    <option value="{{ $mediaItem->id }}">
-                                                        {{ $mediaItem->getTranslation($activeLocale)->title ?? $mediaItem->original_name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            @error('featuredImageId')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <!-- Galerie miniature pour sélection rapide -->
-                                        <div class="row g-2 mt-3">
-                                            <div class="col-12 mb-2">
-                                                <label class="form-label">Sélection rapide</label>
-                                            </div>
-                                            @foreach ($media->take(8) as $mediaItem)
-                                                <div class="col-3 col-md-3 mb-2">
-                                                    <div class="image-thumbnail-selector"
-                                                        wire:click="selectFeaturedImage({{ $mediaItem->id }})"
-                                                        style="cursor: pointer; border: 2px solid {{ $featuredImageId == $mediaItem->id ? '#2563eb' : 'transparent' }};">
-                                                        <img src="{{ asset($mediaItem->thumbnail_path ?? $mediaItem->path) }}"
-                                                            alt="{{ $mediaItem->getTranslation($activeLocale)->alt_text ?? $mediaItem->original_name }}"
-                                                            class="img-fluid rounded"
-                                                            style="height: 80px; width: 100%; object-fit: cover;">
-                                                    </div>
+                                                        class="img-fluid rounded border shadow-sm"
+                                                        style="max-height: 200px; max-width: 100%;">
+                                                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                                                            wire:click="selectFeaturedImage(null)"
+                                                            title="Supprimer l'image">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
                                                 </div>
-                                            @endforeach
+                                                <div class="mt-2">
+                                                    <small class="text-muted">
+                                                        {{ $featuredImage->getTranslation($activeLocale)->title ?? $featuredImage->original_name }}
+                                                    </small>
+                                                </div>
+                                            @endif
                                         </div>
-
-                                        <div class="mt-3">
-                                            <a href="{{ route('media.index') }}" target="_blank"
-                                                class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-upload me-1"></i> Gérer les médias
-                                            </a>
+                                    @else
+                                        <div class="text-center py-4 border-dashed rounded" style="border: 2px dashed #dee2e6;">
+                                            <i class="fas fa-image fa-3x text-muted mb-3"></i>
+                                            <p class="text-muted mb-2">Aucune image sélectionnée</p>
+                                            <button type="button" class="btn btn-outline-primary" wire:click="openFeaturedImageSelector">
+                                                <i class="fas fa-plus me-1"></i>Sélectionner une image
+                                            </button>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
                             </div>
 
                             <!-- Galerie d'images -->
                             <div class="card mb-4">
-                                <div class="card-header">
-                                    <h6 class="mb-0">Galerie d'images</h6>
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Galerie d'images ({{ count($selectedMedia) }})</h6>
+                                    <button type="button" class="btn btn-sm btn-success" wire:click="openGallerySelector">
+                                        <i class="fas fa-plus me-1"></i>Ajouter des images
+                                    </button>
                                 </div>
                                 <div class="card-body">
-                                    <div class="mb-3">
-                                        <!-- Images actuellement sélectionnées -->
-                                        @if (count($selectedMedia) > 0)
-                                            <div class="mb-3">
-                                                <label class="form-label">Images sélectionnées</label>
-                                                <div class="row g-2">
-                                                    @foreach ($selectedMedia as $mediaId)
-                                                        @php $mediaItem = $media->firstWhere('id', $mediaId); @endphp
-                                                        @if ($mediaItem)
-                                                            <div class="col-3 col-md-3 mb-2">
-                                                                <div class="position-relative">
+                                    @if (count($selectedMedia) > 0)
+                                        <div class="mb-3">
+                                            <div class="alert alert-info alert-sm">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Glissez-déposez les images pour les réorganiser
+                                            </div>
+                                            <div id="gallery-images" class="row g-3">
+                                                @foreach ($selectedMedia as $index => $mediaId)
+                                                    @php $mediaItem = $media->firstWhere('id', $mediaId); @endphp
+                                                    @if ($mediaItem)
+                                                        <div class="col-4 col-md-3 col-lg-2" data-media-id="{{ $mediaId }}">
+                                                            <div class="gallery-item position-relative">
+                                                                <div class="image-container" style="cursor: grab;">
                                                                     <img src="{{ asset($mediaItem->thumbnail_path ?? $mediaItem->path) }}"
                                                                         alt="{{ $mediaItem->getTranslation($activeLocale)->alt_text ?? $mediaItem->original_name }}"
-                                                                        class="img-fluid rounded border"
-                                                                        style="height: 80px; width: 100%; object-fit: cover;">
-                                                                    <button type="button"
-                                                                        class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                                                                        wire:click="removeFromGallery({{ $mediaId }})">
-                                                                        <i class="fas fa-times"></i>
-                                                                    </button>
+                                                                        class="img-fluid rounded border shadow-sm"
+                                                                        style="height: 120px; width: 100%; object-fit: cover;">
+                                                                    <div class="image-overlay">
+                                                                        <div class="overlay-actions">
+                                                                            <button type="button" class="btn btn-sm btn-light btn-icon" 
+                                                                                    title="Définir comme image principale"
+                                                                                    wire:click="selectFeaturedImage({{ $mediaId }})">
+                                                                                <i class="fas fa-star {{ $featuredImageId == $mediaId ? 'text-warning' : 'text-muted' }}"></i>
+                                                                            </button>
+                                                                            <button type="button" class="btn btn-sm btn-danger btn-icon"
+                                                                                    title="Supprimer de la galerie"
+                                                                                    wire:click="removeFromGallery({{ $mediaId }})">
+                                                                                <i class="fas fa-times"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="drag-handle">
+                                                                            <i class="fas fa-grip-vertical"></i>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                        @endif
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        @endif
-
-                                        <!-- Galerie pour sélection -->
-                                        <div class="mb-3">
-                                            <label class="form-label">Ajouter des images à la galerie</label>
-                                            <div class="row g-2">
-                                                @foreach ($media as $mediaItem)
-                                                    @if (!in_array($mediaItem->id, $selectedMedia))
-                                                        <div class="col-3 col-md-3 mb-2">
-                                                            <div class="image-thumbnail-selector"
-                                                                wire:click="addToGallery({{ $mediaItem->id }})"
-                                                                style="cursor: pointer; border: 1px solid #e2e8f0;">
-                                                                <img src="{{ asset($mediaItem->thumbnail_path ?? $mediaItem->path) }}"
-                                                                    alt="{{ $mediaItem->getTranslation($activeLocale)->alt_text ?? $mediaItem->original_name }}"
-                                                                    class="img-fluid rounded"
-                                                                    style="height: 80px; width: 100%; object-fit: cover;">
+                                                                <div class="mt-2 text-center">
+                                                                    <small class="text-muted d-block text-truncate">
+                                                                        {{ $mediaItem->getTranslation($activeLocale)->title ?? $mediaItem->original_name }}
+                                                                    </small>
+                                                                    <span class="badge badge-sm bg-primary">{{ $index + 1 }}</span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     @endif
                                                 @endforeach
                                             </div>
                                         </div>
-                                    </div>
+                                    @else
+                                        <div class="text-center py-4 border-dashed rounded" style="border: 2px dashed #dee2e6;">
+                                            <i class="fas fa-images fa-3x text-muted mb-3"></i>
+                                            <p class="text-muted mb-2">Aucune image dans la galerie</p>
+                                            <button type="button" class="btn btn-outline-success" wire:click="openGallerySelector">
+                                                <i class="fas fa-plus me-1"></i>Ajouter des images
+                                            </button>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -459,4 +445,121 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de sélection de médias -->
+    @livewire('admin.media-selector-modal')
+
+    <!-- Styles CSS pour l'amélioration de l'interface -->
+    <style>
+        .border-dashed {
+            border-style: dashed !important;
+        }
+        
+        .gallery-item {
+            transition: transform 0.2s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 8px;
+        }
+        
+        .image-container:hover .image-overlay {
+            opacity: 1;
+        }
+        
+        .overlay-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+        
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .drag-handle {
+            align-self: center;
+            color: white;
+            font-size: 18px;
+            cursor: grab;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        
+        .sortable-ghost {
+            opacity: 0.5;
+        }
+        
+        .sortable-chosen {
+            transform: scale(1.05);
+        }
+        
+        .badge-sm {
+            font-size: 0.7rem;
+        }
+        
+        .alert-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+    </style>
 </div>
+
+@script
+<script>
+    // Initialiser SortableJS pour le drag & drop de la galerie
+    document.addEventListener('livewire:initialized', () => {
+        initializeGallerySorting();
+    });
+    
+    // Réinitialiser après mise à jour Livewire
+    document.addEventListener('livewire:updated', () => {
+        initializeGallerySorting();
+    });
+    
+    function initializeGallerySorting() {
+        const galleryContainer = document.getElementById('gallery-images');
+        if (galleryContainer && typeof Sortable !== 'undefined') {
+            new Sortable(galleryContainer, {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                handle: '.drag-handle',
+                onEnd: function(evt) {
+                    if (evt.oldIndex !== evt.newIndex) {
+                        @this.call('reorderGallery', evt.oldIndex, evt.newIndex);
+                    }
+                }
+            });
+        }
+    }
+</script>
+@endscript
