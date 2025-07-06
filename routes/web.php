@@ -117,3 +117,11 @@ Route::middleware('auth.admin')->group(function () {
         return view(view: 'admin.settings.index');
     })->name('settings.index');
 });
+
+Route::get('/test-livewire', function() {
+    return response()->json([
+        'storage_path' => storage_path('app/livewire-tmp'),
+        'storage_exists' => is_dir(storage_path('app/livewire-tmp')),
+        'permissions' => substr(sprintf('%o', fileperms(storage_path('app'))), -4),
+    ]);
+});
