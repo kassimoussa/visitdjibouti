@@ -30,23 +30,13 @@
                             id="search" placeholder="Rechercher...">
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="category" class="form-label">Catégorie</label>
                         <select wire:model.live="category" id="category" class="form-select">
                             <option value="">Toutes les catégories</option>
                             @foreach ($categories as $cat)
                                 <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                             @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-2">
-                        <label for="status" class="form-label">Statut</label>
-                        <select wire:model.live="status" id="status" class="form-select">
-                            <option value="">Tous les statuts</option>
-                            <option value="published">Publié</option>
-                            <option value="draft">Brouillon</option>
-                            <option value="archived">Archivé</option>
                         </select>
                     </div>
 
@@ -61,6 +51,16 @@
                     </div>
 
                     <div class="col-md-2">
+                        <label for="status" class="form-label">Statut</label>
+                        <select wire:model.live="status" id="status" class="form-select">
+                            <option value="">Tous les statuts</option>
+                            <option value="published">Publié</option>
+                            <option value="draft">Brouillon</option>
+                            <option value="archived">Archivé</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-1">
                         <label for="locale" class="form-label">Langue</label>
                         <select wire:model.live="currentLocale" id="locale" class="form-select">
                             @foreach ($availableLocales as $locale)

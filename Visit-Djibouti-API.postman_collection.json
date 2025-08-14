@@ -1,0 +1,1023 @@
+{
+  "info": {
+    "name": "Visit Djibouti API",
+    "description": "Collection complète pour tester l'API mobile de Visit Djibouti - 18 endpoints avec authentification OAuth",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-save auth token from login responses",
+          "if (pm.response.json() && pm.response.json().data && pm.response.json().data.token) {",
+          "    pm.environment.set('auth_token', pm.response.json().data.token);",
+          "    console.log('Token saved: ' + pm.response.json().data.token);",
+          "}",
+          "",
+          "// Test response structure",
+          "pm.test('Response has success field', function () {",
+          "    pm.expect(pm.response.json()).to.have.property('success');",
+          "});",
+          "",
+          "pm.test('Status code is successful', function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "{{base_url}}",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "{{auth_token}}",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "description": "Endpoints pour l'authentification et gestion du profil utilisateur",
+      "item": [
+        {
+          "name": "📝 Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"phone\": \"+253 21 35 40 50\",\n  \"preferred_language\": \"fr\",\n  \"date_of_birth\": \"1990-05-15\",\n  \"gender\": \"male\",\n  \"city\": \"Djibouti\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Inscription d'un nouvel utilisateur"
+          },
+          "response": []
+        },
+        {
+          "name": "🔑 Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Connexion utilisateur avec email/mot de passe"
+          },
+          "response": []
+        },
+        {
+          "name": "📋 Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "profile"]
+            },
+            "description": "Récupération du profil utilisateur (authentifié)"
+          },
+          "response": []
+        },
+        {
+          "name": "✏️ Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Updated\",\n  \"phone\": \"+253 21 35 41 60\",\n  \"preferred_language\": \"en\",\n  \"date_of_birth\": \"1990-05-15\",\n  \"gender\": \"male\",\n  \"city\": \"Ali Sabieh\",\n  \"push_notifications_enabled\": false,\n  \"email_notifications_enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "profile"]
+            },
+            "description": "Mise à jour du profil utilisateur"
+          },
+          "response": []
+        },
+        {
+          "name": "🔒 Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"password123\",\n  \"password\": \"newpassword123\",\n  \"password_confirmation\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/change-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "change-password"]
+            },
+            "description": "Changement de mot de passe"
+          },
+          "response": []
+        },
+        {
+          "name": "🚪 Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Déconnexion utilisateur"
+          },
+          "response": []
+        },
+        {
+          "name": "🌐 Google OAuth Redirect",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/google/redirect",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "google", "redirect"]
+            },
+            "description": "Obtenir l'URL de redirection Google OAuth"
+          },
+          "response": []
+        },
+        {
+          "name": "📱 Google OAuth Mobile Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"access_token\": \"GOOGLE_ACCESS_TOKEN_FROM_MOBILE_APP\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/google/token",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "google", "token"]
+            },
+            "description": "Authentification mobile avec token Google"
+          },
+          "response": []
+        },
+        {
+          "name": "📘 Facebook OAuth Redirect",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/facebook/redirect",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "facebook", "redirect"]
+            },
+            "description": "Obtenir l'URL de redirection Facebook OAuth"
+          },
+          "response": []
+        },
+        {
+          "name": "📱 Facebook OAuth Mobile Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"access_token\": \"FACEBOOK_ACCESS_TOKEN_FROM_MOBILE_APP\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/facebook/token",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "facebook", "token"]
+            },
+            "description": "Authentification mobile avec token Facebook"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏛️ Points of Interest (POIs)",
+      "description": "Endpoints pour la gestion des points d'intérêt touristiques",
+      "item": [
+        {
+          "name": "📍 Get All POIs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pois?featured=1&region=Tadjourah&per_page=20&sort_by=name&sort_order=asc",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pois"],
+              "query": [
+                {
+                  "key": "featured",
+                  "value": "1",
+                  "description": "POIs mis en avant seulement"
+                },
+                {
+                  "key": "region",
+                  "value": "Tadjourah",
+                  "description": "Filtrer par région"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "name"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "asc"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Recherche par nom/description",
+                  "disabled": true
+                },
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "description": "Filtrer par ID de catégorie",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Liste de tous les POIs avec filtres avancés"
+          },
+          "response": []
+        },
+        {
+          "name": "🔍 Get POI Details by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pois/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pois", "1"]
+            },
+            "description": "Détails complets d'un POI par son ID"
+          },
+          "response": []
+        },
+        {
+          "name": "🔍 Get POI Details by Slug",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pois/lac-assal",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pois", "lac-assal"]
+            },
+            "description": "Détails complets d'un POI par son slug"
+          },
+          "response": []
+        },
+        {
+          "name": "📂 Get POIs by Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pois/category/2?per_page=15",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pois", "category", "2"],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "15"
+                }
+              ]
+            },
+            "description": "POIs d'une catégorie spécifique"
+          },
+          "response": []
+        },
+        {
+          "name": "📍 Get Nearby POIs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pois/nearby?latitude=11.6560&longitude=42.4065&radius=20&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pois", "nearby"],
+              "query": [
+                {
+                  "key": "latitude",
+                  "value": "11.6560",
+                  "description": "Latitude (requis)"
+                },
+                {
+                  "key": "longitude",
+                  "value": "42.4065",
+                  "description": "Longitude (requis)"
+                },
+                {
+                  "key": "radius",
+                  "value": "20",
+                  "description": "Rayon en km (1-100)"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Nombre max de résultats"
+                }
+              ]
+            },
+            "description": "POIs proches d'une position GPS"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📂 Categories",
+      "description": "Endpoints pour la gestion des catégories hiérarchiques",
+      "item": [
+        {
+          "name": "📋 Get Categories (Hierarchical)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"]
+            },
+            "description": "Liste hiérarchique des catégories avec sous-catégories"
+          },
+          "response": []
+        },
+        {
+          "name": "📄 Get Categories (Flat List)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/categories/flat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "flat"]
+            },
+            "description": "Liste plate de toutes les catégories"
+          },
+          "response": []
+        },
+        {
+          "name": "🔍 Get Category Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/categories/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "1"]
+            },
+            "description": "Détails d'une catégorie avec ses sous-catégories"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🎉 Events",
+      "description": "Endpoints pour la gestion des événements et réservations",
+      "item": [
+        {
+          "name": "📅 Get All Events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/events?status=upcoming&featured=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "upcoming",
+                  "description": "upcoming, ongoing"
+                },
+                {
+                  "key": "featured",
+                  "value": "1",
+                  "description": "Événements mis en avant"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Recherche par titre/description",
+                  "disabled": true
+                },
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "description": "Filtrer par catégorie",
+                  "disabled": true
+                },
+                {
+                  "key": "date_from",
+                  "value": "",
+                  "description": "Date début (YYYY-MM-DD)",
+                  "disabled": true
+                },
+                {
+                  "key": "date_to",
+                  "value": "",
+                  "description": "Date fin (YYYY-MM-DD)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Liste des événements avec filtres"
+          },
+          "response": []
+        },
+        {
+          "name": "🔍 Get Event Details by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/events/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "1"]
+            },
+            "description": "Détails complets d'un événement"
+          },
+          "response": []
+        },
+        {
+          "name": "🔍 Get Event Details by Slug",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/events/festival-culturel-djibouti",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "festival-culturel-djibouti"]
+            },
+            "description": "Détails complets d'un événement par slug"
+          },
+          "response": []
+        },
+        {
+          "name": "✍️ Register for Event (Authenticated)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"participants_count\": 2,\n  \"special_requirements\": \"Accès PMR nécessaire\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/1/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "1", "register"]
+            },
+            "description": "Inscription à un événement (utilisateur connecté)"
+          },
+          "response": []
+        },
+        {
+          "name": "✍️ Register for Event (Guest)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"participants_count\": 1,\n  \"user_name\": \"Jean Dupont\",\n  \"user_email\": \"jean@example.com\",\n  \"user_phone\": \"+253 21 35 40 50\",\n  \"special_requirements\": null\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/1/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "1", "register"]
+            },
+            "description": "Inscription à un événement (invité sans compte)"
+          },
+          "response": []
+        },
+        {
+          "name": "❌ Cancel Registration",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Empêchement de dernière minute\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/1/registration",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "1", "registration"]
+            },
+            "description": "Annulation d'une inscription"
+          },
+          "response": []
+        },
+        {
+          "name": "📋 Get My Registrations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/my-registrations?status=confirmed",
+              "host": ["{{base_url}}"],
+              "path": ["api", "my-registrations"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "confirmed",
+                  "description": "pending, confirmed, cancelled"
+                }
+              ]
+            },
+            "description": "Mes inscriptions aux événements"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏢 Organization & Links",
+      "description": "Endpoints pour les informations de l'organisation et liens externes",
+      "item": [
+        {
+          "name": "ℹ️ Get Organization Information",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/organization",
+              "host": ["{{base_url}}"],
+              "path": ["api", "organization"]
+            },
+            "description": "Informations sur l'Office du Tourisme"
+          },
+          "response": []
+        },
+        {
+          "name": "📋 Get External Links",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/external-links",
+              "host": ["{{base_url}}"],
+              "path": ["api", "external-links"]
+            },
+            "description": "Liste des liens externes utiles"
+          },
+          "response": []
+        },
+        {
+          "name": "🔍 Get External Link Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/external-links/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "external-links", "1"]
+            },
+            "description": "Détails d'un lien externe"
+          },
+          "response": []
+        },
+        {
+          "name": "🏛️ Get All Embassies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/embassies?type=foreign_in_djibouti",
+              "host": ["{{base_url}}"],
+              "path": ["api", "embassies"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "foreign_in_djibouti",
+                  "description": "foreign_in_djibouti ou djiboutian_abroad"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Recherche par nom/pays",
+                  "disabled": true
+                },
+                {
+                  "key": "country_code",
+                  "value": "",
+                  "description": "Code pays (FR, US, etc)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Liste des ambassades avec filtres"
+          },
+          "response": []
+        },
+        {
+          "name": "🔍 Get Embassy Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/embassies/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "embassies", "1"]
+            },
+            "description": "Détails complets d'une ambassade"
+          },
+          "response": []
+        },
+        {
+          "name": "📂 Get Embassies by Type",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/embassies/type/foreign_in_djibouti",
+              "host": ["{{base_url}}"],
+              "path": ["api", "embassies", "type", "foreign_in_djibouti"]
+            },
+            "description": "Ambassades par type"
+          },
+          "response": []
+        },
+        {
+          "name": "📍 Get Nearby Embassies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "fr"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/embassies/nearby?latitude=11.5721&longitude=43.1456&radius=50&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "embassies", "nearby"],
+              "query": [
+                {
+                  "key": "latitude",
+                  "value": "11.5721",
+                  "description": "Latitude (requis)"
+                },
+                {
+                  "key": "longitude",
+                  "value": "43.1456",
+                  "description": "Longitude (requis)"
+                },
+                {
+                  "key": "radius",
+                  "value": "50",
+                  "description": "Rayon en km"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Nombre max de résultats"
+                }
+              ]
+            },
+            "description": "Ambassades proches d'une position GPS"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

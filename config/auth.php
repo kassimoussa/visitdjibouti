@@ -36,7 +36,7 @@ return [
         
         'api' => [
             'driver' => 'sanctum',
-            'provider' => 'users',
+            'provider' => 'app_users',
         ],
         
         'admin-api' => [
@@ -65,6 +65,11 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\AdminUser::class,
         ],
+        
+        'app_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\AppUser::class,
+        ],
     ],
 
     /*
@@ -87,6 +92,13 @@ return [
         'admin_users' => [
             'provider' => 'admin_users',
             'table' => 'admin_password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        
+        'app_users' => [
+            'provider' => 'app_users',
+            'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,
         ],

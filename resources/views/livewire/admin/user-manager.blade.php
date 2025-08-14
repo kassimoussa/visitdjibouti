@@ -1,6 +1,7 @@
 <div>
     <div class="container-fluid">
 
+
         <!-- Filtres et actions -->
         <div class="card shadow-sm mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -260,10 +261,15 @@
                                 @enderror
                             </div>
 
-                            <div class="ms-3 mb-3 form-check">
-                                <input wire:model="is_active" type="checkbox" class="form-check-input"
-                                    id="is_active_create" value="1">
-                                <label class="form-check-label" for="is_active_create">Utilisateur actif</label>
+                            <div class="col-12 mb-3">
+                                <div class="form-check">
+                                    <input wire:model="is_active" type="checkbox" class="form-check-input"
+                                        id="is_active_create" value="1">
+                                    <label class="form-check-label" for="is_active_create">
+                                        <strong>Utilisateur actif</strong>
+                                        <small class="text-muted d-block">L'utilisateur pourra se connecter et accéder au système</small>
+                                    </label>
+                                </div>
                             </div>
 
                         </div>
@@ -279,7 +285,7 @@
 
     <!-- Modal Modifier Utilisateur -->
     <div class="modal fade" wire:ignore.self tabindex="-1" id="editUserModal" data-bs-backdrop="static">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Modifier l'utilisateur</h5>
@@ -287,76 +293,89 @@
                 </div>
                 <div class="modal-body">
                     <form wire:submit="update">
-                        <div class="mb-3">
-                            <label for="name_edit" class="form-label">Nom complet <span
-                                    class="text-danger">*</span></label>
-                            <input wire:model="name" type="text"
-                                class="form-control @error('name') is-invalid @enderror" id="name_edit">
-                            @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name_edit" class="form-label">Nom complet <span
+                                        class="text-danger">*</span></label>
+                                <input wire:model="name" type="text"
+                                    class="form-control @error('name') is-invalid @enderror" id="name_edit">
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="email_edit" class="form-label">Email <span
+                                        class="text-danger">*</span></label>
+                                <input wire:model="email" type="email"
+                                    class="form-control @error('email') is-invalid @enderror" id="email_edit">
+                                @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="email_edit" class="form-label">Email <span
-                                    class="text-danger">*</span></label>
-                            <input wire:model="email" type="email"
-                                class="form-control @error('email') is-invalid @enderror" id="email_edit">
-                            @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone_number_edit" class="form-label">Numéro de téléphone</label>
+                                <input wire:model="phone_number" type="text"
+                                    class="form-control @error('phone_number') is-invalid @enderror"
+                                    id="phone_number_edit">
+                                @error('phone_number')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="role_id_edit" class="form-label">Rôle <span
+                                        class="text-danger">*</span></label>
+                                <select wire:model="role_id" class="form-select @error('role_id') is-invalid @enderror"
+                                    id="role_id_edit">
+                                    <option value="">Sélectionner un rôle</option>
+                                    @foreach ($roles as $role)
+                                        <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('role_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="phone_number_edit" class="form-label">Numéro de téléphone</label>
-                            <input wire:model="phone_number" type="text"
-                                class="form-control @error('phone_number') is-invalid @enderror"
-                                id="phone_number_edit">
-                            @error('phone_number')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="password_edit" class="form-label">Nouveau mot de passe</label>
+                                <input wire:model="password" type="password"
+                                    class="form-control @error('password') is-invalid @enderror" id="password_edit"
+                                    placeholder="Laisser vide pour ne pas modifier">
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="password_confirmation_edit" class="form-label">Confirmer le mot de passe</label>
+                                <input wire:model="password_confirmation" type="password"
+                                    class="form-control @error('password_confirmation') is-invalid @enderror"
+                                    id="password_confirmation_edit"
+                                    placeholder="Confirmer le nouveau mot de passe">
+                                @error('password_confirmation')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="role_id_edit" class="form-label">Rôle <span
-                                    class="text-danger">*</span></label>
-                            <select wire:model="role_id" class="form-select @error('role_id') is-invalid @enderror"
-                                id="role_id_edit">
-                                <option value="">Sélectionner un rôle</option>
-                                @foreach ($roles as $role)
-                                    <option value="{{ $role->id }}">{{ $role->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('role_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="password_edit" class="form-label">Nouveau mot de passe (laisser vide pour ne
-                                pas modifier)</label>
-                            <input wire:model="password" type="password"
-                                class="form-control @error('password') is-invalid @enderror" id="password_edit">
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="password_confirmation_edit" class="form-label">Confirmer le nouveau mot de
-                                passe</label>
-                            <input wire:model="password_confirmation" type="password"
-                                class="form-control @error('password_confirmation') is-invalid @enderror"
-                                id="password_confirmation_edit">
-                            @error('password_confirmation')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3 form-check">
-                            <input wire:model="is_active" type="checkbox" class="form-check-input"
-                                id="is_active_edit" value="1">
-                            <label class="form-check-label" for="is_active_edit">Utilisateur actif</label>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <div class="form-check">
+                                    <input wire:model="is_active" type="checkbox" class="form-check-input"
+                                        id="is_active_edit" value="1">
+                                    <label class="form-check-label" for="is_active_edit">
+                                        <strong>Utilisateur actif</strong>
+                                        <small class="text-muted d-block">Décochez pour désactiver l'accès de cet utilisateur</small>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>

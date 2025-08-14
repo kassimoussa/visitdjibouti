@@ -2,6 +2,8 @@
 // STYLES DE LA BARRE SUPÉRIEURE (TOPBAR)
 // ==========================================================
 
+@use '../variables' as *;
+
 // Structure principale de la topbar
 .topbar {
     position: fixed;

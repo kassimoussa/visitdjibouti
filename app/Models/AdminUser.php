@@ -59,6 +59,14 @@ class AdminUser extends Authenticatable
     }
 
     /**
+     * Relations
+     */
+    public function createdNews()
+    {
+        return $this->hasMany(\App\Models\News::class, 'creator_id');
+    }
+
+    /**
      * Get the role that owns the admin user.
      */
     public function role()

@@ -72,7 +72,9 @@
                     <thead class="bg-light">
                         <tr>
                             <th>Catégorie</th>
+                            <th>Parent</th>
                             <th>Slug</th>
+                            <th>Ordre</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -89,7 +91,17 @@
                                         <div class="fw-semibold">{{ $category->name }}</div>
                                     </div>
                                 </td>
+                                <td class="align-middle">
+                                    @if($category->parent_id)
+                                        <span class="badge bg-secondary">{{ $category->parent->name ?? 'Parent introuvable' }}</span>
+                                    @else
+                                        <span class="text-muted">— Racine</span>
+                                    @endif
+                                </td>
                                 <td class="align-middle text-muted">{{ $category->slug }}</td>
+                                <td class="align-middle">
+                                    <span class="badge bg-light text-dark">{{ $category->sort_order ?? 0 }}</span>
+                                </td>
                                 <td class="align-middle">
                                     @if ($category->is_active)
                                         <span class="badge bg-success">Actif</span>
@@ -112,7 +124,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center py-4">
+                                <td colspan="6" class="text-center py-4">
                                     <div class="text-muted">Aucune catégorie disponible</div>
                                 </td>
                             </tr>
@@ -131,7 +143,7 @@
     <!-- Contenu du Modal -->
     <x-modal-component>
         <x-slot name="modalTitle">{{ $modalTitle }}</x-slot>
-        <x-slot name="modalSize">modal-xl</x-slot>
+        <x-slot name="modalSize">modal-fullscreen</x-slot>
 
         <!-- Corps du Modal -->
         <form wire:submit.prevent="save">
@@ -205,6 +217,46 @@
             </div>
 
             <!-- Champs non traduisibles -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="parent_id" class="form-label">
+                        <i class="fas fa-sitemap me-1"></i>
+                        Catégorie parent
+                    </label>
+                    <select wire:model="parent_id" class="form-select @error('parent_id') is-invalid @enderror">
+                        <option value="">→ Catégorie racine (niveau principal)</option>
+                        @foreach($parentCategories as $parentCategory)
+                            <option value="{{ $parentCategory->id }}">
+                                {{ $parentCategory->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="form-text">
+                        Laissez vide pour créer une catégorie de niveau principal
+                    </div>
+                    @error('parent_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-6">
+                    <label for="sort_order" class="form-label">
+                        <i class="fas fa-sort-numeric-down me-1"></i>
+                        Ordre d'affichage
+                    </label>
+                    <input wire:model="sort_order" 
+                           type="number" 
+                           class="form-control @error('sort_order') is-invalid @enderror"
+                           min="0"
+                           placeholder="0">
+                    <div class="form-text">
+                        Plus le nombre est petit, plus la catégorie apparaît en premier
+                    </div>
+                    @error('sort_order')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+            
             <div class="mb-3">
                 <label for="slug" class="form-label">Slug</label>
                 <input wire:model="slug" type="text" class="form-control @error('slug') is-invalid @enderror"

@@ -2,6 +2,8 @@
 // STYLES DU MENU LATÉRAL (SIDEBAR)
 // ==========================================================
 
+@use '../variables' as *;
+
 // Structure principale du sidebar
 #sidebar {
     width: $sidebar-width;
@@ -207,4 +209,14 @@
             }
         }
     }
+}
+
+// ==========================================================
+// MASQUAGE TEMPORAIRE DE BOUTONS
+// ==========================================================
+// Pour réactiver, supprimez ou commentez ces règles
+
+// Cacher les boutons marqués comme hidden-menu-item
+.hidden-menu-item {
+    display: none !important;
 }

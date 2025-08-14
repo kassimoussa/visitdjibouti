@@ -1,0 +1,218 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is a Laravel 11 application for managing tourist attractions and events in Djibouti. The project is called "visitdjibouti" and features a multilingual admin panel for managing Points of Interest (POIs), events, categories, and media.
+
+## Development Commands
+
+### Development Environment
+- `composer run dev` - Start full development environment (Laravel server, queue worker, logs, and Vite)
+- `php artisan serve` - Start Laravel development server only
+- `npm run dev` - Start Vite development server for frontend assets
+- `npm run build` - Build production assets
+
+### Database
+- `php artisan migrate` - Run database migrations
+- `php artisan db:seed` - Seed database with initial data
+- `php artisan migrate:fresh --seed` - Fresh migration with seeding
+
+### Code Quality
+- `vendor/bin/pint` - Laravel Pint code formatting (available via composer)
+- `vendor/bin/phpunit` - Run PHPUnit tests
+
+### Cache and Optimization
+- `php artisan config:cache` - Cache configuration
+- `php artisan route:cache` - Cache routes
+- `php artisan view:cache` - Cache views
+- `php artisan optimize:clear` - Clear all caches
+
+## Architecture
+
+### Mobile User Authentication System
+The application features a complete authentication system for mobile app users:
+- **Separate AppUser Model**: Mobile users stored in `app_users` table, isolated from admin users
+- **Laravel Sanctum**: API token authentication for mobile app integration
+- **OAuth Integration**: Google and Facebook social login via Laravel Socialite
+- **Flexible Authentication**: Support for email/password and social authentication
+- **Optional Registration**: Users can browse without accounts, register for event reservations
+- **Multilingual Support**: User preferences for language (French, English, Arabic)
+- **Complete Profile Management**: Full CRUD operations for user profiles
+
+#### Authentication Endpoints
+- **Public Routes**: Register, Login, OAuth flows (`/api/auth/*`)
+- **Protected Routes**: Profile management, password change, account deletion, social account linking
+- **OAuth Flows**: Web callback, mobile token-based authentication
+- **API Structure**: RESTful design with standardized JSON responses
+
+#### Key Files
+- `app/Models/AppUser.php` - Mobile user model with Sanctum authentication
+- `app/Http/Controllers/Api/AuthController.php` - User authentication endpoints
+- `app/Http/Controllers/Api/SocialAuthController.php` - OAuth integration
+- `database/migrations/*_create_app_users_table.php` - Mobile user schema
+- `routes/api.php` - Complete API routes for mobile app
+- `API_DOCUMENTATION.md` - Complete API documentation with 18 endpoints
+
+### Multilingual Content System
+The application implements a custom translation system for content:
+- Main models (Poi, Event, Category, Media) have separate translation tables
+- Translation models: `PoiTranslation`, `EventTranslation`, `CategoryTranslation`, `MediaTranslation`
+- Each translation stores locale-specific content (name, description, etc.)
+- Models have `translation()` method to get content for specific locale
+- Accessor methods like `getNameAttribute()` automatically fetch translated content
+
+### Admin Panel Structure
+- **Authentication**: Custom admin authentication system with `AdminUser` model
+- **Middleware**: `AdminAuth` middleware protects admin routes
+- **Controllers**: Located in `app/Http/Controllers/Admin/`
+- **Livewire Components**: Extensive use of Livewire for interactive admin interfaces in `app/Livewire/Admin/`
+
+### Key Models and Relationships
+- **Poi (Points of Interest)**: Main tourist attraction model with categories, media, and translations
+- **Event**: Event management with registrations and reviews
+- **Category**: Hierarchical categories for organizing content
+- **Media**: File management system with translations for descriptions
+- **AdminUser**: Admin authentication and authorization
+- **AppUser**: Mobile app users with Sanctum authentication
+- **EventRegistration**: Event booking system with payment support
+- **OrganizationInfo**: Tourism organization information with multilingual support
+- **ExternalLink**: External useful links management
+- **Embassy**: Embassy information for both foreign embassies in Djibouti and Djiboutian embassies abroad
+
+### Frontend Technologies
+- **Livewire 3.6**: For reactive components
+- **Bootstrap 5.3**: UI framework
+- **Vite**: Asset bundling
+- **SCSS/Sass**: Styling with custom admin theme
+- **FontAwesome**: Icons
+- **jQuery**: Legacy JavaScript support
+
+### File Storage
+- Media files stored in `storage/app/public/media/images/`
+- Livewire temporary files in `storage/app/livewire-tmp/`
+- Uses Intervention Image package for image processing
+
+### Database
+- **MySQL database** (NOT SQLite)
+- Migrations follow Laravel conventions with timestamps
+- Foreign key constraints with cascade deletes for translations
+
+### Regions
+The application is specifically designed for Djibouti with predefined regions:
+- Djibouti, Ali Sabieh, Dikhil, Tadjourah, Obock, Arta
+
+### Helper Functions
+Global helper functions are autoloaded from `app/Helpers/functions.php` via Composer.
+
+## OAuth Configuration Setup
+
+For Google and Facebook authentication to work, you need to configure OAuth providers:
+
+### Environment Variables
+Add these to your `.env` file:
+
+```env
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Facebook OAuth  
+FACEBOOK_CLIENT_ID=your_facebook_app_id
+FACEBOOK_CLIENT_SECRET=your_facebook_app_secret
+```
+
+### OAuth Provider Setup
+
+#### Google Console Setup
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Enable Google+ API
+4. Create OAuth 2.0 credentials
+5. Add authorized redirect URIs:
+   - `http://your-domain.com/api/auth/google/callback` (development)
+   - `https://your-domain.com/api/auth/google/callback` (production)
+
+#### Facebook Developer Setup
+1. Go to [Facebook Developers](https://developers.facebook.com/)
+2. Create a new app
+3. Add Facebook Login product
+4. Configure Valid OAuth Redirect URIs:
+   - `http://your-domain.com/api/auth/facebook/callback` (development)
+   - `https://your-domain.com/api/auth/facebook/callback` (production)
+
+## Testing
+- PHPUnit configuration in `phpunit.xml`
+- Test files in `tests/Feature/` and `tests/Unit/`
+- Use `vendor/bin/phpunit` to run tests
+
+## Complete Mobile API Implementation
+
+### 18 API Endpoints Available
+The mobile API is fully implemented with comprehensive endpoints:
+
+#### Authentication & User Management (5 endpoints)
+- `POST /api/auth/register` - User registration 
+- `POST /api/auth/login` - User login
+- `GET /api/auth/{provider}/redirect` - OAuth redirect (Google/Facebook)
+- `GET /api/auth/{provider}/callback` - OAuth callback
+- `POST /api/auth/{provider}/token` - Mobile OAuth token authentication
+- Plus protected routes for profile, logout, password change, etc.
+
+#### Points of Interest (4 endpoints)
+- `GET /api/pois` - List POIs with advanced filtering
+- `GET /api/pois/{id|slug}` - POI details
+- `GET /api/pois/category/{id}` - POIs by category
+- `GET /api/pois/nearby` - Nearby POIs with GPS coordinates
+
+#### Events (5 endpoints)
+- `GET /api/events` - List events with filtering
+- `GET /api/events/{id|slug}` - Event details
+- `POST /api/events/{event}/register` - Event registration (public & authenticated)
+- `DELETE /api/events/{event}/registration` - Cancel registration (protected)
+- `GET /api/my-registrations` - User's event registrations (protected)
+
+#### Organization & Links (4 endpoints)
+- `GET /api/organization` - Tourism organization information
+- `GET /api/external-links` - External useful links
+- `GET /api/external-links/{id}` - Link details
+- `GET /api/embassies` - Embassy listings with advanced features
+
+### Key Features Implemented
+- **Complete OAuth Integration**: Google & Facebook login with Laravel Socialite
+- **Event Reservation System**: Full booking system with guest and authenticated user support
+- **Multilingual API**: All endpoints support Accept-Language header (fr, en, ar)
+- **Geolocation Support**: Nearby POIs and embassies with GPS coordinates
+- **Advanced Filtering**: Search, categories, dates, regions, status filters
+- **Comprehensive Documentation**: API_DOCUMENTATION.md with examples and cURL commands
+
+### Mobile App Ready Features
+- Optional user accounts (browse without registration)
+- Event bookings for registered users
+- Social login integration
+- Complete tourism information (POIs, events, embassies, organization)
+- Multilingual content with automatic fallback
+- GPS-based nearby searches
+- Standardized JSON responses with error handling
+
+## Key Files to Check When Working on Features
+
+### Admin Interface
+- Routes: `routes/web.php` (all admin routes are here)
+- Models with relationships: `app/Models/`
+- Livewire components for admin interface: `app/Livewire/Admin/`
+- Views for Livewire: `resources/views/livewire/admin/`
+
+### Mobile API
+- API Routes: `routes/api.php` - All 18 endpoints organized by feature
+- API Controllers: `app/Http/Controllers/Api/` - AuthController, PoiController, EventController, etc.
+- Models: Support for both admin and mobile user authentication
+- Documentation: `API_DOCUMENTATION.md` - Complete reference with examples
+
+### Key Implementation Notes
+- All API endpoints follow RESTful design patterns
+- Consistent error handling and response format across all endpoints
+- EventRegistration model updated to work with AppUser instead of User
+- OAuth fully configured and ready for production use
+- Complete translation system integration for all API responses

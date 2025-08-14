@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(find:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(php artisan make:migration create_organization_info_table)",
+      "Bash(rm:*)",
+      "Bash(php artisan make:migration:*)"
     ],
     "deny": []
   }

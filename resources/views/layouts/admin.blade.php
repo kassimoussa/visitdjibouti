@@ -226,8 +226,8 @@
                                 <span>Catégories</span>
                             </a>
                         </li>
-                        <li class="{{ request()->is('news*') ? 'active' : '' }}">
-                            <a href="#" class="coming-soon-link" data-feature="Actualités" data-icon="fas fa-newspaper" data-bs-toggle="tooltip" data-bs-placement="right"
+                        <li class="{{ request()->is('news*') ? 'active' : '' }} hidden-menu-item" data-menu="news">
+                            <a href="{{ route('news.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Actualités">
                                 <i class="fas fa-newspaper"></i>
                                 <span>Actualités</span>
@@ -238,6 +238,13 @@
                                 title="Médias">
                                 <i class="fas fa-photo-video"></i>
                                 <span>Médias</span>
+                            </a>
+                        </li>
+                        <li class="{{ request()->is('external-links*') ? 'active' : '' }} hidden-menu-item" data-menu="external-links">
+                            <a href="{{ route('external-links.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Liens externes">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Liens externes</span>
                             </a>
                         </li>
                     </ul>
@@ -260,7 +267,7 @@
                     <div class="menu-section-title">ADMINISTRATION</div>
                     <ul class="list-unstyled components">
                         <li class="{{ request()->is('users*') ? 'active' : '' }}">
-                            <a href="#" class="coming-soon-link" data-feature="Utilisateurs" data-icon="fas fa-users" data-bs-toggle="tooltip" data-bs-placement="right"
+                            <a href="{{ route('users.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Utilisateurs">
                                 <i class="fas fa-users"></i>
                                 <span>Utilisateurs</span>
@@ -274,7 +281,7 @@
                             </a>
                         </li>
                         <li class="{{ request()->is('settings*') ? 'active' : '' }}">
-                            <a href="#" class="coming-soon-link" data-feature="Paramètres" data-icon="fas fa-cog" data-bs-toggle="tooltip" data-bs-placement="right"
+                            <a href="{{ route('settings.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Paramètres">
                                 <i class="fas fa-cog"></i>
                                 <span>Paramètres</span>

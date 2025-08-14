@@ -2,6 +2,8 @@
 // STYLES DU CONTENU PRINCIPAL
 // ==========================================================
 
+@use '../variables' as *;
+
 // Conteneur principal
 #content-container {
     flex: 1;
