@@ -17,7 +17,8 @@ class PoiList extends Component
     // Filtres
     public $search = '';
     public $status = '';
-    public $category = '';
+    public $parentCategory = ''; // Catégorie parente
+    public $subcategory = ''; // Sous-catégorie
     public $region = '';
     public $view = 'list'; // 'list' ou 'map'
     public $currentLocale = ''; // Langue courante pour l'affichage des POIs
@@ -63,7 +64,14 @@ class PoiList extends Component
         $this->resetPage();
     }
     
-    public function updatedCategory()
+    public function updatedParentCategory()
+    {
+        $this->resetPage();
+        // Réinitialiser la sous-catégorie quand on change de catégorie parent
+        $this->subcategory = '';
+    }
+    
+    public function updatedSubcategory()
     {
         $this->resetPage();
     }
@@ -136,19 +144,29 @@ class PoiList extends Component
     public function render()
     {
         // Récupérer les catégories avec leurs traductions
-        // et les trier par nom dans la langue courante
         $fallbackLocale = config('app.fallback_locale', 'fr');
         $locale = $this->currentLocale ?: app()->getLocale();
         
-        // Si les catégories ont également un système multilingue similaire
-        $categories = Category::with(['translations' => function($query) use ($locale, $fallbackLocale) {
+        // Catégories principales (parents seulement)
+        $parentCategories = Category::with(['translations' => function($query) use ($locale, $fallbackLocale) {
             $query->where('locale', $locale)
                   ->orWhere('locale', $fallbackLocale);
-        }])->get()->sortBy(function($category) use ($locale, $fallbackLocale) {
-            // Récupérer la traduction dans la langue courante ou dans la langue par défaut
+        }])->whereNull('parent_id')->get()->sortBy(function($category) use ($locale, $fallbackLocale) {
             $translation = $category->translation($locale);
             return $translation ? $translation->name : '';
         });
+        
+        // Sous-catégories basées sur la catégorie parent sélectionnée
+        $subcategories = collect();
+        if ($this->parentCategory) {
+            $subcategories = Category::with(['translations' => function($query) use ($locale, $fallbackLocale) {
+                $query->where('locale', $locale)
+                      ->orWhere('locale', $fallbackLocale);
+            }])->where('parent_id', $this->parentCategory)->get()->sortBy(function($category) use ($locale, $fallbackLocale) {
+                $translation = $category->translation($locale);
+                return $translation ? $translation->name : '';
+            });
+        }
         
         $regions = $this->getRegionsList();
         $availableLocales = ['fr', 'en', 'ar']; // Langues disponibles dans votre application
@@ -169,9 +187,17 @@ class PoiList extends Component
             $query->where('status', $this->status);
         }
         
-        if ($this->category) {
+        // Filtrage par catégorie parent
+        if ($this->parentCategory) {
             $query->whereHas('categories', function ($q) {
-                $q->where('categories.id', $this->category);
+                $q->where('categories.id', $this->parentCategory);
+            });
+        }
+        
+        // Filtrage par sous-catégorie
+        if ($this->subcategory) {
+            $query->whereHas('categories', function ($q) {
+                $q->where('categories.id', $this->subcategory);
             });
         }
         
@@ -187,7 +213,8 @@ class PoiList extends Component
         
         return view('livewire.admin.poi.poi-list', [
             'pois' => $pois,
-            'categories' => $categories,
+            'parentCategories' => $parentCategories,
+            'subcategories' => $subcategories,
             'regions' => $regions,
             'availableLocales' => $availableLocales,
             'currentLocale' => $this->currentLocale,

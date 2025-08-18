@@ -5,15 +5,11 @@ namespace App\Livewire\Admin;
 use App\Models\Media;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\WithFileUploads;
 use Livewire\Attributes\On;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 
 class MediaSelectorModal extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination;
 
     // Configuration du modal
     public $isOpen = false;
@@ -23,14 +19,10 @@ class MediaSelectorModal extends Component
     
     // Filtres et recherche
     public $search = '';
-    public $typeFilter = 'images';
+    public $typeFilter = 'all';
     public $sortBy = 'created_at';
     public $sortDirection = 'desc';
     
-    // Upload
-    public $showUploadArea = false;
-    public $uploadFiles = [];
-    public $isUploading = false;
     
     // Pagination
     public $perPage = 20;
@@ -39,15 +31,6 @@ class MediaSelectorModal extends Component
     public $previewImage = null;
     public $showPreview = false;
 
-    protected $rules = [
-        'uploadFiles.*' => 'image|max:10240|mimes:jpeg,png,jpg,gif,webp',
-    ];
-    
-    protected $messages = [
-        'uploadFiles.*.image' => 'Le fichier doit être une image.',
-        'uploadFiles.*.max' => 'Le fichier ne doit pas dépasser 10 MB.',
-        'uploadFiles.*.mimes' => 'Le fichier doit être au format: jpeg, png, jpg, gif, webp.',
-    ];
 
     protected $listeners = ['openMediaSelector', 'closeMediaSelector'];
 
@@ -84,7 +67,7 @@ class MediaSelectorModal extends Component
     public function closeModal()
     {
         $this->isOpen = false;
-        $this->reset(['search', 'typeFilter', 'selectedImages', 'showUploadArea', 'uploadFiles', 'showPreview', 'previewImage']);
+        $this->reset(['search', 'typeFilter', 'selectedImages', 'showPreview', 'previewImage']);
         $this->dispatch('modal-closed');
     }
 
@@ -150,209 +133,6 @@ class MediaSelectorModal extends Component
         $this->previewImage = null;
     }
 
-    /**
-     * Basculer la zone d'upload
-     */
-    public function toggleUploadArea()
-    {
-        $this->showUploadArea = !$this->showUploadArea;
-        if (!$this->showUploadArea) {
-            $this->uploadFiles = [];
-        }
-    }
-
-    /**
-     * Upload de nouveaux fichiers
-     */
-    public function uploadFiles()
-    {
-        \Log::info('Upload files called', [
-            'uploadFiles_type' => gettype($this->uploadFiles),
-            'uploadFiles_count' => is_array($this->uploadFiles) ? count($this->uploadFiles) : 0,
-            'uploadFiles_empty' => empty($this->uploadFiles)
-        ]);
-
-        // Vérifier la présence de fichiers
-        if (!$this->uploadFiles || !is_array($this->uploadFiles) || count($this->uploadFiles) === 0) {
-            session()->flash('warning', 'Aucun fichier sélectionné. Veuillez sélectionner des fichiers avant d\'uploader.');
-            return;
-        }
-
-        // Validation des fichiers
-        try {
-            $this->validate();
-        } catch (\Exception $e) {
-            session()->flash('error', 'Erreur de validation: ' . $e->getMessage());
-            \Log::error('Validation error:', ['error' => $e->getMessage()]);
-            return;
-        }
-        
-        $this->isUploading = true;
-        $uploadedIds = [];
-        $errors = [];
-
-        try {
-            foreach ($this->uploadFiles as $index => $file) {
-                try {
-                    \Log::info('Processing file', [
-                        'index' => $index,
-                        'original_name' => $file ? $file->getClientOriginalName() : 'null',
-                        'size' => $file ? $file->getSize() : 'null'
-                    ]);
-                    
-                    if (!$file) {
-                        $errors[] = "Fichier à l'index {$index} est null";
-                        continue;
-                    }
-                    
-                    $media = $this->createMediaFromFile($file);
-                    $uploadedIds[] = $media->id;
-                    \Log::info('File uploaded successfully', ['media_id' => $media->id]);
-                } catch (\Exception $e) {
-                    $filename = $file ? $file->getClientOriginalName() : "fichier_{$index}";
-                    $errors[] = "Erreur avec {$filename}: {$e->getMessage()}";
-                    \Log::error('Erreur upload fichier: ' . $e->getMessage(), [
-                        'file' => $filename,
-                        'index' => $index
-                    ]);
-                }
-            }
-
-            if (count($uploadedIds) > 0) {
-                // Sélectionner automatiquement les images uploadées
-                if ($this->selectionMode === 'single' && count($uploadedIds) > 0) {
-                    $this->selectedImages = [end($uploadedIds)];
-                } else {
-                    $this->selectedImages = array_unique(array_merge($this->selectedImages, $uploadedIds));
-                }
-
-                $this->reset(['uploadFiles', 'showUploadArea']);
-                $this->dispatch('media-uploaded', count($uploadedIds));
-                
-                $message = count($uploadedIds) . ' fichier(s) uploadé(s) avec succès.';
-                if (!empty($errors)) {
-                    $message .= ' Erreurs: ' . implode(', ', $errors);
-                }
-                session()->flash('success', $message);
-                
-                // Recharger la liste des médias
-                $this->resetPage();
-            } else {
-                session()->flash('error', 'Aucun fichier n\'a pu être uploadé. ' . implode(', ', $errors));
-            }
-
-        } catch (\Exception $e) {
-            session()->flash('error', 'Erreur générale lors de l\'upload: ' . $e->getMessage());
-            \Log::error('Erreur upload générale: ' . $e->getMessage());
-        } finally {
-            $this->isUploading = false;
-        }
-    }
-
-    /**
-     * Supprimer un fichier de la liste d'upload
-     */
-    public function removeUploadFile($index)
-    {
-        if (isset($this->uploadFiles[$index])) {
-            unset($this->uploadFiles[$index]);
-            $this->uploadFiles = array_values($this->uploadFiles);
-        }
-    }
-
-    /**
-     * Créer un média à partir d'un fichier
-     */
-    private function createMediaFromFile($file)
-    {
-        $originalName = $file->getClientOriginalName();
-        $extension = $file->getClientOriginalExtension();
-        $filename = time() . '_' . rand(1000, 9999) . '.' . $extension;
-        
-        // Créer le dossier s'il n'existe pas
-        $uploadPath = 'media/images';
-        if (!Storage::disk('public')->exists($uploadPath)) {
-            Storage::disk('public')->makeDirectory($uploadPath);
-        }
-        
-        // Stocker le fichier original
-        $path = $file->storeAs($uploadPath, $filename, 'public');
-        
-        // Créer une miniature
-        $thumbnailPath = $this->createThumbnail($file, $filename);
-        
-        // Créer l'enregistrement en base
-        $media = Media::create([
-            'filename' => $filename,
-            'original_name' => $originalName,
-            'mime_type' => $file->getMimeType(),
-            'size' => $file->getSize(),
-            'path' => 'storage/' . $path,
-            'thumbnail_path' => $thumbnailPath,
-            'type' => 'images',
-        ]);
-
-        // Créer les traductions par défaut
-        foreach (['fr', 'en', 'ar'] as $locale) {
-            $media->translations()->create([
-                'locale' => $locale,
-                'title' => pathinfo($originalName, PATHINFO_FILENAME),
-                'alt_text' => pathinfo($originalName, PATHINFO_FILENAME),
-                'description' => null,
-            ]);
-        }
-
-        return $media;
-    }
-
-    /**
-     * Créer une miniature
-     */
-    private function createThumbnail($file, $filename)
-    {
-        try {
-            // Vérifier si c'est une image
-            if (!str_starts_with($file->getMimeType(), 'image/')) {
-                return null;
-            }
-            
-            $manager = new ImageManager(new Driver());
-            $image = $manager->read($file->getPathname());
-            
-            // Redimensionner en conservant les proportions
-            $image->scale(300, 300);
-            
-            $thumbnailName = 'thumb_' . $filename;
-            $thumbnailDir = storage_path('app/public/media/images');
-            
-            // Créer le dossier s'il n'existe pas
-            if (!file_exists($thumbnailDir)) {
-                mkdir($thumbnailDir, 0755, true);
-            }
-            
-            $thumbnailPath = $thumbnailDir . '/' . $thumbnailName;
-            $image->save($thumbnailPath);
-            
-            return 'storage/media/images/' . $thumbnailName;
-        } catch (\Exception $e) {
-            \Log::error('Erreur création miniature: ' . $e->getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Changer le tri
-     */
-    public function sortBy($field)
-    {
-        if ($this->sortBy === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortBy = $field;
-            $this->sortDirection = 'desc';
-        }
-        $this->resetPage();
-    }
 
     /**
      * Construire la requête des médias
@@ -367,7 +147,22 @@ class MediaSelectorModal extends Component
 
         // Filtrer par type
         if ($this->typeFilter !== 'all') {
-            $query->where('type', $this->typeFilter);
+            // Support des deux formats (pluriel et singulier)
+            if ($this->typeFilter === 'images') {
+                $query->where(function($q) {
+                    $q->where('type', 'images')->orWhere('type', 'image');
+                });
+            } elseif ($this->typeFilter === 'documents') {
+                $query->where(function($q) {
+                    $q->where('type', 'documents')->orWhere('type', 'document');
+                });
+            } elseif ($this->typeFilter === 'videos') {
+                $query->where(function($q) {
+                    $q->where('type', 'videos')->orWhere('type', 'video');
+                });
+            } else {
+                $query->where('type', $this->typeFilter);
+            }
         }
 
         // Recherche
@@ -377,90 +172,39 @@ class MediaSelectorModal extends Component
                   ->orWhere('filename', 'like', '%' . $this->search . '%')
                   ->orWhereHas('translations', function($tq) {
                       $tq->where('title', 'like', '%' . $this->search . '%')
-                         ->orWhere('description', 'like', '%' . $this->search . '%');
+                        ->orWhere('description', 'like', '%' . $this->search . '%')
+                        ->orWhere('alt_text', 'like', '%' . $this->search . '%');
                   });
             });
         }
 
         // Tri
-        $query->orderBy($this->sortBy, $this->sortDirection);
+        switch ($this->sortBy) {
+            case 'original_name':
+                $query->orderBy('original_name', $this->sortDirection);
+                break;
+            case 'size':
+                $query->orderBy('size', $this->sortDirection);
+                break;
+            default:
+                $query->orderBy('created_at', $this->sortDirection);
+        }
 
         return $query;
     }
 
     /**
-     * Formater la taille des fichiers
+     * Formater la taille de fichier
      */
-    public function formatFileSize($size)
+    public function formatFileSize($bytes)
     {
         $units = ['B', 'KB', 'MB', 'GB'];
         $unit = 0;
-        while ($size >= 1024 && $unit < count($units) - 1) {
-            $size /= 1024;
+        while ($bytes >= 1024 && $unit < count($units) - 1) {
+            $bytes /= 1024;
             $unit++;
         }
-        return round($size, 1) . ' ' . $units[$unit];
-    }
-
-    /**
-     * Vérifier la configuration
-     */
-    public function checkConfiguration()
-    {
-        $checks = [
-            'storage_linked' => is_link(public_path('storage')),
-            'upload_dir_writable' => is_writable(storage_path('app/public')),
-            'media_dir_exists' => Storage::disk('public')->exists('media'),
-            'media_images_dir_exists' => Storage::disk('public')->exists('media/images'),
-        ];
-        
-        \Log::info('Configuration check:', $checks);
-        return $checks;
-    }
-
-    /**
-     * Test d'upload simple
-     */
-    public function testUpload()
-    {
-        try {
-            $this->checkConfiguration();
-            
-            // Créer les dossiers nécessaires
-            if (!Storage::disk('public')->exists('media/images')) {
-                Storage::disk('public')->makeDirectory('media/images');
-            }
-            
-            // Tester l'état des fichiers uploadés
-            $uploadInfo = [
-                'uploadFiles_count' => is_array($this->uploadFiles) ? count($this->uploadFiles) : 0,
-                'uploadFiles_type' => gettype($this->uploadFiles),
-                'uploadFiles_empty' => empty($this->uploadFiles),
-            ];
-            
-            \Log::info('Upload files state:', $uploadInfo);
-            
-            session()->flash('success', 'Test de configuration réussi. Files: ' . json_encode($uploadInfo));
-        } catch (\Exception $e) {
-            session()->flash('error', 'Erreur de configuration: ' . $e->getMessage());
-            \Log::error('Erreur test upload: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Debug de l'état des fichiers
-     */
-    public function debugUploadFiles()
-    {
-        $debug = [
-            'uploadFiles' => $this->uploadFiles,
-            'count' => is_array($this->uploadFiles) ? count($this->uploadFiles) : 0,
-            'type' => gettype($this->uploadFiles),
-            'empty' => empty($this->uploadFiles),
-        ];
-        
-        \Log::info('Debug upload files:', $debug);
-        session()->flash('info', 'Debug info logged. Count: ' . (is_array($this->uploadFiles) ? count($this->uploadFiles) : 0));
+        return round($bytes, 1) . ' ' . $units[$unit];
     }
 
     /**
@@ -472,9 +216,9 @@ class MediaSelectorModal extends Component
         
         $stats = [
             'total' => Media::count(),
-            'images' => Media::where('type', 'images')->count(),
-            'documents' => Media::where('type', 'documents')->count(),
-            'videos' => Media::where('type', 'videos')->count(),
+            'images' => Media::where('type', 'images')->count() + Media::where('type', 'image')->count(),
+            'documents' => Media::where('type', 'documents')->count() + Media::where('type', 'document')->count(),
+            'videos' => Media::where('type', 'videos')->count() + Media::where('type', 'video')->count(),
         ];
 
         return view('livewire.admin.media-selector-modal', [

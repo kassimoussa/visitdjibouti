@@ -1,5 +1,7 @@
 # 📱 API Documentation - Visit Djibouti Mobile App
 
+**Complete API with 25 endpoints** for mobile tourism application with authentication, POIs, events, favorites, and organization management.
+
 ## 🔐 Authentication Endpoints
 
 ### Base URL
@@ -462,6 +464,8 @@ curl -X GET http://localhost/api/embassies/type/foreign_in_djibouti \
             "slug": "sites-naturels"
           }
         ],
+        "favorites_count": 23,
+        "is_favorited": true,
         "created_at": "2024-08-12T10:00:00Z",
         "updated_at": "2024-08-12T10:00:00Z"
       }
@@ -820,6 +824,273 @@ curl -X GET http://localhost/api/embassies/type/foreign_in_djibouti \
     "pagination": { /* pagination object */ }
   }
 }
+```
+
+---
+
+## ❤️ Favorites Management
+
+### 📋 Get All User Favorites
+**GET** `/favorites` 🔐
+
+Retrieve all user's favorites (POIs and Events) with full details.
+
+**Headers:**
+- `Authorization: Bearer {token}` (Required)
+- `Accept-Language` - Language code (fr, en, ar)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "favorites": [
+      {
+        "id": 1,
+        "type": "Poi",
+        "slug": "lac-assal",
+        "name": "Lac Assal",
+        "description": "Le point le plus bas d'Afrique...",
+        "short_description": "Un lac salé exceptionnel",
+        "featured_image": {
+          "id": 5,
+          "url": "https://domain.com/storage/media/images/lac-assal.jpg",
+          "thumbnail_url": "https://domain.com/storage/media/images/thumbs/lac-assal.jpg",
+          "alt_text": "Vue du Lac Assal"
+        },
+        "categories": [
+          {
+            "id": 2,
+            "name": "Sites Naturels",
+            "color": "#22c55e",
+            "icon": "fas fa-mountain"
+          }
+        ],
+        "region": "Tadjourah",
+        "address": "Route du Lac Assal",
+        "latitude": 11.6560,
+        "longitude": 42.4065,
+        "favorited_at": "2024-08-17T14:30:00Z"
+      },
+      {
+        "id": 3,
+        "type": "Event",
+        "slug": "festival-nomade",
+        "name": "Festival Nomade",
+        "description": "Festival célébrant la culture nomade...",
+        "short_description": "Célébration de la culture nomade",
+        "start_date": "2024-09-15T00:00:00Z",
+        "end_date": "2024-09-17T23:59:59Z",
+        "location": "Tadjourah",
+        "price": 2500,
+        "organizer": "Office National du Tourisme",
+        "favorited_at": "2024-08-17T10:15:00Z"
+      }
+    ],
+    "total": 2,
+    "pois_count": 1,
+    "events_count": 1
+  }
+}
+```
+
+### 🏛️ Get User's Favorite POIs
+**GET** `/favorites/pois` 🔐
+
+Get only the user's favorite POIs with complete details.
+
+**Headers:**
+- `Authorization: Bearer {token}` (Required)
+- `Accept-Language` - Language code (fr, en, ar)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "pois": [
+      {
+        "id": 1,
+        "slug": "lac-assal",
+        "name": "Lac Assal",
+        "description": "Le point le plus bas d'Afrique...",
+        "short_description": "Un lac salé exceptionnel",
+        "address": "Route du Lac Assal",
+        "region": "Tadjourah",
+        "latitude": 11.6560,
+        "longitude": 42.4065,
+        "is_featured": true,
+        "featured_image": {
+          "id": 5,
+          "url": "https://domain.com/storage/media/images/lac-assal.jpg",
+          "thumbnail_url": "https://domain.com/storage/media/images/thumbs/lac-assal.jpg"
+        },
+        "categories": [
+          {
+            "id": 2,
+            "name": "Sites Naturels",
+            "color": "#22c55e",
+            "icon": "fas fa-mountain"
+          }
+        ],
+        "favorites_count": 23,
+        "is_favorited": true,
+        "favorited_at": "2024-08-17T14:30:00Z"
+      }
+    ],
+    "total": 1
+  }
+}
+```
+
+### ➕ Add POI to Favorites (Toggle)
+**POST** `/favorites/pois/{poi}` 🔐
+
+Add or remove a POI from user's favorites. This endpoint toggles the favorite status.
+
+**Headers:**
+- `Authorization: Bearer {token}` (Required)
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Point d'intérêt ajouté aux favoris",
+  "data": {
+    "is_favorited": true,
+    "action": "added",
+    "favorites_count": 24
+  }
+}
+```
+
+**If already favorited:**
+```json
+{
+  "success": true,
+  "message": "Point d'intérêt retiré des favoris",
+  "data": {
+    "is_favorited": false,
+    "action": "removed",
+    "favorites_count": 22
+  }
+}
+```
+
+### ❌ Remove POI from Favorites
+**DELETE** `/favorites/pois/{poi}` 🔐
+
+Explicitly remove a POI from user's favorites.
+
+**Headers:**
+- `Authorization: Bearer {token}` (Required)
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Point d'intérêt retiré des favoris",
+  "data": {
+    "is_favorited": false,
+    "removed": true,
+    "favorites_count": 22
+  }
+}
+```
+
+### 🎉 Add Event to Favorites (Toggle)
+**POST** `/favorites/events/{event}` 🔐
+
+Add or remove an Event from user's favorites. This endpoint toggles the favorite status.
+
+**Headers:**
+- `Authorization: Bearer {token}` (Required)
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Événement ajouté aux favoris",
+  "data": {
+    "is_favorited": true,
+    "action": "added"
+  }
+}
+```
+
+### ❌ Remove Event from Favorites
+**DELETE** `/favorites/events/{event}` 🔐
+
+Explicitly remove an Event from user's favorites.
+
+**Headers:**
+- `Authorization: Bearer {token}` (Required)
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Événement retiré des favoris",
+  "data": {
+    "is_favorited": false,
+    "removed": true
+  }
+}
+```
+
+### 📊 Get Favorites Statistics
+**GET** `/favorites/stats` 🔐
+
+Get statistics about user's favorites.
+
+**Headers:**
+- `Authorization: Bearer {token}` (Required)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_favorites": 15,
+    "pois_count": 8,
+    "events_count": 7,
+    "recent_favorites": [
+      {
+        "id": 1,
+        "type": "Poi",
+        "name": "Lac Assal",
+        "favorited_at": "2024-08-17T14:30:00Z"
+      },
+      {
+        "id": 3,
+        "type": "Event",
+        "name": "Festival Nomade",
+        "favorited_at": "2024-08-17T10:15:00Z"
+      }
+    ]
+  }
+}
+```
+
+**cURL Examples:**
+
+```bash
+# Get all favorites
+curl -X GET "http://your-domain.com/api/favorites" \
+  -H "Authorization: Bearer your_token" \
+  -H "Accept-Language: fr"
+
+# Add POI to favorites
+curl -X POST "http://your-domain.com/api/favorites/pois/1" \
+  -H "Authorization: Bearer your_token"
+
+# Remove POI from favorites
+curl -X DELETE "http://your-domain.com/api/favorites/pois/1" \
+  -H "Authorization: Bearer your_token"
+
+# Get favorites statistics
+curl -X GET "http://your-domain.com/api/favorites/stats" \
+  -H "Authorization: Bearer your_token"
 ```
 
 ---

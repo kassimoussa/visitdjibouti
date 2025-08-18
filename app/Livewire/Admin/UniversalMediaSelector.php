@@ -89,11 +89,15 @@ class UniversalMediaSelector extends Component
      */
     public function getRules()
     {
+        \Log::info('getRules called');
+        \Log::info('allowedMimeTypes: ' . json_encode($this->allowedMimeTypes));
+        \Log::info('maxFileSize: ' . $this->maxFileSize);
+        
         $mimeTypes = !empty($this->allowedMimeTypes) 
             ? implode(',', $this->allowedMimeTypes)
             : 'jpeg,png,jpg,gif,webp,mp4,mov,avi,mp3,wav,pdf,doc,docx';
 
-        return [
+        $rules = [
             'uploadFiles.*' => [
                 'required',
                 'file',
@@ -101,6 +105,9 @@ class UniversalMediaSelector extends Component
                 'mimes:' . $mimeTypes
             ]
         ];
+        
+        \Log::info('Validation rules: ' . json_encode($rules));
+        return $rules;
     }
 
     /**
@@ -305,14 +312,40 @@ class UniversalMediaSelector extends Component
     }
 
     /**
+     * Méthode de test pour vérifier si Livewire fonctionne
+     */
+    public function testUpload()
+    {
+        \Log::info('TEST: testUpload method called');
+        
+        // Test de sélection d'un média fictif
+        $this->selectedMedia = [999]; // ID fictif
+        $this->selectionCount = 1;
+        $this->currentTab = 'library';
+        
+        $this->showSuccess('Test réussi ! Livewire fonctionne. Média fictif sélectionné.');
+    }
+
+    /**
      * Upload de fichiers
      */
     public function uploadFiles()
     {
-        $this->validate();
+        \Log::info('UniversalMediaSelector: uploadFiles() called');
+        \Log::info('Upload files count: ' . count($this->uploadFiles ?? []));
         
+        // Test immédiat
         if (empty($this->uploadFiles)) {
-            $this->showError('Aucun fichier sélectionné');
+            \Log::warning('No files to upload');
+            $this->showError('Aucun fichier sélectionné pour l\'upload');
+            return;
+        }
+        
+        try {
+            $this->validate();
+        } catch (\Exception $e) {
+            \Log::error('Validation failed: ' . $e->getMessage());
+            $this->showError('Erreur de validation : ' . $e->getMessage());
             return;
         }
 
@@ -323,26 +356,35 @@ class UniversalMediaSelector extends Component
 
         foreach ($this->uploadFiles as $index => $file) {
             try {
+                \Log::info('Processing file: ' . $file->getClientOriginalName());
                 $this->uploadProgress[$index] = 0;
                 
                 // Créer le média
                 $media = $this->createMediaFromFile($file);
                 
                 if ($media) {
+                    \Log::info('Media created successfully with ID: ' . $media->id);
                     $uploadedIds[] = $media->id;
                     $this->uploadSuccess[] = [
                         'name' => $file->getClientOriginalName(),
                         'id' => $media->id
                     ];
                     $this->uploadProgress[$index] = 100;
+                } else {
+                    \Log::error('Failed to create media for file: ' . $file->getClientOriginalName());
+                    $this->uploadErrors[] = [
+                        'name' => $file->getClientOriginalName(),
+                        'error' => 'Échec de la création du média'
+                    ];
                 }
                 
             } catch (\Exception $e) {
+                \Log::error('Upload error for file ' . $file->getClientOriginalName() . ': ' . $e->getMessage());
+                \Log::error('Stack trace: ' . $e->getTraceAsString());
                 $this->uploadErrors[] = [
                     'name' => $file->getClientOriginalName(),
                     'error' => $e->getMessage()
                 ];
-                \Log::error('Upload error: ' . $e->getMessage());
             }
         }
 
@@ -449,10 +491,14 @@ class UniversalMediaSelector extends Component
      */
     private function createMediaFromFile($file)
     {
+        \Log::info('createMediaFromFile called');
+        
         $originalName = $file->getClientOriginalName();
         $extension = $file->getClientOriginalExtension();
         $mimeType = $file->getMimeType();
         $size = $file->getSize();
+        
+        \Log::info("File details: name={$originalName}, ext={$extension}, mime={$mimeType}, size={$size}");
         
         return $this->createMediaFromPath($file->getPathname(), $originalName, $size, $extension, $mimeType);
     }
@@ -462,6 +508,9 @@ class UniversalMediaSelector extends Component
      */
     private function createMediaFromPath($filepath, $originalName, $size, $extension = null, $mimeType = null)
     {
+        \Log::info('createMediaFromPath called');
+        \Log::info("Parameters: filepath={$filepath}, originalName={$originalName}, size={$size}");
+        
         if (!$extension) {
             $extension = pathinfo($originalName, PATHINFO_EXTENSION);
         }
@@ -471,21 +520,30 @@ class UniversalMediaSelector extends Component
             $mimeType = $finfo->file($filepath);
         }
 
+        \Log::info("Final details: extension={$extension}, mimeType={$mimeType}");
+
         // Générer un nom de fichier unique
         $filename = time() . '_' . Str::random(10) . '.' . $extension;
         
         // Déterminer le type de média
         $type = $this->getMediaType($mimeType);
+        \Log::info("Media type determined: {$type}");
         
         // Créer le dossier de destination
         $uploadPath = 'media/' . $type . 's';
+        \Log::info("Upload path: {$uploadPath}");
+        
         if (!Storage::disk('public')->exists($uploadPath)) {
+            \Log::info("Creating directory: {$uploadPath}");
             Storage::disk('public')->makeDirectory($uploadPath, 0755, true);
         }
         
         // Copier le fichier
         $storagePath = $uploadPath . '/' . $filename;
+        \Log::info("Storing file to: {$storagePath}");
+        
         Storage::disk('public')->put($storagePath, file_get_contents($filepath));
+        \Log::info("File stored successfully");
         
         // Créer une miniature pour les images
         $thumbnailPath = null;
@@ -493,15 +551,19 @@ class UniversalMediaSelector extends Component
         
         if ($type === 'image') {
             try {
+                \Log::info("Creating thumbnail for image");
                 $dimensions = $this->getImageDimensions($filepath);
                 $thumbnailPath = $this->createThumbnail($filepath, $filename, $type);
+                \Log::info("Thumbnail created: {$thumbnailPath}");
             } catch (\Exception $e) {
                 \Log::warning('Thumbnail creation failed: ' . $e->getMessage());
             }
         }
         
         // Créer l'enregistrement en base
-        $media = Media::create([
+        \Log::info("Creating Media record in database");
+        
+        $mediaData = [
             'filename' => $filename,
             'original_name' => $originalName,
             'path' => 'storage/' . $storagePath,
@@ -511,9 +573,15 @@ class UniversalMediaSelector extends Component
             'size' => $size,
             'dimensions' => $dimensions,
             'is_optimized' => $type === 'image',
-        ]);
+        ];
+        
+        \Log::info("Media data: " . json_encode($mediaData));
+        
+        $media = Media::create($mediaData);
+        \Log::info("Media created with ID: " . $media->id);
 
         // Créer les traductions par défaut
+        \Log::info("Creating translations");
         foreach (['fr', 'en', 'ar'] as $locale) {
             $media->translations()->create([
                 'locale' => $locale,
@@ -522,6 +590,7 @@ class UniversalMediaSelector extends Component
                 'description' => null,
             ]);
         }
+        \Log::info("Translations created");
 
         return $media;
     }

@@ -7,6 +7,7 @@ use App\Models\Poi;
 use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PoiController extends Controller
@@ -79,8 +80,9 @@ class PoiController extends Controller
             $pois = $query->paginate($perPage);
 
             // Transform data
-            $transformedPois = $pois->getCollection()->map(function ($poi) use ($request) {
-                return $this->transformPoi($poi, $request->header('Accept-Language', 'fr'));
+            $user = Auth::guard('sanctum')->user();
+            $transformedPois = $pois->getCollection()->map(function ($poi) use ($request, $user) {
+                return $this->transformPoi($poi, $request->header('Accept-Language', 'fr'), $user);
             });
 
             return response()->json([
@@ -138,11 +140,12 @@ class PoiController extends Controller
             }
 
             $locale = $request->header('Accept-Language', 'fr');
+            $user = Auth::guard('sanctum')->user();
             
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'poi' => $this->transformPoiDetailed($poi, $locale)
+                    'poi' => $this->transformPoiDetailed($poi, $locale, $user)
                 ]
             ]);
 
@@ -180,8 +183,9 @@ class PoiController extends Controller
             $pois = $query->paginate($perPage);
 
             $locale = $request->header('Accept-Language', 'fr');
-            $transformedPois = $pois->getCollection()->map(function ($poi) use ($locale) {
-                return $this->transformPoi($poi, $locale);
+            $user = Auth::guard('sanctum')->user();
+            $transformedPois = $pois->getCollection()->map(function ($poi) use ($locale, $user) {
+                return $this->transformPoi($poi, $locale, $user);
             });
 
             return response()->json([
@@ -242,8 +246,9 @@ class PoiController extends Controller
             $pois = $query->limit($limit)->get();
 
             $locale = $request->header('Accept-Language', 'fr');
-            $transformedPois = $pois->map(function ($poi) use ($locale) {
-                $transformed = $this->transformPoi($poi, $locale);
+            $user = Auth::guard('sanctum')->user();
+            $transformedPois = $pois->map(function ($poi) use ($locale, $user) {
+                $transformed = $this->transformPoi($poi, $locale, $user);
                 $transformed['distance'] = round($poi->distance, 2); // Distance in km
                 return $transformed;
             });
@@ -273,7 +278,7 @@ class PoiController extends Controller
     /**
      * Transform POI for list view
      */
-    private function transformPoi(Poi $poi, string $locale = 'fr'): array
+    private function transformPoi(Poi $poi, string $locale = 'fr', $user = null): array
     {
         $translation = $poi->translation($locale);
         
@@ -306,6 +311,8 @@ class PoiController extends Controller
                     'parent_name' => $category->parent ? ($category->parent->translation($locale)->name ?? $category->parent->name) : null
                 ];
             }),
+            'favorites_count' => $poi->favorites_count,
+            'is_favorited' => $user ? $poi->isFavoritedBy($user->id) : false,
             'created_at' => $poi->created_at->toISOString(),
             'updated_at' => $poi->updated_at->toISOString()
         ];
@@ -314,11 +321,11 @@ class PoiController extends Controller
     /**
      * Transform POI for detailed view
      */
-    private function transformPoiDetailed(Poi $poi, string $locale = 'fr'): array
+    private function transformPoiDetailed(Poi $poi, string $locale = 'fr', $user = null): array
     {
         $translation = $poi->translation($locale);
         
-        $basic = $this->transformPoi($poi, $locale);
+        $basic = $this->transformPoi($poi, $locale, $user);
         
         return array_merge($basic, [
             'description' => $translation->description ?? '',

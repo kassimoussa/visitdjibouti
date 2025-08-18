@@ -428,27 +428,112 @@
                             <!-- Catégories -->
                             <div class="card mb-4">
                                 <div class="card-header">
-                                    <h6 class="mb-0">Catégories</h6>
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-tags me-2"></i>Catégories
+                                        <span class="badge bg-secondary ms-2" id="selectedCount">
+                                            {{ count($selectedCategories) }} sélectionnée(s)
+                                        </span>
+                                    </h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-3 @error('selectedCategories') is-invalid @enderror">
-                                        @foreach ($categories as $category)
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox"
-                                                    id="category-{{ $category->id }}" value="{{ $category->id }}"
-                                                    wire:model="selectedCategories">
-                                                <label class="form-check-label" for="category-{{ $category->id }}">
-                                                    <span class="badge"
-                                                        style="background-color: {{ $category->color ?? '#6c757d' }}">
-                                                        <i class="{{ $category->icon }}"></i>
-                                                    </span>
-                                                    {{ $category->translation($activeLocale)?->name ?: $category->translation('fr')->name }}
-                                                </label>
+                                        <div class="accordion" id="categoriesAccordion">
+                                            @foreach ($parentCategories as $parentCategory)
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="heading{{ $parentCategory->id }}">
+                                                        <button class="accordion-button collapsed" 
+                                                                type="button" 
+                                                                data-bs-toggle="collapse" 
+                                                                data-bs-target="#collapse{{ $parentCategory->id }}" 
+                                                                aria-expanded="false" 
+                                                                aria-controls="collapse{{ $parentCategory->id }}">
+                                                            <span class="badge me-3"
+                                                                style="background-color: {{ $parentCategory->color ?? '#6c757d' }}">
+                                                                <i class="{{ $parentCategory->icon ?? 'fas fa-folder' }}"></i>
+                                                            </span>
+                                                            <strong>{{ $parentCategory->translation($activeLocale)?->name ?? $parentCategory->translation('fr')?->name ?? 'Sans nom' }}</strong>
+                                                            <span class="ms-auto me-3">
+                                                                <small class="text-muted">
+                                                                    {{ $parentCategory->children->count() }} sous-catégorie(s)
+                                                                </small>
+                                                            </span>
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapse{{ $parentCategory->id }}" 
+                                                         class="accordion-collapse collapse" 
+                                                         aria-labelledby="heading{{ $parentCategory->id }}" 
+                                                         data-bs-parent="#categoriesAccordion">
+                                                        <div class="accordion-body">
+                                                            @if($parentCategory->children->isNotEmpty())
+                                                                <div class="row">
+                                                                    @foreach ($parentCategory->children->sortBy(function($child) use ($activeLocale) {
+                                                                        $translation = $child->translation($activeLocale);
+                                                                        return $translation ? $translation->name : '';
+                                                                    }) as $subcategory)
+                                                                        <div class="col-12 mb-2">
+                                                                            <div class="form-check">
+                                                                                <input class="form-check-input" type="checkbox"
+                                                                                    id="category-{{ $subcategory->id }}" 
+                                                                                    value="{{ $subcategory->id }}"
+                                                                                    wire:model="selectedCategories">
+                                                                                <label class="form-check-label" 
+                                                                                       for="category-{{ $subcategory->id }}">
+                                                                                    {{ $subcategory->translation($activeLocale)?->name ?? $subcategory->translation('fr')?->name ?? 'Sans nom' }}
+                                                                                </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            @else
+                                                                <div class="text-muted">
+                                                                    <i class="fas fa-info-circle me-2"></i>
+                                                                    Aucune sous-catégorie disponible
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        
+                                        @if(count($selectedCategories) > 0)
+                                            <div class="mt-3 p-3 bg-light rounded">
+                                                <h6 class="mb-2">
+                                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                                    Catégories sélectionnées :
+                                                </h6>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    @foreach($selectedCategories as $categoryId)
+                                                        @php
+                                                            $selectedCategory = null;
+                                                            foreach($parentCategories as $parent) {
+                                                                foreach($parent->children as $child) {
+                                                                    if($child->id == $categoryId) {
+                                                                        $selectedCategory = $child;
+                                                                        break 2;
+                                                                    }
+                                                                }
+                                                            }
+                                                        @endphp
+                                                        @if($selectedCategory)
+                                                            <span class="badge rounded-pill"
+                                                                  style="background-color: {{ $selectedCategory->color ?? '#6c757d' }}">
+                                                                <i class="{{ $selectedCategory->icon ?? 'fas fa-folder' }} me-1"></i>
+                                                                {{ $selectedCategory->translation($activeLocale)?->name ?? $selectedCategory->translation('fr')?->name ?? 'Sans nom' }}
+                                                                <button type="button" class="btn-close btn-close-white ms-2" 
+                                                                        style="font-size: 0.6em;"
+                                                                        wire:click="$set('selectedCategories', {{ json_encode(array_values(array_filter($selectedCategories, fn($id) => $id != $categoryId))) }})"></button>
+                                                            </span>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
                                             </div>
-                                        @endforeach
+                                        @endif
                                     </div>
                                     @error('selectedCategories')
-                                        <div class="text-danger">{{ $message }}</div>
+                                        <div class="text-danger">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>{{ $message }}
+                                        </div>
                                     @enderror
                                 </div>
                             </div>

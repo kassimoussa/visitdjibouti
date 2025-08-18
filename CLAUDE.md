@@ -149,7 +149,7 @@ FACEBOOK_CLIENT_SECRET=your_facebook_app_secret
 
 ## Complete Mobile API Implementation
 
-### 18 API Endpoints Available
+### 25 API Endpoints Available
 The mobile API is fully implemented with comprehensive endpoints:
 
 #### Authentication & User Management (5 endpoints)
@@ -173,6 +173,15 @@ The mobile API is fully implemented with comprehensive endpoints:
 - `DELETE /api/events/{event}/registration` - Cancel registration (protected)
 - `GET /api/my-registrations` - User's event registrations (protected)
 
+#### Favorites Management (7 endpoints) - NEW
+- `GET /api/favorites` - All user's favorites (POIs & Events)
+- `GET /api/favorites/pois` - User's favorite POIs only
+- `GET /api/favorites/stats` - Favorites statistics
+- `POST /api/favorites/pois/{poi}` - Add/Remove POI to/from favorites (toggle)
+- `DELETE /api/favorites/pois/{poi}` - Remove POI from favorites
+- `POST /api/favorites/events/{event}` - Add/Remove Event to/from favorites (toggle)
+- `DELETE /api/favorites/events/{event}` - Remove Event from favorites
+
 #### Organization & Links (4 endpoints)
 - `GET /api/organization` - Tourism organization information
 - `GET /api/external-links` - External useful links
@@ -182,6 +191,7 @@ The mobile API is fully implemented with comprehensive endpoints:
 ### Key Features Implemented
 - **Complete OAuth Integration**: Google & Facebook login with Laravel Socialite
 - **Event Reservation System**: Full booking system with guest and authenticated user support
+- **Favorites Management System**: Complete favorites system for POIs and Events with polymorphic relations
 - **Multilingual API**: All endpoints support Accept-Language header (fr, en, ar)
 - **Geolocation Support**: Nearby POIs and embassies with GPS coordinates
 - **Advanced Filtering**: Search, categories, dates, regions, status filters
@@ -191,6 +201,8 @@ The mobile API is fully implemented with comprehensive endpoints:
 - Optional user accounts (browse without registration)
 - Event bookings for registered users
 - Social login integration
+- **Favorites system with cloud synchronization**
+- **Real-time favorites count and status**
 - Complete tourism information (POIs, events, embassies, organization)
 - Multilingual content with automatic fallback
 - GPS-based nearby searches
@@ -216,3 +228,6 @@ The mobile API is fully implemented with comprehensive endpoints:
 - EventRegistration model updated to work with AppUser instead of User
 - OAuth fully configured and ready for production use
 - Complete translation system integration for all API responses
+- **Favorites system with polymorphic relationships supporting multiple content types**
+- **Automatic favorites count and status included in all POI/Event responses**
+- **Cloud-based favorites synchronization with offline capability**

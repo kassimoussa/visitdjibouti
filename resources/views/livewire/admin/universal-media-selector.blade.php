@@ -1212,6 +1212,12 @@
                                 </div>
                                 
                                 <div class="ums-upload-actions">
+                                    <!-- Bouton de test -->
+                                    <button class="ums-btn ums-btn-info" wire:click="testUpload" style="background: #17a2b8; margin-right: 8px;">
+                                        <i class="fas fa-flask"></i>
+                                        Test Livewire
+                                    </button>
+                                    
                                     <button class="ums-btn ums-btn-primary" wire:click="uploadFiles">
                                         <i class="fas fa-upload"></i>
                                         Télécharger {{ count($uploadFiles) }} fichier(s)

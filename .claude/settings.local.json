@@ -5,7 +5,13 @@
       "Bash(grep:*)",
       "Bash(php artisan make:migration create_organization_info_table)",
       "Bash(rm:*)",
-      "Bash(php artisan make:migration:*)"
+      "Bash(php artisan make:migration:*)",
+      "Bash(php artisan tinker:*)",
+      "Bash(php:*)",
+      "Bash(sed:*)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.3.0-nts-Win32-vs16-x64/php artisan db:seed --class=TourismCategoriesSeeder)",
+      "Bash(composer run:*)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.3.0-nts-Win32-vs16-x64/php artisan make:migration create_user_favorites_table)"
     ],
     "deny": []
   }

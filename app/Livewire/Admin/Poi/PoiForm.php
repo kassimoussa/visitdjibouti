@@ -249,6 +249,59 @@ class PoiForm extends Component
     }
 
     /**
+     * Gestion de la sélection hiérarchique des catégories
+     */
+    public function updatedSelectedCategories()
+    {
+        $this->applyHierarchicalSelection();
+    }
+
+    /**
+     * Appliquer la logique de sélection hiérarchique
+     */
+    private function applyHierarchicalSelection()
+    {
+        $allCategories = Category::with(['children', 'parent'])->get();
+        $updated = false;
+
+        // 1. Auto-sélectionner les parents quand des enfants sont sélectionnés
+        foreach ($this->selectedCategories as $categoryId) {
+            $category = $allCategories->firstWhere('id', $categoryId);
+            
+            if ($category && $category->parent_id) {
+                // Si c'est une sous-catégorie, s'assurer que le parent est sélectionné
+                if (!in_array($category->parent_id, $this->selectedCategories)) {
+                    $this->selectedCategories[] = $category->parent_id;
+                    $updated = true;
+                }
+            }
+        }
+
+        // 2. Auto-désélectionner les enfants quand le parent est désélectionné
+        $categoriesToRemove = [];
+        foreach ($allCategories->whereNull('parent_id') as $parentCategory) {
+            if (!in_array($parentCategory->id, $this->selectedCategories)) {
+                // Parent pas sélectionné, retirer tous ses enfants
+                foreach ($parentCategory->children as $child) {
+                    if (in_array($child->id, $this->selectedCategories)) {
+                        $categoriesToRemove[] = $child->id;
+                        $updated = true;
+                    }
+                }
+            }
+        }
+
+        // Retirer les catégories à supprimer
+        if (!empty($categoriesToRemove)) {
+            $this->selectedCategories = array_values(array_diff($this->selectedCategories, $categoriesToRemove));
+        }
+
+        // Supprimer les doublons et réindexer
+        $this->selectedCategories = array_values(array_unique($this->selectedCategories));
+    }
+
+
+    /**
      * Enregistrer le POI avec ses traductions
      */
     public function save()
@@ -371,8 +424,15 @@ class PoiForm extends Component
      */
     public function render()
     {
-        $categories = Category::where('is_active', true)
-            ->with(['translations' => function($query) {
+        // Récupérer les catégories principales avec leurs sous-catégories
+        $parentCategories = Category::where('is_active', true)
+            ->whereNull('parent_id')
+            ->with(['children' => function($query) {
+                $query->where('is_active', true);
+            }, 'translations' => function($query) {
+                $query->where('locale', $this->activeLocale)
+                      ->orWhere('locale', config('app.fallback_locale', 'fr'));
+            }, 'children.translations' => function($query) {
                 $query->where('locale', $this->activeLocale)
                       ->orWhere('locale', config('app.fallback_locale', 'fr'));
             }])
@@ -388,7 +448,7 @@ class PoiForm extends Component
         $media = Media::orderBy('created_at', 'desc')->get();
 
         return view('livewire.admin.poi.poi-form', [
-            'categories' => $categories,
+            'parentCategories' => $parentCategories,
             'regions' => $regions,
             'media' => $media,
             'availableLocales' => ['fr', 'en', 'ar'],

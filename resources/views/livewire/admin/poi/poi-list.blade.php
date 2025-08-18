@@ -24,18 +24,33 @@
         <div class="card shadow-sm mb-4">
             <div class="card-body">
                 <div class="row g-3">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="search" class="form-label">Recherche</label>
                         <input wire:model.live.debounce.300ms="search" type="text" class="form-control"
                             id="search" placeholder="Rechercher...">
                     </div>
 
-                    <div class="col-md-3">
-                        <label for="category" class="form-label">Catégorie</label>
-                        <select wire:model.live="category" id="category" class="form-select">
+                    <div class="col-md-2">
+                        <label for="parentCategory" class="form-label">Catégorie principale</label>
+                        <select wire:model.live="parentCategory" id="parentCategory" class="form-select">
                             <option value="">Toutes les catégories</option>
-                            @foreach ($categories as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            @foreach ($parentCategories as $category)
+                                <option value="{{ $category->id }}">
+                                    {{ $category->translation($currentLocale)?->name ?? $category->translation('fr')?->name ?? 'Sans nom' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="subcategory" class="form-label">Sous-catégorie</label>
+                        <select wire:model.live="subcategory" id="subcategory" class="form-select" 
+                                {{ empty($parentCategory) ? 'disabled' : '' }}>
+                            <option value="">Toutes les sous-catégories</option>
+                            @foreach ($subcategories as $subcat)
+                                <option value="{{ $subcat->id }}">
+                                    {{ $subcat->translation($currentLocale)?->name ?? $subcat->translation('fr')?->name ?? 'Sans nom' }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -60,7 +75,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-1">
+                    <div class="col-md-2">
                         <label for="locale" class="form-label">Langue</label>
                         <select wire:model.live="currentLocale" id="locale" class="form-select">
                             @foreach ($availableLocales as $locale)
@@ -182,14 +197,26 @@
                 <div class="card-body">
                     <h5 class="card-title">Légende</h5>
                     <div class="row">
-                        @foreach ($categories as $category)
+                        @foreach ($parentCategories as $category)
                             <div class="col-md-3 mb-2">
                                 <span class="badge rounded-pill"
                                     style="background-color: {{ $category->color ?? '#6c757d' }}">
-                                    <i class="{{ $category->icon ?? 'fas fa-folder' }}"></i> {{ $category->name }}
+                                    <i class="{{ $category->icon ?? 'fas fa-folder' }}"></i> 
+                                    {{ $category->translation($currentLocale)?->name ?? $category->translation('fr')?->name ?? 'Sans nom' }}
                                 </span>
                             </div>
                         @endforeach
+                        @if($parentCategory && $subcategories->isNotEmpty())
+                            @foreach ($subcategories as $subcat)
+                                <div class="col-md-3 mb-2">
+                                    <span class="badge rounded-pill"
+                                        style="background-color: {{ $subcat->color ?? '#6c757d' }}">
+                                        <i class="{{ $subcat->icon ?? 'fas fa-folder' }}"></i> 
+                                        {{ $subcat->translation($currentLocale)?->name ?? $subcat->translation('fr')?->name ?? 'Sans nom' }}
+                                    </span>
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
                 </div>
             </div>

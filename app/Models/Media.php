@@ -18,6 +18,13 @@ class Media extends Model
         'path',
         'thumbnail_path',
         'type',
+        'dimensions',
+        'is_optimized',
+    ];
+
+    protected $casts = [
+        'dimensions' => 'array',
+        'is_optimized' => 'boolean',
     ];
     
     /**

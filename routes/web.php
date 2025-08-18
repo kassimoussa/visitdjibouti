@@ -70,8 +70,13 @@ Route::middleware('auth.admin')->group(function () {
     Route::get('/events/{id}/edit', [EventController::class, 'edit'])->name('events.edit');
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
 
-    // Catégories (une seule route suffisante avec Livewire)
-    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    // Catégories avec interface moderne par défaut
+    Route::get('/categories', function () {
+        return view('admin.categories.modern');
+    })->name('categories.index');
+    
+    // Ancienne interface (backup)
+    Route::get('/categories-classic', [CategoryController::class, 'index'])->name('categories.classic');
 
     // Routes pour les actualités
     Route::get('/news', function () {

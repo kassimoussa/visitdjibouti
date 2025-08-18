@@ -172,8 +172,9 @@ class AppUser extends Authenticatable
      */
     public function favoritePois()
     {
-        return $this->belongsToMany(Poi::class, 'user_favorites', 'app_user_id', 'poi_id')
-                    ->where('favoritable_type', Poi::class);
+        return $this->belongsToMany(Poi::class, 'user_favorites', 'app_user_id', 'favoritable_id')
+                    ->where('user_favorites.favoritable_type', Poi::class)
+                    ->withTimestamps();
     }
 
     /**
@@ -181,8 +182,62 @@ class AppUser extends Authenticatable
      */
     public function favoriteEvents()
     {
-        return $this->belongsToMany(Event::class, 'user_favorites', 'app_user_id', 'event_id')
-                    ->where('favoritable_type', Event::class);
+        return $this->belongsToMany(Event::class, 'user_favorites', 'app_user_id', 'favoritable_id')
+                    ->where('user_favorites.favoritable_type', Event::class)
+                    ->withTimestamps();
+    }
+
+    /**
+     * Check if user has favorited a specific item.
+     */
+    public function hasFavorited($model): bool
+    {
+        return UserFavorite::isFavorited(
+            $this->id,
+            $model->id,
+            get_class($model)
+        );
+    }
+
+    /**
+     * Add item to favorites.
+     */
+    public function addToFavorites($model): bool
+    {
+        if ($this->hasFavorited($model)) {
+            return false; // Already favorited
+        }
+
+        UserFavorite::create([
+            'app_user_id' => $this->id,
+            'favoritable_id' => $model->id,
+            'favoritable_type' => get_class($model),
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Remove item from favorites.
+     */
+    public function removeFromFavorites($model): bool
+    {
+        return UserFavorite::where('app_user_id', $this->id)
+                         ->where('favoritable_id', $model->id)
+                         ->where('favoritable_type', get_class($model))
+                         ->delete() > 0;
+    }
+
+    /**
+     * Toggle favorite status for an item.
+     */
+    public function toggleFavorite($model): array
+    {
+        return UserFavorite::toggle(
+            $this->id,
+            $model->id,
+            get_class($model)
+        );
     }
 
     /**

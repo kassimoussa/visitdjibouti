@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\ExternalLinkController;
 use App\Http\Controllers\Api\EmbassyController;
+use App\Http\Controllers\Api\FavoriteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -106,7 +107,18 @@ Route::middleware('auth:sanctum')->group(function () {
     // Routes protégées pour les réservations utilisateur
     Route::get('/my-registrations', [EventController::class, 'myRegistrations']);
     
-    // Routes protégées pour les POIs (favoris, etc.)
-    // Route::post('/pois/{poi}/favorite', [PoiController::class, 'addToFavorites']);
-    // Route::delete('/pois/{poi}/favorite', [PoiController::class, 'removeFromFavorites']);
+    // Routes protégées pour les favoris
+    Route::prefix('favorites')->group(function () {
+        Route::get('/', [FavoriteController::class, 'index']); // Tous les favoris
+        Route::get('/pois', [FavoriteController::class, 'pois']); // POIs favoris uniquement
+        Route::get('/stats', [FavoriteController::class, 'stats']); // Statistiques favoris
+        
+        // Gestion des favoris POIs
+        Route::post('/pois/{poi}', [FavoriteController::class, 'addPoi']);
+        Route::delete('/pois/{poi}', [FavoriteController::class, 'removePoi']);
+        
+        // Gestion des favoris Events
+        Route::post('/events/{event}', [FavoriteController::class, 'addEvent']);
+        Route::delete('/events/{event}', [FavoriteController::class, 'removeEvent']);
+    });
 });

@@ -204,4 +204,52 @@ class Poi extends Model
         
         return $this->address . ($this->region ? ', ' . $this->region : '');
     }
+
+    /**
+     * Get users who favorited this POI.
+     */
+    public function favoritedByUsers()
+    {
+        return $this->belongsToMany(AppUser::class, 'user_favorites', 'favoritable_id', 'app_user_id')
+                    ->where('user_favorites.favoritable_type', static::class)
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get favorites count for this POI.
+     */
+    public function getFavoritesCountAttribute(): int
+    {
+        return UserFavorite::where('favoritable_id', $this->id)
+                          ->where('favoritable_type', static::class)
+                          ->count();
+    }
+
+    /**
+     * Check if POI is favorited by a specific user.
+     */
+    public function isFavoritedBy($userId): bool
+    {
+        if (!$userId) return false;
+        
+        return UserFavorite::isFavorited($userId, $this->id, static::class);
+    }
+
+    /**
+     * Scope to include favorites count.
+     */
+    public function scopeWithFavoritesCount($query)
+    {
+        return $query->withCount(['favoritedByUsers as favorites_count']);
+    }
+
+    /**
+     * Scope to filter by favorited by user.
+     */
+    public function scopeFavoritedByUser($query, $userId)
+    {
+        return $query->whereHas('favoritedByUsers', function($q) use ($userId) {
+            $q->where('app_user_id', $userId);
+        });
+    }
 }
