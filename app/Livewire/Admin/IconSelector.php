@@ -15,12 +15,62 @@ class IconSelector extends Component
     // Recherche
     public $searchQuery = '';
     
-    // Catégories spécifiques à FontAwesome uniquement
+    // Fournisseurs d'icônes disponibles
+    public $iconProviders = [
+        'fontawesome' => 'FontAwesome',
+        'tabler' => 'Tabler Icons',
+        'lucide' => 'Lucide',
+        'bootstrap' => 'Bootstrap Icons',
+        'flags' => 'Drapeaux',
+        'emojis' => 'Emojis'
+    ];
+    
+    // Fournisseur actif
+    public $activeProvider = 'fontawesome';
+    
+    // Catégories par fournisseur
     public $categories = [
-        'all' => 'Toutes les icônes',
-        'solid' => 'Solid',
-        'regular' => 'Regular',
-        'brands' => 'Marques'
+        'fontawesome' => [
+            'all' => 'Toutes',
+            'solid' => 'Solid',
+            'regular' => 'Regular', 
+            'brands' => 'Marques'
+        ],
+        'tabler' => [
+            'all' => 'Toutes',
+            'general' => 'Général',
+            'business' => 'Business',
+            'communication' => 'Communication',
+            'media' => 'Média',
+            'navigation' => 'Navigation'
+        ],
+        'lucide' => [
+            'all' => 'Toutes',
+            'general' => 'Général',
+            'arrows' => 'Flèches',
+            'files' => 'Fichiers',
+            'text' => 'Texte'
+        ],
+        'bootstrap' => [
+            'all' => 'Toutes',
+            'general' => 'Général',
+            'communication' => 'Communication',
+            'files' => 'Fichiers'
+        ],
+        'flags' => [
+            'all' => 'Tous pays',
+            'africa' => 'Afrique',
+            'europe' => 'Europe',
+            'asia' => 'Asie',
+            'america' => 'Amérique'
+        ],
+        'emojis' => [
+            'all' => 'Tous',
+            'travel' => 'Voyage',
+            'nature' => 'Nature',
+            'activities' => 'Activités',
+            'objects' => 'Objets'
+        ]
     ];
 
 
@@ -1539,6 +1589,254 @@ class IconSelector extends Component
         ]
     ];
 
+    // Collections d'icônes par fournisseur
+    public $tablerIcons = [
+        'general' => [
+            'ti ti-home', 'ti ti-user', 'ti ti-users', 'ti ti-settings', 'ti ti-search',
+            'ti ti-heart', 'ti ti-star', 'ti ti-bookmark', 'ti ti-calendar',
+            'ti ti-clock', 'ti ti-map-pin', 'ti ti-globe', 'ti ti-camera',
+            'ti ti-photo', 'ti ti-video', 'ti ti-music', 'ti ti-phone',
+            'ti ti-mail', 'ti ti-message', 'ti ti-notification'
+        ],
+        'business' => [
+            'ti ti-building', 'ti ti-briefcase', 'ti ti-chart-bar', 'ti ti-chart-line',
+            'ti ti-currency-dollar', 'ti ti-credit-card', 'ti ti-shopping-cart',
+            'ti ti-package', 'ti ti-truck', 'ti ti-clipboard'
+        ],
+        'navigation' => [
+            'ti ti-arrow-left', 'ti ti-arrow-right', 'ti ti-arrow-up', 'ti ti-arrow-down',
+            'ti ti-chevron-left', 'ti ti-chevron-right', 'ti ti-menu-2', 'ti ti-x'
+        ]
+    ];
+
+    public $lucideIcons = [
+        'general' => [
+            'lucide-home', 'lucide-user', 'lucide-users', 'lucide-settings', 'lucide-search',
+            'lucide-heart', 'lucide-star', 'lucide-bookmark', 'lucide-calendar',
+            'lucide-clock', 'lucide-map-pin', 'lucide-globe', 'lucide-camera'
+        ],
+        'arrows' => [
+            'lucide-arrow-left', 'lucide-arrow-right', 'lucide-arrow-up', 'lucide-arrow-down',
+            'lucide-chevron-left', 'lucide-chevron-right', 'lucide-move', 'lucide-external-link'
+        ]
+    ];
+
+    public $bootstrapIcons = [
+        'general' => [
+            'bi-house', 'bi-person', 'bi-people', 'bi-gear', 'bi-search',
+            'bi-heart', 'bi-star', 'bi-bookmark', 'bi-calendar',
+            'bi-clock', 'bi-geo-alt', 'bi-globe', 'bi-camera'
+        ]
+    ];
+
+    public $flagIcons = [
+        'africa' => [
+            'fi fi-dj' => '🇩🇯 Djibouti',
+            'fi fi-et' => '🇪🇹 Éthiopie', 
+            'fi fi-so' => '🇸🇴 Somalie',
+            'fi fi-er' => '🇪🇷 Érythrée',
+            'fi fi-sd' => '🇸🇩 Soudan',
+            'fi fi-eg' => '🇪🇬 Égypte',
+            'fi fi-ma' => '🇲🇦 Maroc',
+            'fi fi-tn' => '🇹🇳 Tunisie'
+        ],
+        'europe' => [
+            'fi fi-fr' => '🇫🇷 France',
+            'fi fi-gb' => '🇬🇧 Royaume-Uni',
+            'fi fi-de' => '🇩🇪 Allemagne',
+            'fi fi-it' => '🇮🇹 Italie',
+            'fi fi-es' => '🇪🇸 Espagne'
+        ],
+        'asia' => [
+            'fi fi-cn' => '🇨🇳 Chine',
+            'fi fi-jp' => '🇯🇵 Japon',
+            'fi fi-in' => '🇮🇳 Inde',
+            'fi fi-sa' => '🇸🇦 Arabie Saoudite'
+        ]
+    ];
+
+    public $emojiIcons = [
+        'travel' => [
+            '🏛️' => 'Monument',
+            '🏖️' => 'Plage',
+            '🏔️' => 'Montagne',
+            '🏕️' => 'Camping',
+            '✈️' => 'Avion',
+            '🚢' => 'Bateau',
+            '🏨' => 'Hôtel',
+            '🗺️' => 'Carte',
+            '🧳' => 'Bagages'
+        ],
+        'nature' => [
+            '🌊' => 'Vague',
+            '🌋' => 'Volcan',
+            '🏝️' => 'Île',
+            '🌴' => 'Palmier',
+            '🐪' => 'Chameau',
+            '🦩' => 'Flamant',
+            '🐠' => 'Poisson',
+            '🌺' => 'Fleur'
+        ],
+        'activities' => [
+            '🤿' => 'Plongée',
+            '🏊' => 'Natation',
+            '🚤' => 'Bateau rapide',
+            '🎣' => 'Pêche',
+            '📸' => 'Photo',
+            '🎭' => 'Culture',
+            '🍽️' => 'Restaurant'
+        ]
+    ];
+
+    // Méthode pour changer de fournisseur
+    public function switchProvider($provider)
+    {
+        $this->activeProvider = $provider;
+        $this->activeCategory = 'all';
+        $this->searchQuery = '';
+    }
+
+    // Méthode pour obtenir les icônes du fournisseur actuel
+    public function getCurrentIcons()
+    {
+        switch ($this->activeProvider) {
+            case 'fontawesome':
+                return $this->getFilteredFontAwesomeIcons();
+            case 'tabler':
+                return $this->getFilteredTablerIcons();
+            case 'lucide':
+                return $this->getFilteredLucideIcons();
+            case 'bootstrap':
+                return $this->getFilteredBootstrapIcons();
+            case 'flags':
+                return $this->getFilteredFlagIcons();
+            case 'emojis':
+                return $this->getFilteredEmojiIcons();
+            default:
+                return [];
+        }
+    }
+
+    public function getFilteredTablerIcons()
+    {
+        $icons = [];
+        if ($this->activeCategory === 'all') {
+            foreach ($this->tablerIcons as $category => $categoryIcons) {
+                $icons = array_merge($icons, $categoryIcons);
+            }
+        } else {
+            $icons = $this->tablerIcons[$this->activeCategory] ?? [];
+        }
+
+        if ($this->searchQuery) {
+            $icons = array_filter($icons, function($icon) {
+                return stripos($icon, $this->searchQuery) !== false;
+            });
+        }
+
+        return $icons;
+    }
+
+    public function getFilteredLucideIcons()
+    {
+        $icons = [];
+        if ($this->activeCategory === 'all') {
+            foreach ($this->lucideIcons as $category => $categoryIcons) {
+                $icons = array_merge($icons, $categoryIcons);
+            }
+        } else {
+            $icons = $this->lucideIcons[$this->activeCategory] ?? [];
+        }
+
+        if ($this->searchQuery) {
+            $icons = array_filter($icons, function($icon) {
+                return stripos($icon, $this->searchQuery) !== false;
+            });
+        }
+
+        return $icons;
+    }
+
+    public function getFilteredBootstrapIcons()
+    {
+        $icons = [];
+        if ($this->activeCategory === 'all') {
+            foreach ($this->bootstrapIcons as $category => $categoryIcons) {
+                $icons = array_merge($icons, $categoryIcons);
+            }
+        } else {
+            $icons = $this->bootstrapIcons[$this->activeCategory] ?? [];
+        }
+
+        if ($this->searchQuery) {
+            $icons = array_filter($icons, function($icon) {
+                return stripos($icon, $this->searchQuery) !== false;
+            });
+        }
+
+        return $icons;
+    }
+
+    public function getFilteredFlagIcons()
+    {
+        $icons = [];
+        if ($this->activeCategory === 'all') {
+            foreach ($this->flagIcons as $region => $regionFlags) {
+                $icons = array_merge($icons, $regionFlags);
+            }
+        } else {
+            $icons = $this->flagIcons[$this->activeCategory] ?? [];
+        }
+
+        if ($this->searchQuery) {
+            $icons = array_filter($icons, function($icon, $class) {
+                return stripos($icon, $this->searchQuery) !== false || stripos($class, $this->searchQuery) !== false;
+            }, ARRAY_FILTER_USE_BOTH);
+        }
+
+        return $icons;
+    }
+
+    public function getFilteredEmojiIcons()
+    {
+        $icons = [];
+        if ($this->activeCategory === 'all') {
+            foreach ($this->emojiIcons as $category => $categoryIcons) {
+                $icons = array_merge($icons, $categoryIcons);
+            }
+        } else {
+            $icons = $this->emojiIcons[$this->activeCategory] ?? [];
+        }
+
+        if ($this->searchQuery) {
+            $icons = array_filter($icons, function($description, $emoji) {
+                return stripos($description, $this->searchQuery) !== false;
+            }, ARRAY_FILTER_USE_BOTH);
+        }
+
+        return $icons;
+    }
+
+    public function getFilteredFontAwesomeIcons()
+    {
+        $icons = [];
+        if ($this->activeCategory === 'all') {
+            foreach ($this->fontAwesomeIcons as $category => $categoryIcons) {
+                $icons = array_merge($icons, $categoryIcons);
+            }
+        } else {
+            $icons = $this->fontAwesomeIcons[$this->activeCategory] ?? [];
+        }
+
+        if ($this->searchQuery) {
+            $icons = array_filter($icons, function($icon) {
+                return stripos($icon, $this->searchQuery) !== false;
+            });
+        }
+
+        return $icons;
+    }
+
 
     protected function getListeners()
     {
@@ -1568,32 +1866,14 @@ class IconSelector extends Component
     // Méthode simplifiée pour obtenir les icônes filtrées
     public function getFilteredIconsProperty()
     {
-        $icons = [];
-        
-        // Récupérer les icônes selon la catégorie (FontAwesome uniquement)
-        if ($this->activeCategory === 'all') {
-            foreach ($this->fontAwesomeIcons as $categoryIcons) {
-                $icons = array_merge($icons, $categoryIcons);
-            }
-        } else {
-            $icons = $this->fontAwesomeIcons[$this->activeCategory] ?? [];
-        }
-        
-        // Filtrer par recherche si nécessaire
-        if (!empty($this->searchQuery)) {
-            $query = strtolower($this->searchQuery);
-            return array_filter($icons, function($icon) use ($query) {
-                return str_contains(strtolower($icon), $query);
-            });
-        }
-        
-        return $icons;
+        return $this->getCurrentIcons();
     }
     
     public function render()
     {
-        return view('livewire.admin.icon-selector', [
-            'filteredIcons' => $this->getFilteredIconsProperty()
+        return view('livewire.admin.components.multi-icon-selector', [
+            'filteredIcons' => $this->getFilteredIconsProperty(),
+            'currentCategories' => $this->categories[$this->activeProvider] ?? []
         ]);
     }
 }

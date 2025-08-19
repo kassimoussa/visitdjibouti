@@ -55,6 +55,6 @@ class MediaEdit extends Component
      */
     public function render()
     {
-        return view('livewire.admin.media-edit');
+        return view('livewire.admin.media.media-edit');
     }
 }

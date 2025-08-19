@@ -1,6 +1,6 @@
 # 📱 API Documentation - Visit Djibouti Mobile App
 
-**Complete API with 25 endpoints** for mobile tourism application with authentication, POIs, events, favorites, and organization management.
+**Complete API with 30+ endpoints** for mobile tourism application with authentication, POIs, events, favorites, tour operators, app settings, and organization management.
 
 ## 🔐 Authentication Endpoints
 
@@ -1331,11 +1331,139 @@ Where `type` is either `foreign_in_djibouti` or `djiboutian_abroad`.
 
 ---
 
+## 🎛️ App Settings Endpoints
+
+### 📋 Get All App Settings
+**GET** `/app-settings`
+
+Get all mobile app configuration settings grouped by type.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "app_info": {
+      "app_name": "Visit Djibouti",
+      "version": "1.0.0",
+      "logo_url": "https://domain.com/storage/logo.png"
+    },
+    "splash_screens": [
+      {
+        "title": "Découvrez Djibouti",
+        "description": "Explorez les merveilles du pays",
+        "image_url": "https://domain.com/storage/splash1.jpg"
+      }
+    ],
+    "onboarding": [
+      {
+        "title": "Points d'Intérêt",
+        "description": "Découvrez les lieux emblématiques",
+        "icon": "fas fa-map-marker-alt"
+      }
+    ]
+  }
+}
+```
+
+### 📱 Get Settings by Type
+**GET** `/app-settings/type/{type}`
+
+Get settings for a specific type (app_info, splash_screens, onboarding, etc.).
+
+---
+
+## 🚐 Tour Operators Endpoints
+
+### 📋 Get All Tour Operators
+**GET** `/tour-operators`
+
+**Query Parameters:**
+- `search` - Search in name/description
+- `service_type` - Filter by service type
+- `certification_type` - Filter by certification (local, national, international)
+- `price_range` - Filter by price range (budget, mid-range, luxury, premium)
+- `featured` - Show only featured operators (true/false)
+- `region` - Filter by region
+- `min_experience` - Minimum years of experience
+- `languages` - Filter by spoken languages
+- `per_page` - Results per page (default: 15)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "tour_operators": [
+      {
+        "id": 1,
+        "slug": "desert-adventures-djibouti",
+        "name": "Desert Adventures Djibouti",
+        "description": "Spécialiste des excursions dans le désert",
+        "license_number": "TO-001-2024",
+        "certification_type": "national",
+        "phone": "+253 21 35 40 50",
+        "email": "contact@desertadventures.dj",
+        "website": "https://desertadventures.dj",
+        "address": "Avenue République, Djibouti",
+        "latitude": 11.5721,
+        "longitude": 43.1456,
+        "logo": {
+          "id": 15,
+          "title": "Desert Adventures Logo",
+          "path": "/storage/tour-operators/logo.png",
+          "thumbnail_path": "/storage/tour-operators/logo_thumb.png"
+        },
+        "services": ["desert_tours", "cultural_tours", "adventure_sports"],
+        "specialties": "Excursions désert, Lac Assal, Lac Abbé",
+        "price_range": "mid-range",
+        "min_price": 75.00,
+        "max_price": 450.00,
+        "currency": "USD",
+        "years_experience": 8,
+        "max_group_size": 12,
+        "languages_spoken": "Français, English, العربية",
+        "opening_hours": "08:00-18:00 (Lun-Sam)",
+        "emergency_contact_available": true,
+        "is_active": true,
+        "featured": true
+      }
+    ],
+    "pagination": {
+      "current_page": 1,
+      "per_page": 15,
+      "total": 24
+    }
+  }
+}
+```
+
+### 🗺️ Get Nearby Tour Operators
+**GET** `/tour-operators/nearby`
+
+**Query Parameters:**
+- `latitude` (required) - User latitude
+- `longitude` (required) - User longitude  
+- `radius` - Search radius in km (default: 25)
+- `limit` - Number of results (default: 10)
+
+### 🎯 Get Tour Operators by Service
+**GET** `/tour-operators/service/{serviceType}`
+
+Get operators offering specific services (desert_tours, cultural_tours, diving, etc.).
+
+### 📄 Get Tour Operator Details
+**GET** `/tour-operators/{identifier}`
+
+Get detailed information about a tour operator by ID or slug.
+
+---
+
 ## 🔮 Future Endpoints (To be implemented)
 
-- `POST /pois/{id}/favorite` - Add POI to favorites
-- `DELETE /pois/{id}/favorite` - Remove POI from favorites
-- `GET /favorites` - Get user favorites
+- `POST /tour-operators/{id}/contact` - Contact tour operator
+- `POST /tour-operators/{id}/review` - Add review for tour operator
+- `GET /tour-operators/{id}/reviews` - Get reviews for tour operator
 
 ---
 

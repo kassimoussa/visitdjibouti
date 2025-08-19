@@ -253,7 +253,7 @@ class NewsCategoryManager extends Component
         ->orderBy('created_at', 'desc')
         ->paginate(15);
 
-        return view('livewire.admin.news-category-manager', [
+        return view('livewire.admin.news.news-category-manager', [
             'categories' => $categories
         ]);
     }

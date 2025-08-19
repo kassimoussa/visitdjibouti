@@ -48,7 +48,27 @@
                                 <!-- Header de la card -->
                                 <div class="category-header">
                                     <div class="category-icon">
-                                        <i class="{{ $category->icon }}"></i>
+                                        @php
+                                            $isEmoji = $category->icon && strlen($category->icon) > 0 && !str_contains($category->icon, ' ') && 
+                                                       !str_contains($category->icon, 'fa-') && !str_contains($category->icon, 'bi-') && 
+                                                       !str_contains($category->icon, 'fi fi-') && !str_contains($category->icon, 'ph ph-') && 
+                                                       !str_contains($category->icon, 'ti ti-') && 
+                                                       preg_match('/[\x{1F600}-\x{1F64F}]|[\x{1F300}-\x{1F5FF}]|[\x{1F680}-\x{1F6FF}]|[\x{1F1E0}-\x{1F1FF}]|[\x{2600}-\x{26FF}]|[\x{2700}-\x{27BF}]/u', $category->icon);
+                                        @endphp
+                                        
+                                        @if($category->icon && str_contains($category->icon, 'fi fi-'))
+                                            <span class="{{ $category->icon }}"></span>
+                                        @elseif($category->icon && str_contains($category->icon, 'ti ti-'))
+                                            <i class="{{ $category->icon }}"></i>
+                                        @elseif($category->icon && str_contains($category->icon, 'bi-'))
+                                            <i class="{{ $category->icon }}"></i>
+                                        @elseif($category->icon && str_contains($category->icon, 'ph ph-'))
+                                            <i class="{{ $category->icon }}"></i>
+                                        @elseif($isEmoji)
+                                            <span style="font-size: 1.2rem;">{{ $category->icon }}</span>
+                                        @else
+                                            <i class="{{ $category->icon }}"></i>
+                                        @endif
                                     </div>
                                     <div class="category-actions">
                                         <div class="dropdown">
@@ -162,7 +182,27 @@
                     <div class="parent-category-info">
                         <div class="d-flex align-items-center">
                             <div class="parent-icon me-3" style="color: {{ $selectedParent->color }}">
-                                <i class="{{ $selectedParent->icon }} fa-2x"></i>
+                                @php
+                                    $isEmoji = $selectedParent->icon && strlen($selectedParent->icon) > 0 && !str_contains($selectedParent->icon, ' ') && 
+                                               !str_contains($selectedParent->icon, 'fa-') && !str_contains($selectedParent->icon, 'bi-') && 
+                                               !str_contains($selectedParent->icon, 'fi fi-') && !str_contains($selectedParent->icon, 'ph ph-') && 
+                                               !str_contains($selectedParent->icon, 'ti ti-') && 
+                                               preg_match('/[\x{1F600}-\x{1F64F}]|[\x{1F300}-\x{1F5FF}]|[\x{1F680}-\x{1F6FF}]|[\x{1F1E0}-\x{1F1FF}]|[\x{2600}-\x{26FF}]|[\x{2700}-\x{27BF}]/u', $selectedParent->icon);
+                                @endphp
+                                
+                                @if($selectedParent->icon && str_contains($selectedParent->icon, 'fi fi-'))
+                                    <span class="{{ $selectedParent->icon }}" style="font-size: 2rem;"></span>
+                                @elseif($selectedParent->icon && str_contains($selectedParent->icon, 'ti ti-'))
+                                    <i class="{{ $selectedParent->icon }}" style="font-size: 2rem;"></i>
+                                @elseif($selectedParent->icon && str_contains($selectedParent->icon, 'bi-'))
+                                    <i class="{{ $selectedParent->icon }}" style="font-size: 2rem;"></i>
+                                @elseif($selectedParent->icon && str_contains($selectedParent->icon, 'ph ph-'))
+                                    <i class="{{ $selectedParent->icon }}" style="font-size: 2rem;"></i>
+                                @elseif($isEmoji)
+                                    <span style="font-size: 2rem;">{{ $selectedParent->icon }}</span>
+                                @else
+                                    <i class="{{ $selectedParent->icon }} fa-2x"></i>
+                                @endif
                             </div>
                             <div>
                                 <h2 class="h3 mb-1">{{ $selectedParent->translation('fr')->name }}</h2>
@@ -202,7 +242,27 @@
                             <div class="subcategory-card">
                                 <div class="subcategory-header">
                                     <div class="subcategory-icon" style="color: {{ $subcategory->color }}">
-                                        <i class="{{ $subcategory->icon }}"></i>
+                                        @php
+                                            $isEmoji = $subcategory->icon && strlen($subcategory->icon) > 0 && !str_contains($subcategory->icon, ' ') && 
+                                                       !str_contains($subcategory->icon, 'fa-') && !str_contains($subcategory->icon, 'bi-') && 
+                                                       !str_contains($subcategory->icon, 'fi fi-') && !str_contains($subcategory->icon, 'ph ph-') && 
+                                                       !str_contains($subcategory->icon, 'ti ti-') && 
+                                                       preg_match('/[\x{1F600}-\x{1F64F}]|[\x{1F300}-\x{1F5FF}]|[\x{1F680}-\x{1F6FF}]|[\x{1F1E0}-\x{1F1FF}]|[\x{2600}-\x{26FF}]|[\x{2700}-\x{27BF}]/u', $subcategory->icon);
+                                        @endphp
+                                        
+                                        @if($subcategory->icon && str_contains($subcategory->icon, 'fi fi-'))
+                                            <span class="{{ $subcategory->icon }}"></span>
+                                        @elseif($subcategory->icon && str_contains($subcategory->icon, 'ti ti-'))
+                                            <i class="{{ $subcategory->icon }}"></i>
+                                        @elseif($subcategory->icon && str_contains($subcategory->icon, 'bi-'))
+                                            <i class="{{ $subcategory->icon }}"></i>
+                                        @elseif($subcategory->icon && str_contains($subcategory->icon, 'ph ph-'))
+                                            <i class="{{ $subcategory->icon }}"></i>
+                                        @elseif($isEmoji)
+                                            <span style="font-size: 1.5rem;">{{ $subcategory->icon }}</span>
+                                        @else
+                                            <i class="{{ $subcategory->icon }}"></i>
+                                        @endif
                                     </div>
                                     <div class="subcategory-actions">
                                         <div class="dropdown">
@@ -292,14 +352,82 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-label">Icône</label>
+                                        
+                                        <!-- Dropdown pour choisir le fournisseur -->
+                                        <div class="mb-2">
+                                            <select class="form-select form-select-sm" id="iconProvider" onchange="updateIconPlaceholder(this.value)">
+                                                <option value="fontawesome">FontAwesome (fas fa-...)</option>
+                                                <option value="bootstrap">Bootstrap Icons (bi-...)</option>
+                                                <option value="phosphor">Phosphor Icons (ph ph-...)</option>
+                                                <option value="tabler">Tabler Icons (ti ti-...)</option>
+                                                <option value="flags">Flag Icons (fi fi-...)</option>
+                                                <option value="emojis">Emojis Unicode (🏛️)</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <!-- Champ texte avec preview -->
                                         <div class="input-group">
-                                            <span class="input-group-text">
-                                                <i class="{{ $icon }}" style="color: {{ $color }}"></i>
+                                            <span class="input-group-text icon-preview" style="min-width: 60px; justify-content: center; background: #f8f9fa;">
+                                                @php
+                                                    $isEmoji = $icon && strlen($icon) > 0 && !str_contains($icon, ' ') && 
+                                                               !str_contains($icon, 'fa-') && !str_contains($icon, 'bi-') && 
+                                                               !str_contains($icon, 'fi fi-') && !str_contains($icon, 'ph ph-') && 
+                                                               !str_contains($icon, 'ti ti-') && 
+                                                               preg_match('/[\x{1F600}-\x{1F64F}]|[\x{1F300}-\x{1F5FF}]|[\x{1F680}-\x{1F6FF}]|[\x{1F1E0}-\x{1F1FF}]|[\x{2600}-\x{26FF}]|[\x{2700}-\x{27BF}]/u', $icon);
+                                                @endphp
+                                                
+                                                @if($icon && str_contains($icon, 'fi fi-'))
+                                                    <span class="{{ $icon }}" style="font-size: 1.5rem;"></span>
+                                                @elseif($icon && str_contains($icon, 'ti ti-'))
+                                                    <i class="{{ $icon }}" style="font-size: 1.5rem; color: {{ $color }};"></i>
+                                                @elseif($icon && str_contains($icon, 'bi-'))
+                                                    <i class="{{ $icon }}" style="font-size: 1.5rem; color: {{ $color }};"></i>
+                                                @elseif($icon && str_contains($icon, 'ph ph-'))
+                                                    <i class="{{ $icon }}" style="font-size: 1.5rem; color: {{ $color }};"></i>
+                                                @elseif($isEmoji)
+                                                    <span style="font-size: 1.5rem;">{{ $icon }}</span>
+                                                @else
+                                                    <i class="{{ $icon }}" style="font-size: 1.5rem; color: {{ $color }};"></i>
+                                                @endif
                                             </span>
-                                            <input type="text" class="form-control" wire:model.live="icon" 
+                                            <input type="text" 
+                                                   class="form-control" 
+                                                   wire:model.live="icon" 
+                                                   id="iconInput"
                                                    placeholder="fas fa-folder">
                                         </div>
-                                        <small class="text-muted">Utilisez les classes FontAwesome</small>
+                                        
+                                        <!-- Suggestions d'icônes selon le fournisseur -->
+                                        <div class="mt-3">
+                                            <div class="icon-suggestions-container" id="iconSuggestions">
+                                                <div class="mb-2">
+                                                    <span class="text-muted fw-bold">FontAwesome:</span>
+                                                </div>
+                                                <div class="d-flex flex-wrap">
+                                                    <span class="icon-suggestion" onclick="selectIcon('fas fa-home')">fas fa-home</span>
+                                                    <span class="icon-suggestion" onclick="selectIcon('fas fa-user')">fas fa-user</span>
+                                                    <span class="icon-suggestion" onclick="selectIcon('fas fa-heart')">fas fa-heart</span>
+                                                    <span class="icon-suggestion" onclick="selectIcon('fas fa-star')">fas fa-star</span>
+                                                    <span class="icon-suggestion" onclick="selectIcon('fas fa-map-marker-alt')">fas fa-map-marker-alt</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Bouton pour ouvrir la galerie complète -->
+                                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    Tapez votre icône ou cliquez sur une suggestion ci-dessus
+                                                </small>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-outline-info"
+                                                        onclick="window.open('{{ route('icons.gallery') }}', 'iconGallery', 'width=1200,height=800,scrollbars=yes,resizable=yes')"
+                                                        data-bs-toggle="tooltip" 
+                                                        data-bs-placement="top" 
+                                                        data-bs-title="Voir toutes les icônes disponibles">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -441,7 +569,7 @@
         transition: var(--transition);
         cursor: pointer;
         border: 2px solid transparent;
-        overflow: hidden;
+        overflow: visible; /* Changé de hidden à visible pour les dropdowns */
         position: relative;
     }
 
@@ -480,6 +608,28 @@
 
     .category-card:hover .dropdown-toggle {
         opacity: 1;
+    }
+
+    /* Styles pour les dropdowns - force l'affichage au-dessus */
+    .category-actions .dropdown {
+        position: static;
+    }
+
+    .category-actions .dropdown-menu {
+        position: absolute;
+        z-index: 1050;
+        margin-top: 0.125rem;
+        min-width: 160px;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+        border-radius: 0.375rem;
+    }
+
+    /* Force le dropdown à s'afficher vers le haut pour les dernières cartes */
+    .categories-grid .row > div:nth-last-child(-n+4) .dropdown-menu {
+        top: auto;
+        bottom: 100%;
+        margin-top: 0;
+        margin-bottom: 0.125rem;
     }
 
     .category-content {
@@ -561,7 +711,8 @@
         box-shadow: var(--shadow);
         transition: var(--transition);
         border: 1px solid #e9ecef;
-        overflow: hidden;
+        overflow: visible; /* Changé pour permettre l'affichage des dropdowns */
+        position: relative;
     }
 
     .subcategory-card:hover {
@@ -609,6 +760,28 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+    }
+
+    /* Styles pour les dropdowns des sous-catégories */
+    .subcategory-actions .dropdown {
+        position: static;
+    }
+
+    .subcategory-actions .dropdown-menu {
+        position: absolute;
+        z-index: 1050;
+        margin-top: 0.125rem;
+        min-width: 160px;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+        border-radius: 0.375rem;
+    }
+
+    /* Force les dropdowns des sous-catégories vers le haut si nécessaire */
+    .subcategories-list .row > div:nth-last-child(-n+3) .dropdown-menu {
+        top: auto;
+        bottom: 100%;
+        margin-top: 0;
+        margin-bottom: 0.125rem;
     }
 
     /* Empty States */
@@ -722,5 +895,40 @@
     .cursor-pointer {
         cursor: pointer;
     }
+
+    /* Icon selector improvements */
+    .icon-preview {
+        transition: all 0.2s ease;
+    }
+
+    .icon-suggestion {
+        cursor: pointer;
+        padding: 3px 8px;
+        border-radius: 6px;
+        margin-right: 6px;
+        margin-bottom: 4px;
+        display: inline-block;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #495057;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .icon-suggestion:hover {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+        text-decoration: none;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+    }
+
+    .icon-suggestions-container {
+        line-height: 1.8;
+    }
     </style>
+
 </div>
+

@@ -72,7 +72,7 @@ class UserManager extends Component
         $users = $this->getUsers();
         $roles = Role::all();
         
-        return view('livewire.admin.user-manager', [
+        return view('livewire.admin.users.user-manager', [
             'users' => $users,
             'roles' => $roles
         ]);

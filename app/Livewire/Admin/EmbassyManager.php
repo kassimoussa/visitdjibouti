@@ -98,10 +98,7 @@ class EmbassyManager extends Component
 
     public function render()
     {
-        $embassies = Embassy::with(['translations' => function ($query) {
-                // Charger toutes les traductions pour permettre le fallback
-                $query->select('embassy_id', 'locale', 'name', 'ambassador_name', 'address', 'postal_box');
-            }])
+        $embassies = Embassy::with(['translations'])
             ->when($this->search, function ($query) {
                 $query->whereHas('translations', function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')
@@ -115,9 +112,10 @@ class EmbassyManager extends Component
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('livewire.admin.embassy-manager', [
+        return view('livewire.admin.settings.embassy-manager', [
             'embassies' => $embassies,
             'types' => Embassy::TYPES,
+            'availableLocales' => $this->availableLocales,
         ]);
     }
 
@@ -228,13 +226,23 @@ class EmbassyManager extends Component
         }
     }
 
+
+    public function switchLocale($locale)
+    {
+        $this->currentLocale = $locale;
+    }
+
     public function toggleStatus($embassyId)
     {
-        $embassy = Embassy::findOrFail($embassyId);
-        $embassy->update(['is_active' => !$embassy->is_active]);
-        
-        $status = $embassy->is_active ? 'activée' : 'désactivée';
-        session()->flash('message', "Ambassade {$status} avec succès.");
+        try {
+            $embassy = Embassy::findOrFail($embassyId);
+            $embassy->update(['is_active' => !$embassy->is_active]);
+            
+            $status = $embassy->is_active ? 'activée' : 'désactivée';
+            session()->flash('message', "Ambassade {$status} avec succès.");
+        } catch (\Exception $e) {
+            session()->flash('error', 'Erreur lors du changement de statut: ' . $e->getMessage());
+        }
     }
 
     public function delete($embassyId)
@@ -247,11 +255,6 @@ class EmbassyManager extends Component
         } catch (\Exception $e) {
             session()->flash('error', 'Erreur lors de la suppression: ' . $e->getMessage());
         }
-    }
-
-    public function switchLocale($locale)
-    {
-        $this->currentLocale = $locale;
     }
 
     public function closeModal()

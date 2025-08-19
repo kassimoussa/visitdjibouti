@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\ExternalLinkController;
 use App\Http\Controllers\Api\EmbassyController;
 use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\Api\AppSettingController;
+use App\Http\Controllers\Api\TourOperatorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +77,23 @@ Route::prefix('embassies')->group(function () {
     Route::get('/type/{type}', [EmbassyController::class, 'getByType'])
          ->where('type', 'foreign_in_djibouti|djiboutian_abroad');
     Route::get('/{id}', [EmbassyController::class, 'show']);
+});
+
+// Routes publiques pour les paramètres d'application mobile
+Route::prefix('app-settings')->group(function () {
+    Route::get('/', [AppSettingController::class, 'index']); // Tous les settings groupés par type
+    Route::get('/flat', [AppSettingController::class, 'flat']); // Tous les settings en liste plate
+    Route::get('/type/{type}', [AppSettingController::class, 'getByType']); // Settings par type
+    Route::get('/splash-screens', [AppSettingController::class, 'splashScreens']); // Splash screens uniquement
+    Route::get('/{key}', [AppSettingController::class, 'show']); // Setting spécifique par clé
+});
+
+// Routes publiques pour les opérateurs de tour
+Route::prefix('tour-operators')->group(function () {
+    Route::get('/', [TourOperatorController::class, 'index']); // Liste avec filtres avancés
+    Route::get('/nearby', [TourOperatorController::class, 'getNearby']); // Proximité géographique
+    Route::get('/service/{serviceType}', [TourOperatorController::class, 'getByService']); // Par type de service
+    Route::get('/{identifier}', [TourOperatorController::class, 'show']); // Détails (ID ou slug)
 });
 
 // Routes protégées par Sanctum

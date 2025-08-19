@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\ExampleController;
+use App\Http\Controllers\Admin\IconGalleryController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\NewsCategoryController;
 use App\Http\Controllers\Admin\PoiController;
@@ -58,6 +59,9 @@ Route::middleware('auth.admin')->group(function () {
     Route::put('/profile/info', [ProfileController::class, 'updateInfo'])->name('profile.update.info');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.update.password');
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.update.avatar');
+
+    // Route pour la galerie d'icônes
+    Route::get('/icons/gallery', [IconGalleryController::class, 'index'])->name('icons.gallery');
 
     // Routes pour les points d'intérêt
     Route::get('/pois', [PoiController::class, 'index'])->name('pois.index');
@@ -183,6 +187,22 @@ Route::middleware('auth.admin')->group(function () {
     Route::get('/settings', function () {
         return view('admin.settings.index');
     })->name('settings.index');
+
+    // Routes pour les opérateurs de tour
+    Route::get('/tour-operators', function () {
+        return view('admin.tour-operators.index');
+    })->name('tour-operators.index');
+    Route::get('/tour-operators/create', function () {
+        return view('admin.tour-operators.create');
+    })->name('tour-operators.create');
+    Route::get('/tour-operators/{id}/edit', function ($id) {
+        return view('admin.tour-operators.edit', ['tourOperatorId' => $id]);
+    })->name('tour-operators.edit');
+});
+
+// Route de test pour le sélecteur d'icônes
+Route::get('/test-icon-selector', function() {
+    return view('test-icon-selector');
 });
 
 Route::get('/test-livewire', function() {

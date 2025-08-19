@@ -392,7 +392,7 @@ class MediaManager extends Component
         // Paginer les résultats
         $media = $query->paginate(15);
         
-        return view('livewire.admin.media-manager', [
+        return view('livewire.admin.media.media-manager', [
             'media' => $media,
         ]);
     }

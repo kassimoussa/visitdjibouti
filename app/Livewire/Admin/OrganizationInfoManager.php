@@ -119,7 +119,7 @@ class OrganizationInfoManager extends Component
 
     public function render()
     {
-        return view('livewire.admin.organization-info-manager');
+        return view('livewire.admin.settings.organization-info-manager');
     }
 
     public function loadOrganizationInfo()

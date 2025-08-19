@@ -213,6 +213,133 @@ document.addEventListener('livewire:init', () => {
 
 @push('scripts')
 <script>
+// Functions globales pour le sélecteur d'icônes
+// Variable pour stocker le fournisseur actuel
+let currentProvider = 'fontawesome';
+
+function updateIconPlaceholder(provider) {
+    const input = document.getElementById('iconInput');
+    const suggestions = document.getElementById('iconSuggestions');
+    
+    if (!input || !suggestions) return;
+    
+    // Stocker le fournisseur sélectionné
+    currentProvider = provider;
+    
+    const placeholders = {
+        'fontawesome': 'fas fa-folder',
+        'bootstrap': 'bi-folder',
+        'phosphor': 'ph ph-folder',
+        'tabler': 'ti ti-folder',
+        'flags': 'fi fi-fr',
+        'emojis': '🏛️'
+    };
+    
+    const suggestionContent = {
+        'fontawesome': `
+            <div class="mb-2"><span class="text-muted fw-bold">FontAwesome:</span></div>
+            <div class="d-flex flex-wrap">
+                <span class="icon-suggestion" onclick="selectIcon('fas fa-home')">fas fa-home</span>
+                <span class="icon-suggestion" onclick="selectIcon('fas fa-user')">fas fa-user</span>
+                <span class="icon-suggestion" onclick="selectIcon('fas fa-heart')">fas fa-heart</span>
+                <span class="icon-suggestion" onclick="selectIcon('fas fa-star')">fas fa-star</span>
+                <span class="icon-suggestion" onclick="selectIcon('fas fa-map-marker-alt')">fas fa-map-marker-alt</span>
+            </div>
+        `,
+        'bootstrap': `
+            <div class="mb-2"><span class="text-muted fw-bold">Bootstrap Icons:</span></div>
+            <div class="d-flex flex-wrap">
+                <span class="icon-suggestion" onclick="selectIcon('bi-house')">bi-house</span>
+                <span class="icon-suggestion" onclick="selectIcon('bi-person')">bi-person</span>
+                <span class="icon-suggestion" onclick="selectIcon('bi-heart')">bi-heart</span>
+                <span class="icon-suggestion" onclick="selectIcon('bi-star')">bi-star</span>
+                <span class="icon-suggestion" onclick="selectIcon('bi-geo-alt')">bi-geo-alt</span>
+            </div>
+        `,
+        'phosphor': `
+            <div class="mb-2"><span class="text-muted fw-bold">Phosphor Icons:</span></div>
+            <div class="d-flex flex-wrap">
+                <span class="icon-suggestion" onclick="selectIcon('ph ph-house')">ph ph-house</span>
+                <span class="icon-suggestion" onclick="selectIcon('ph ph-user')">ph ph-user</span>
+                <span class="icon-suggestion" onclick="selectIcon('ph ph-heart')">ph ph-heart</span>
+                <span class="icon-suggestion" onclick="selectIcon('ph ph-star')">ph ph-star</span>
+                <span class="icon-suggestion" onclick="selectIcon('ph ph-map-pin')">ph ph-map-pin</span>
+            </div>
+        `,
+        'tabler': `
+            <div class="mb-2"><span class="text-muted fw-bold">Tabler Icons:</span></div>
+            <div class="d-flex flex-wrap">
+                <span class="icon-suggestion" onclick="selectIcon('ti ti-home')">ti ti-home</span>
+                <span class="icon-suggestion" onclick="selectIcon('ti ti-user')">ti ti-user</span>
+                <span class="icon-suggestion" onclick="selectIcon('ti ti-heart')">ti ti-heart</span>
+                <span class="icon-suggestion" onclick="selectIcon('ti ti-star')">ti ti-star</span>
+                <span class="icon-suggestion" onclick="selectIcon('ti ti-map-pin')">ti ti-map-pin</span>
+            </div>
+        `,
+        'flags': `
+            <div class="mb-2"><span class="text-muted fw-bold">Flag Icons:</span></div>
+            <div class="d-flex flex-wrap">
+                <span class="icon-suggestion" onclick="selectIcon('fi fi-fr')">fi fi-fr</span>
+                <span class="icon-suggestion" onclick="selectIcon('fi fi-gb')">fi fi-gb</span>
+                <span class="icon-suggestion" onclick="selectIcon('fi fi-us')">fi fi-us</span>
+                <span class="icon-suggestion" onclick="selectIcon('fi fi-dj')">fi fi-dj</span>
+                <span class="icon-suggestion" onclick="selectIcon('fi fi-de')">fi fi-de</span>
+            </div>
+        `,
+        'emojis': `
+            <div class="mb-2"><span class="text-muted fw-bold">Emojis:</span></div>
+            <div class="d-flex flex-wrap">
+                <span class="icon-suggestion" onclick="selectIcon('🏛️')">🏛️</span>
+                <span class="icon-suggestion" onclick="selectIcon('🌟')">🌟</span>
+                <span class="icon-suggestion" onclick="selectIcon('🎯')">🎯</span>
+                <span class="icon-suggestion" onclick="selectIcon('🏖️')">🏖️</span>
+                <span class="icon-suggestion" onclick="selectIcon('🗺️')">🗺️</span>
+            </div>
+        `
+    };
+    
+    input.placeholder = placeholders[provider] || placeholders['fontawesome'];
+    suggestions.innerHTML = suggestionContent[provider] || suggestionContent['fontawesome'];
+}
+
+function selectIcon(icon) {
+    const input = document.getElementById('iconInput');
+    if (input) {
+        // Mettre à jour la valeur du champ
+        input.value = icon;
+        
+        // Déclencher les événements pour que Livewire détecte le changement
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        
+        // Maintenir les suggestions du fournisseur actuel après la sélection
+        setTimeout(() => {
+            if (currentProvider !== 'fontawesome') {
+                updateIconPlaceholder(currentProvider);
+                
+                // Garder le dropdown sur le bon fournisseur
+                const dropdown = document.getElementById('iconProvider');
+                if (dropdown) {
+                    dropdown.value = currentProvider;
+                }
+            }
+        }, 100);
+    }
+}
+
+// Fonction pour maintenir l'état du fournisseur après les updates Livewire
+function maintainProviderState() {
+    if (currentProvider !== 'fontawesome') {
+        updateIconPlaceholder(currentProvider);
+        
+        // Garder le dropdown sur le bon fournisseur
+        const dropdown = document.getElementById('iconProvider');
+        if (dropdown) {
+            dropdown.value = currentProvider;
+        }
+    }
+}
+
 // Scripts additionnels pour l'UX
 document.addEventListener('livewire:initialized', () => {
     // Gestion des états de chargement
@@ -222,6 +349,13 @@ document.addEventListener('livewire:initialized', () => {
     
     Livewire.on('loading-end', () => {
         document.querySelector('.category-manager-container').classList.remove('loading');
+    });
+    
+    // Maintenir l'état du fournisseur après les updates Livewire
+    Livewire.hook('morph.updated', () => {
+        setTimeout(() => {
+            maintainProviderState();
+        }, 50);
     });
     
     // Auto-dismiss des alertes après 5 secondes
@@ -250,6 +384,12 @@ document.addEventListener('keydown', function(e) {
 
 // Amélioration de l'accessibilité
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser les tooltips Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
     // Ajouter des attributs ARIA
     document.querySelectorAll('.category-card').forEach((card, index) => {
         card.setAttribute('tabindex', '0');
@@ -263,6 +403,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.click();
             }
         });
+    });
+});
+
+// Réinitialiser les tooltips après les updates Livewire
+document.addEventListener('livewire:initialized', () => {
+    Livewire.hook('morph.updated', () => {
+        setTimeout(() => {
+            // Réinitialiser les tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }, 100);
     });
 });
 </script>

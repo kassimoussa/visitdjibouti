@@ -149,7 +149,7 @@ FACEBOOK_CLIENT_SECRET=your_facebook_app_secret
 
 ## Complete Mobile API Implementation
 
-### 25 API Endpoints Available
+### 30+ API Endpoints Available
 The mobile API is fully implemented with comprehensive endpoints:
 
 #### Authentication & User Management (5 endpoints)
@@ -188,13 +188,26 @@ The mobile API is fully implemented with comprehensive endpoints:
 - `GET /api/external-links/{id}` - Link details
 - `GET /api/embassies` - Embassy listings with advanced features
 
+#### App Settings (3 endpoints) - NEW
+- `GET /api/app-settings` - All mobile app configuration settings
+- `GET /api/app-settings/flat` - Settings in flat list format
+- `GET /api/app-settings/type/{type}` - Settings by specific type
+
+#### Tour Operators (4 endpoints) - NEW
+- `GET /api/tour-operators` - List with advanced filtering
+- `GET /api/tour-operators/nearby` - Nearby operators with GPS coordinates
+- `GET /api/tour-operators/service/{type}` - Operators by service type
+- `GET /api/tour-operators/{identifier}` - Operator details (ID or slug)
+
 ### Key Features Implemented
 - **Complete OAuth Integration**: Google & Facebook login with Laravel Socialite
 - **Event Reservation System**: Full booking system with guest and authenticated user support
 - **Favorites Management System**: Complete favorites system for POIs and Events with polymorphic relations
+- **Tour Operators Management**: Complete system with service filtering, geolocation, and certification levels
+- **Dynamic App Settings**: Mobile app configuration system for splash screens, onboarding, and app info
 - **Multilingual API**: All endpoints support Accept-Language header (fr, en, ar)
-- **Geolocation Support**: Nearby POIs and embassies with GPS coordinates
-- **Advanced Filtering**: Search, categories, dates, regions, status filters
+- **Geolocation Support**: Nearby POIs, embassies, and tour operators with GPS coordinates
+- **Advanced Filtering**: Search, categories, dates, regions, status, services, and certification filters
 - **Comprehensive Documentation**: API_DOCUMENTATION.md with examples and cURL commands
 
 ### Mobile App Ready Features
@@ -203,6 +216,8 @@ The mobile API is fully implemented with comprehensive endpoints:
 - Social login integration
 - **Favorites system with cloud synchronization**
 - **Real-time favorites count and status**
+- **Tour operators with geolocation and filtering**
+- **Dynamic app configuration (splash screens, onboarding)**
 - Complete tourism information (POIs, events, embassies, organization)
 - Multilingual content with automatic fallback
 - GPS-based nearby searches
@@ -216,9 +231,23 @@ The mobile API is fully implemented with comprehensive endpoints:
 - Livewire components for admin interface: `app/Livewire/Admin/`
 - Views for Livewire: `resources/views/livewire/admin/`
 
+### Livewire Admin File Organization (Recently Reorganized)
+The admin Livewire files are now properly organized in logical subfolders:
+
+- `settings/` - App settings, embassy and organization management
+- `categories/` - Category and modern category managers
+- `external-links/` - External links management
+- `components/` - Reusable components (icon-selector)
+- `media/` - Media management (edit, manager, upload, simple-upload)
+- `news/` - News category management  
+- `users/` - User management
+- `_development/` - Non-production files (tour-operator-manager, media-selector-modal, etc.)
+
+All root-level files have been moved to appropriate subfolders and PHP component view paths have been updated accordingly.
+
 ### Mobile API
-- API Routes: `routes/api.php` - All 18 endpoints organized by feature
-- API Controllers: `app/Http/Controllers/Api/` - AuthController, PoiController, EventController, etc.
+- API Routes: `routes/api.php` - All 30+ endpoints organized by feature
+- API Controllers: `app/Http/Controllers/Api/` - AuthController, PoiController, EventController, TourOperatorController, AppSettingController, etc.
 - Models: Support for both admin and mobile user authentication
 - Documentation: `API_DOCUMENTATION.md` - Complete reference with examples
 
@@ -231,3 +260,5 @@ The mobile API is fully implemented with comprehensive endpoints:
 - **Favorites system with polymorphic relationships supporting multiple content types**
 - **Automatic favorites count and status included in all POI/Event responses**
 - **Cloud-based favorites synchronization with offline capability**
+- **Tour operators system with comprehensive filtering and geolocation**
+- **Dynamic app settings for mobile configuration management**

@@ -50,7 +50,7 @@ class ExternalLinkManager extends Component
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('livewire.admin.external-link-manager', [
+        return view('livewire.admin.external-links.external-link-manager', [
             'links' => $links,
         ]);
     }

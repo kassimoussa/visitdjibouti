@@ -81,6 +81,19 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" 
+                    id="app-mobile-tab" 
+                    data-bs-toggle="tab" 
+                    data-bs-target="#app-mobile-content" 
+                    type="button" 
+                    role="tab"
+                    aria-controls="app-mobile-content" 
+                    aria-selected="false">
+                <i class="fas fa-mobile-alt me-2"></i>
+                App Mobile
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" 
                     id="security-tab" 
                     data-bs-toggle="tab" 
                     data-bs-target="#security-content" 
@@ -176,6 +189,14 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Onglet App Mobile -->
+        <div class="tab-pane fade" 
+             id="app-mobile-content" 
+             role="tabpanel" 
+             aria-labelledby="app-mobile-tab">
+            <livewire:admin.app-setting-manager />
         </div>
 
         <!-- Onglet Sécurité -->

@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             AppUserSeeder::class,
             EmbassySeeder::class,
+            TourOperatorSeeder::class,
         ]);
     }
 }

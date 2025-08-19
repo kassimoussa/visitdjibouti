@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Admin\_Development;
 
 use App\Models\Media;
 use Livewire\Component;
@@ -953,7 +953,7 @@ class UniversalMediaSelector extends Component
                 $media = $this->createTestMediaData();
             }
             
-            return view('livewire.admin.universal-media-selector', [
+            return view('livewire.admin._development.universal-media-selector', [
                 'media' => $media,
                 'stats' => $stats,
             ]);
@@ -962,7 +962,7 @@ class UniversalMediaSelector extends Component
             $media = $this->createTestMediaData();
             $stats = ['total' => 15, 'images' => 9, 'videos' => 3, 'documents' => 3];
             
-            return view('livewire.admin.universal-media-selector', [
+            return view('livewire.admin._development.universal-media-selector', [
                 'media' => $media,
                 'stats' => $stats,
             ]);

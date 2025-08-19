@@ -188,30 +188,35 @@
                                         @enderror
                                     </div>
 
-                                    <!-- Coordonnées GPS -->
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="latitude" class="form-label">Latitude</label>
-                                                <input type="number" step="any"
-                                                    class="form-control @error('latitude') is-invalid @enderror"
-                                                    id="latitude" wire:model="latitude">
-                                                @error('latitude')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
+                                    <!-- Carte interactive pour géolocalisation -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Localisation sur la carte</label>
+                                        <div class="border rounded" style="height: 300px; width: 100%; position: relative;">
+                                            <div id="eventLocationMap" style="height: 300px; width: 100%; min-height: 300px; min-width: 200px;"></div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="longitude" class="form-label">Longitude</label>
-                                                <input type="number" step="any"
-                                                    class="form-control @error('longitude') is-invalid @enderror"
-                                                    id="longitude" wire:model="longitude">
-                                                @error('longitude')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle"></i> 
+                                            Cliquez sur la carte pour définir l'emplacement de l'événement
                                         </div>
+                                        @error('latitude') 
+                                            <div class="text-danger small">{{ $message }}</div> 
+                                        @enderror
+                                        @error('longitude') 
+                                            <div class="text-danger small">{{ $message }}</div> 
+                                        @enderror
+                                    </div>
+
+                                    <!-- Recherche d'adresse -->
+                                    <div class="mb-3">
+                                        <label for="eventAddressSearch" class="form-label">Rechercher une adresse</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="eventAddressSearch" 
+                                                   placeholder="Tapez une adresse pour la localiser sur la carte">
+                                            <button type="button" class="btn btn-outline-primary" id="eventSearchButton">
+                                                <i class="fas fa-search"></i> Rechercher
+                                            </button>
+                                        </div>
+                                        <div class="form-text">Exemple: "Palais du Peuple, Djibouti"</div>
                                     </div>
                                     @endif
 
@@ -750,33 +755,200 @@
     </style>
 </div>
 
-@script
+@push('scripts')
 <script>
-    // Initialiser SortableJS pour le drag & drop de la galerie
-    document.addEventListener('livewire:initialized', () => {
-        initializeGallerySorting();
-    });
-    
-    // Réinitialiser après mise à jour Livewire
-    document.addEventListener('livewire:updated', () => {
-        initializeGallerySorting();
-    });
-    
-    function initializeGallerySorting() {
-        const galleryContainer = document.getElementById('gallery-images');
-        if (galleryContainer && typeof Sortable !== 'undefined') {
-            new Sortable(galleryContainer, {
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                chosenClass: 'sortable-chosen',
-                handle: '.drag-handle',
-                onEnd: function(evt) {
-                    if (evt.oldIndex !== evt.newIndex) {
-                        @this.call('reorderGallery', evt.oldIndex, evt.newIndex);
-                    }
-                }
-            });
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser la carte seulement si on est en français (où les coordonnées sont visibles)
+    if (document.getElementById('eventLocationMap')) {
+        initEventLocationMap();
     }
+});
+
+// Variables globales pour garder la référence de la carte
+let globalEventMap = null;
+let globalEventMarker = null;
+
+function initEventLocationMap() {
+    // Si la carte existe déjà, ne pas la recréer
+    if (globalEventMap) {
+        return;
+    }
+
+    // Coordonnées par défaut (centre de Djibouti)
+    const defaultLat = @json($latitude) || 11.5721;
+    const defaultLng = @json($longitude) || 43.1456;
+    
+    // Initialiser la carte
+    globalEventMap = L.map('eventLocationMap').setView([defaultLat, defaultLng], 12);
+    const map = globalEventMap;
+    
+    // Ajouter les tuiles OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    // Marqueur pour la position
+    let marker = globalEventMarker;
+    
+    // Si des coordonnées existent déjà, placer le marqueur
+    if (@json($latitude) && @json($longitude)) {
+        marker = L.marker([defaultLat, defaultLng]).addTo(map);
+        globalEventMarker = marker;
+    }
+    
+    // Gestionnaire de clic sur la carte
+    map.on('click', function(e) {
+        // Supprimer l'ancien marqueur s'il existe
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        
+        // Ajouter nouveau marqueur
+        marker = L.marker(e.latlng).addTo(map);
+        globalEventMarker = marker;
+        
+        // Mettre à jour les propriétés Livewire sans déclencher de re-render
+        @this.latitude = e.latlng.lat;
+        @this.longitude = e.latlng.lng;
+        
+        // Optionnel: afficher une notification
+        showEventToast('Position mise à jour: ' + e.latlng.lat.toFixed(6) + ', ' + e.latlng.lng.toFixed(6));
+    });
+    
+    // Recherche d'adresse
+    const searchButton = document.getElementById('eventSearchButton');
+    const searchInput = document.getElementById('eventAddressSearch');
+    
+    if (searchButton && searchInput) {
+        // Recherche au clic
+        searchButton.addEventListener('click', function() {
+            searchEventAddress();
+        });
+        
+        // Recherche à l'appui de Entrée
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchEventAddress();
+            }
+        });
+    }
+    
+    function searchEventAddress() {
+        const address = searchInput.value.trim();
+        if (!address) return;
+        
+        // Désactiver le bouton pendant la recherche
+        searchButton.disabled = true;
+        searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recherche...';
+        
+        // Utiliser l'API Nominatim pour géocoder
+        const query = encodeURIComponent(address + ', Djibouti');
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&countrycodes=dj`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const result = data[0];
+                    const lat = parseFloat(result.lat);
+                    const lng = parseFloat(result.lon);
+                    
+                    // Supprimer l'ancien marqueur
+                    if (marker) {
+                        map.removeLayer(marker);
+                    }
+                    
+                    // Ajouter nouveau marqueur et centrer la carte
+                    marker = L.marker([lat, lng]).addTo(map);
+                    globalEventMarker = marker;
+                    map.setView([lat, lng], 15);
+                    
+                    // Mettre à jour les coordonnées
+                    @this.latitude = lat;
+                    @this.longitude = lng;
+                    
+                    showEventToast('Adresse trouvée: ' + result.display_name);
+                    searchInput.value = ''; // Vider le champ de recherche
+                } else {
+                    showEventToast('Adresse non trouvée. Essayez une adresse plus précise.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur de géocodage:', error);
+                showEventToast('Erreur lors de la recherche d\'adresse.', 'error');
+            })
+            .finally(() => {
+                // Réactiver le bouton
+                searchButton.disabled = false;
+                searchButton.innerHTML = '<i class="fas fa-search"></i> Rechercher';
+            });
+    }
+    
+    function showEventToast(message, type = 'success') {
+        // Créer une notification temporaire
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type === 'error' ? 'danger' : 'success'} position-fixed`;
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        toast.innerHTML = `
+            <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'}"></i> 
+            ${message}
+            <button type="button" class="btn-close ms-2" onclick="this.parentElement.remove()"></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Auto-suppression après 4 secondes
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 4000);
+    }
+}
+
+// Écouter les changements de locale pour réinitialiser la carte si nécessaire
+document.addEventListener('livewire:init', () => {
+    Livewire.on('locale-changed', () => {
+        // Réinitialiser les variables globales pour forcer la recréation
+        if (globalEventMap) {
+            globalEventMap.remove();
+            globalEventMap = null;
+            globalEventMarker = null;
+        }
+        
+        // Petite pause pour laisser le DOM se mettre à jour
+        setTimeout(() => {
+            if (document.getElementById('eventLocationMap')) {
+                initEventLocationMap();
+            }
+        }, 100);
+    });
+});
+
+// Initialiser SortableJS pour le drag & drop de la galerie
+document.addEventListener('livewire:initialized', () => {
+    initializeGallerySorting();
+});
+
+// Réinitialiser après mise à jour Livewire
+document.addEventListener('livewire:updated', () => {
+    initializeGallerySorting();
+});
+
+function initializeGallerySorting() {
+    const galleryContainer = document.getElementById('gallery-images');
+    if (galleryContainer && typeof Sortable !== 'undefined') {
+        new Sortable(galleryContainer, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            handle: '.drag-handle',
+            onEnd: function(evt) {
+                if (evt.oldIndex !== evt.newIndex) {
+                    @this.call('reorderGallery', evt.oldIndex, evt.newIndex);
+                }
+            }
+        });
+    }
+}
 </script>
-@endscript
+@endpush

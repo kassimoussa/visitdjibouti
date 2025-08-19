@@ -270,16 +270,22 @@
             <div class="mb-3">
                 <label for="icon" class="form-label">Icône</label>
 
-                <!-- Champ visible pour le stockage de la valeur -->
+                <!-- Champ visible pour le stockage de la valeur avec preview améliorée -->
                 <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="{{ $icon }}"></i>
+                    <span class="input-group-text" style="min-width: 50px; justify-content: center;">
+                        @if($icon && str_contains($icon, 'fi fi-'))
+                            <span class="{{ $icon }}" style="font-size: 1.2rem;"></span>
+                        @elseif($icon && !str_contains($icon, 'fas') && !str_contains($icon, 'far') && !str_contains($icon, 'fab'))
+                            <span style="font-size: 1.2rem;">{{ $icon }}</span>
+                        @else
+                            <i class="{{ $icon }}" style="font-size: 1.2rem;"></i>
+                        @endif
                     </span>
                     <input wire:model="icon" type="text" class="form-control @error('icon') is-invalid @enderror"
-                        id="icon" readonly>
-                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#iconSelectorContainer">
-                        Choisir une icône
+                        id="icon" readonly placeholder="Cliquez sur 'Choisir une icône' pour sélectionner">
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#iconSelectorContainer" aria-expanded="false">
+                        <i class="fas fa-palette me-1"></i> Choisir une icône
                     </button>
                 </div>
 
@@ -287,9 +293,10 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
 
-                <!-- Conteneur du sélecteur d'icônes, collapsible pour économiser de l'espace -->
+                <!-- Conteneur du sélecteur d'icônes, collapsible -->
                 <div class="collapse mt-3" id="iconSelectorContainer">
                     <div class="card card-body">
+                        <h6 class="mb-3">🎨 Sélecteur d'icônes Multi-Provider</h6>
                         @livewire('admin.icon-selector', ['initialIcon' => $icon])
                     </div>
                 </div>

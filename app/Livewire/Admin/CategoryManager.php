@@ -291,7 +291,7 @@ class CategoryManager extends Component
         ->orderBy('created_at', 'desc')
         ->paginate(15);
 
-        return view('livewire.admin.category-manager', [
+        return view('livewire.admin.categories.category-manager', [
             'categories' => $categories,
             'parentCategories' => $parentCategories,
             'availableLocales' => $this->availableLocales

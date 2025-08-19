@@ -81,6 +81,6 @@ class MediaUpload extends Component
     
     public function render()
     {
-        return view('livewire.admin.media-upload');
+        return view('livewire.admin.media.media-upload');
     }
 }

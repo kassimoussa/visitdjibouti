@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Admin\_Development;
 
 use App\Models\Media;
 use Livewire\Component;
@@ -140,7 +140,7 @@ class MediaList extends Component
         // Paginer les résultats
         $media = $query->paginate(15);
         
-        return view('livewire.admin.media-list', [
+        return view('livewire.admin._development.media-list', [
             'media' => $media,
         ]);
     }

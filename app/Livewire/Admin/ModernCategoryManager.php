@@ -267,9 +267,15 @@ class ModernCategoryManager extends Component
 
     public function render()
     {
-        return view('livewire.admin.modern-category-manager', [
+        return view('livewire.admin.categories.modern-category-manager', [
             'mainCategories' => $this->getMainCategories(),
             'subcategories' => $this->getSubcategories()
         ]);
+    }
+
+    // Méthode pour gérer la sélection d'icône
+    public function updateIcon($icon)
+    {
+        $this->icon = $icon;
     }
 }

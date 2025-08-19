@@ -14,8 +14,15 @@
 
     <link href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" rel="stylesheet">
 
+    <!-- Multi-Provider Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
     
     @livewireStyles
+    @stack('styles')
 
     <style>
         /* Rendre le contenu invisible pendant le chargement */
@@ -245,6 +252,13 @@
                                 title="Liens externes">
                                 <i class="fas fa-external-link-alt"></i>
                                 <span>Liens externes</span>
+                            </a>
+                        </li>
+                        <li class="{{ request()->is('tour-operators*') ? 'active' : '' }}">
+                            <a href="{{ route('tour-operators.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Opérateurs de tour">
+                                <i class="fas fa-route"></i>
+                                <span>Opérateurs de tour</span>
                             </a>
                         </li>
                     </ul>

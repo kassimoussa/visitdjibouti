@@ -38,7 +38,7 @@
 
     <button class="btn btn-outline-primary" wire:click="$dispatch('open-media-modal')">Ouvrir la bibliothèque</button>
 
-    <livewire:media-library-modal />
+    <livewire:admin.media.media-library-modal />
 
     <script>
         document.addEventListener('alpine:init', () => {

@@ -48,6 +48,6 @@ class SimpleMediaUpload extends Component
     
     public function render()
     {
-        return view('livewire.admin.simple-media-upload');
+        return view('livewire.admin.media.simple-media-upload');
     }
 }

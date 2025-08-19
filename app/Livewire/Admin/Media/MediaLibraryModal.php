@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Admin\Media;
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -80,7 +80,7 @@ class MediaLibraryModal extends Component
 
     public function render()
     {
-        return view('livewire.media-library-modal');
+        return view('livewire.admin.media.media-library-modal');
     }
 }
 
