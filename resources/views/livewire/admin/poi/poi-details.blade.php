@@ -227,7 +227,7 @@
                                         </div>
                                         <div class="ms-3 flex-grow-1">
                                             <div class="fw-medium">Contact</div>
-                                            <div>{{ $poi->contact }}</div>
+                                            <div>{!! nl2br(e($poi->contact)) !!}</div>
                                         </div>
                                     </div>
                                 </div>
