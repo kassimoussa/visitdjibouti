@@ -220,7 +220,8 @@
                                                     class="form-control @error('contact') is-invalid @enderror"
                                                     id="contact" 
                                                     wire:model="contact" 
-                                                    rows="3"></textarea>
+                                                    rows="6"
+                                                    placeholder="Téléphones, emails, horaires de disponibilité, instructions spéciales..."></textarea>
                                                 <div class="form-text">Numéros de téléphone, emails, ou autres informations de contact</div>
                                                 @error('contact')
                                                     <div class="invalid-feedback">{{ $message }}</div>

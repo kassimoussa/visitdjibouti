@@ -81,7 +81,7 @@ class PoiForm extends Component
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'region' => 'nullable|string|max:255',
-            'contact' => 'nullable|string|max:255',
+            'contact' => 'nullable|string',
             'website' => 'nullable|url|max:255',
             'is_featured' => 'boolean',
             'allow_reservations' => 'boolean',
