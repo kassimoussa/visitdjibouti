@@ -1,6 +1,6 @@
 # 📱 API Documentation - Visit Djibouti Mobile App
 
-**Complete API with 30+ endpoints** for mobile tourism application with authentication, POIs, events, favorites, tour operators, app settings, and organization management.
+**Complete API with 28 endpoints** for mobile tourism application with authentication, POIs, events, favorites, tour operators, app settings, and organization management.
 
 ## 🔐 Authentication Endpoints
 
@@ -1379,83 +1379,201 @@ Get settings for a specific type (app_info, splash_screens, onboarding, etc.).
 **GET** `/tour-operators`
 
 **Query Parameters:**
-- `search` - Search in name/description
-- `service_type` - Filter by service type
-- `certification_type` - Filter by certification (local, national, international)
-- `price_range` - Filter by price range (budget, mid-range, luxury, premium)
-- `featured` - Show only featured operators (true/false)
-- `region` - Filter by region
-- `min_experience` - Minimum years of experience
-- `languages` - Filter by spoken languages
-- `per_page` - Results per page (default: 15)
+- `search` - Search in name/description/address/contact info
+- `featured` - Show only featured operators (true/false) 
+- `latitude` - User latitude for distance-based sorting
+- `longitude` - User longitude for distance-based sorting
+- `radius` - Search radius in km when using coordinates (default: 50, max: 200)
+- `per_page` - Results per page (default: 15, max: 50)
+- `page` - Page number
+
+**Headers:**
+```
+Accept-Language: fr|en|ar (default: fr)
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "slug": "desert-adventures-djibouti", 
+      "name": "Desert Adventures Djibouti",
+      "description": "Spécialiste des excursions dans le désert et des tours culturels à travers Djibouti",
+      "address": "Avenue République, Djibouti Ville",
+      "phones": ["+253 21 35 40 50", "+253 77 12 34 56"],
+      "emails": ["contact@desertadventures.dj", "info@desertadventures.dj"],
+      "website": "https://desertadventures.dj",
+      "location": {
+        "latitude": 11.5721,
+        "longitude": 43.1456,
+        "has_coordinates": true
+      },
+      "logo": {
+        "id": 15,
+        "url": "/storage/media/tour-operators/logo.png",
+        "thumbnail": "/storage/media/tour-operators/logo_thumb.png", 
+        "alt_text": "Logo Desert Adventures"
+      },
+      "gallery_count": 12,
+      "is_featured": true,
+      "created_at": "2024-08-20T10:30:00.000000Z"
+    }
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 15,
+    "total": 8,
+    "last_page": 1,
+    "has_more_pages": false
+  },
+  "filters_applied": {
+    "search": null,
+    "featured": true,
+    "nearby": false
+  },
+  "locale": "fr"
+}
+```
+
+**cURL Example:**
+```bash
+curl -X GET "http://your-domain.com/api/tour-operators?featured=true&per_page=5" \
+  -H "Accept: application/json" \
+  -H "Accept-Language: fr"
+```
+
+### 🗺️ Get Nearby Tour Operators
+**GET** `/tour-operators/nearby`
+
+Find tour operators within a specified radius of user's location.
+
+**Query Parameters:**
+- `latitude` (required) - User latitude (-90 to 90)
+- `longitude` (required) - User longitude (-180 to 180)  
+- `radius` - Search radius in km (default: 25, max: 200)
+- `limit` - Number of results (default: 10, max: 20)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "slug": "desert-adventures-djibouti",
+      "name": "Desert Adventures Djibouti", 
+      "description": "Spécialiste des excursions dans le désert",
+      "address": "Avenue République, Djibouti",
+      "phones": ["+253 21 35 40 50"],
+      "emails": ["contact@desertadventures.dj"],
+      "website": "https://desertadventures.dj",
+      "location": {
+        "latitude": 11.5721,
+        "longitude": 43.1456,
+        "has_coordinates": true
+      },
+      "logo": {
+        "id": 15,
+        "url": "/storage/media/tour-operators/logo.png",
+        "thumbnail": "/storage/media/tour-operators/logo_thumb.png",
+        "alt_text": "Logo Desert Adventures"
+      },
+      "gallery_count": 12,
+      "is_featured": true,
+      "created_at": "2024-08-20T10:30:00.000000Z",
+      "distance": 2.8,
+      "distance_unit": "km"
+    }
+  ],
+  "search_params": {
+    "latitude": 11.5721,
+    "longitude": 43.1456,
+    "radius": 25
+  },
+  "locale": "fr"
+}
+```
+
+**cURL Example:**
+```bash
+curl -X GET "http://your-domain.com/api/tour-operators/nearby?latitude=11.5721&longitude=43.1456&radius=50" \
+  -H "Accept: application/json" \
+  -H "Accept-Language: fr"
+```
+
+### 📄 Get Tour Operator Details
+**GET** `/tour-operators/{identifier}`
+
+Get detailed information about a specific tour operator by ID or slug.
+
+**Parameters:**
+- `identifier` - Tour operator ID (numeric) or slug (string)
 
 **Response:**
 ```json
 {
   "success": true,
   "data": {
-    "tour_operators": [
+    "id": 1,
+    "slug": "desert-adventures-djibouti",
+    "name": "Desert Adventures Djibouti",
+    "description": "Spécialiste des excursions dans le désert et des tours culturels à travers tout Djibouti. Nous proposons des expériences uniques au Lac Assal, Lac Abbé, et dans le désert du Grand Bara.",
+    "address": "Avenue République, Djibouti Ville",
+    "contact": {
+      "phones": ["+253 21 35 40 50", "+253 77 12 34 56"],
+      "emails": ["contact@desertadventures.dj", "info@desertadventures.dj"],
+      "website": "https://desertadventures.dj",
+      "primary_phone": "+253 21 35 40 50",
+      "primary_email": "contact@desertadventures.dj"
+    },
+    "location": {
+      "address": "Avenue République, Djibouti Ville",
+      "latitude": 11.5721,
+      "longitude": 43.1456,
+      "has_coordinates": true
+    },
+    "logo": {
+      "id": 15,
+      "url": "/storage/media/tour-operators/logo.png",
+      "thumbnail": "/storage/media/tour-operators/logo_thumb.png",
+      "alt_text": "Logo Desert Adventures",
+      "title": "Desert Adventures - Logo officiel"
+    },
+    "gallery": [
       {
-        "id": 1,
-        "slug": "desert-adventures-djibouti",
-        "name": "Desert Adventures Djibouti",
-        "description": "Spécialiste des excursions dans le désert",
-        "license_number": "TO-001-2024",
-        "certification_type": "national",
-        "phone": "+253 21 35 40 50",
-        "email": "contact@desertadventures.dj",
-        "website": "https://desertadventures.dj",
-        "address": "Avenue République, Djibouti",
-        "latitude": 11.5721,
-        "longitude": 43.1456,
-        "logo": {
-          "id": 15,
-          "title": "Desert Adventures Logo",
-          "path": "/storage/tour-operators/logo.png",
-          "thumbnail_path": "/storage/tour-operators/logo_thumb.png"
-        },
-        "services": ["desert_tours", "cultural_tours", "adventure_sports"],
-        "specialties": "Excursions désert, Lac Assal, Lac Abbé",
-        "price_range": "mid-range",
-        "min_price": 75.00,
-        "max_price": 450.00,
-        "currency": "USD",
-        "years_experience": 8,
-        "max_group_size": 12,
-        "languages_spoken": "Français, English, العربية",
-        "opening_hours": "08:00-18:00 (Lun-Sam)",
-        "emergency_contact_available": true,
-        "is_active": true,
-        "featured": true
+        "id": 45,
+        "url": "/storage/media/tour-operators/gallery1.jpg",
+        "thumbnail": "/storage/media/tour-operators/gallery1_thumb.jpg",
+        "type": "images",
+        "mime_type": "image/jpeg", 
+        "size": 2048576,
+        "alt_text": "Excursion au Lac Assal",
+        "title": "Lac Assal - Point le plus bas d'Afrique",
+        "description": "Vue panoramique du célèbre Lac Assal",
+        "order": 1
       }
     ],
-    "pagination": {
-      "current_page": 1,
-      "per_page": 15,
-      "total": 24
-    }
-  }
+    "metadata": {
+      "is_featured": true,
+      "is_active": true,
+      "created_at": "2024-08-20T10:30:00.000000Z",
+      "updated_at": "2024-08-20T15:45:00.000000Z"
+    },
+    "translations_available": ["fr", "en", "ar"]
+  },
+  "locale": "fr"
 }
 ```
 
-### 🗺️ Get Nearby Tour Operators
-**GET** `/tour-operators/nearby`
-
-**Query Parameters:**
-- `latitude` (required) - User latitude
-- `longitude` (required) - User longitude  
-- `radius` - Search radius in km (default: 25)
-- `limit` - Number of results (default: 10)
-
-### 🎯 Get Tour Operators by Service
-**GET** `/tour-operators/service/{serviceType}`
-
-Get operators offering specific services (desert_tours, cultural_tours, diving, etc.).
-
-### 📄 Get Tour Operator Details
-**GET** `/tour-operators/{identifier}`
-
-Get detailed information about a tour operator by ID or slug.
+**cURL Example:**
+```bash
+curl -X GET "http://your-domain.com/api/tour-operators/desert-adventures-djibouti" \
+  -H "Accept: application/json" \
+  -H "Accept-Language: en"
+```
 
 ---
 

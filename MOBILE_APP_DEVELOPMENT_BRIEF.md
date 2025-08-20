@@ -6,7 +6,7 @@ Développer une application mobile Flutter (iOS/Android) pour le tourisme à Dji
 ## 📋 **Context & Backend Existant**
 
 ### API Backend Laravel Complète ✅
-- **30+ endpoints API** déjà développés et entièrement fonctionnels
+- **28 endpoints API** déjà développés et entièrement fonctionnels
 - **Authentification OAuth** : Google + Facebook + Email/Password avec Laravel Sanctum
 - **Système de Favoris** : Gestion complète des favoris POIs et Events avec synchronisation cloud
 - **Tour Operators** : Système complet de gestion des opérateurs de tour avec géolocalisation
@@ -62,10 +62,9 @@ Développer une application mobile Flutter (iOS/Android) pour le tourisme à Dji
 ├── GET /api/app-settings/flat       # Paramètres en liste plate
 └── GET /api/app-settings/type/{type} # Paramètres par type
 
-🚐 TOUR OPERATORS (4 endpoints) - NEW ✨
+🚐 TOUR OPERATORS (3 endpoints) ✅
 ├── GET /api/tour-operators          # Liste avec filtres avancés
 ├── GET /api/tour-operators/nearby   # Proximité géographique
-├── GET /api/tour-operators/service/{type} # Par type de service
 └── GET /api/tour-operators/{identifier} # Détails (ID ou slug)
 ```
 

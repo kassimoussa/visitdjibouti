@@ -92,7 +92,6 @@ Route::prefix('app-settings')->group(function () {
 Route::prefix('tour-operators')->group(function () {
     Route::get('/', [TourOperatorController::class, 'index']); // Liste avec filtres avancés
     Route::get('/nearby', [TourOperatorController::class, 'getNearby']); // Proximité géographique
-    Route::get('/service/{serviceType}', [TourOperatorController::class, 'getByService']); // Par type de service
     Route::get('/{identifier}', [TourOperatorController::class, 'show']); // Détails (ID ou slug)
 });
 
