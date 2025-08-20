@@ -216,10 +216,12 @@
                                             <!-- Contact (commun à toutes les langues) -->
                                             <div class="mb-3">
                                                 <label for="contact" class="form-label">Contact</label>
-                                                <input type="text"
+                                                <textarea 
                                                     class="form-control @error('contact') is-invalid @enderror"
-                                                    id="contact" wire:model="contact">
-                                                <div class="form-text">Numéro de téléphone ou email</div>
+                                                    id="contact" 
+                                                    wire:model="contact" 
+                                                    rows="3"></textarea>
+                                                <div class="form-text">Numéros de téléphone, emails, ou autres informations de contact</div>
                                                 @error('contact')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
