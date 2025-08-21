@@ -96,63 +96,95 @@
         </div>
 
         <div class="row">
-            <!-- Colonne principale -->
+            <!-- Colonne principale avec onglets -->
             <div class="col-lg-8">
-                <!-- Description -->
-                <div class="mpv-card shadow-sm mb-4 border-0">
-                    <div class="mpv-card-body p-4">
-                        <h4 class="mpv-card-title border-bottom pb-3 mb-3">Description</h4>
+                <!-- Onglets -->
+                <ul class="nav nav-tabs" id="poiTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="details-tab" data-bs-toggle="tab" 
+                                data-bs-target="#details" type="button" role="tab">
+                            <i class="fas fa-info-circle me-1"></i>Détails
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="gallery-tab" data-bs-toggle="tab" 
+                                data-bs-target="#gallery" type="button" role="tab">
+                            <i class="fas fa-images me-1"></i>Galerie
+                        </button>
+                    </li>
+                </ul>
 
-                        @if ($poi->translation($currentLocale)->short_description)
-                            <div class="alert alert-light border-start border-4 border-primary mb-4">
-                                <div class="fw-medium">{{ $poi->translation($currentLocale)->short_description }}</div>
+                <div class="tab-content" id="poiTabsContent">
+                    <!-- Onglet Détails -->
+                    <div class="tab-pane fade show active" id="details" role="tabpanel">
+                        <!-- Description -->
+                        <div class="mpv-card shadow-sm mb-4 border-0 border-top-0 rounded-top-0">
+                            <div class="mpv-card-body p-4">
+                                <h4 class="mpv-card-title border-bottom pb-3 mb-3">Description</h4>
+
+                                @if ($poi->translation($currentLocale)->short_description)
+                                    <div class="alert alert-light border-start border-4 border-primary mb-4">
+                                        <div class="fw-medium">{{ $poi->translation($currentLocale)->short_description }}</div>
+                                    </div>
+                                @endif
+
+                                <div class="mpv-description">
+                                    {!! nl2br(e($poi->translation($currentLocale)->description)) !!}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conseils aux visiteurs -->
+                        @if ($poi->translation($currentLocale)->tips)
+                            <div class="mpv-card shadow-sm mb-4 border-0">
+                                <div class="mpv-card-body p-4">
+                                    <h4 class="mpv-card-title border-bottom pb-3 mb-3">
+                                        <i class="fas fa-lightbulb text-warning me-2"></i>Conseils aux visiteurs
+                                    </h4>
+
+                                    <div class="mpv-tips-content">
+                                        {!! nl2br(e($poi->translation($currentLocale)->tips)) !!}
+                                    </div>
+                                </div>
                             </div>
                         @endif
-
-                        <div class="mpv-description">
-                            {!! nl2br(e($poi->translation($currentLocale)->description)) !!}
-                        </div>
                     </div>
-                </div>
 
-                <!-- Galerie d'images -->
-                @if ($poi->media->isNotEmpty())
-                    <div class="mpv-card shadow-sm mb-4 border-0">
-                        <div class="mpv-card-body p-4">
-                            <h4 class="mpv-card-title border-bottom pb-3 mb-3">Galerie photos</h4>
+                    <!-- Onglet Galerie -->
+                    <div class="tab-pane fade" id="gallery" role="tabpanel">
+                        @if ($poi->media->isNotEmpty())
+                            <div class="mpv-card shadow-sm mb-4 border-0 border-top-0 rounded-top-0">
+                                <div class="mpv-card-body p-4">
+                                    <h4 class="mpv-card-title border-bottom pb-3 mb-3">Galerie photos</h4>
 
-                            <div class="row g-3 mpv-gallery">
-                                @foreach ($poi->media as $mediaItem)
-                                    <div class="col-md-3 col-6">
-                                        <a href="{{ asset($mediaItem->path) }}" class="glightbox"
-                                            data-gallery="poi-gallery">
-                                            <div class="mpv-gallery-item">
-                                                <img src="{{ asset($mediaItem->path) }}"
-                                                    alt="{{ $mediaItem->getTranslation($currentLocale)->title ?? $mediaItem->original_name }}"
-                                                    class="img-fluid">
+                                    <div class="row g-3 mpv-gallery">
+                                        @foreach ($poi->media as $mediaItem)
+                                            <div class="col-md-3 col-6">
+                                                <a href="{{ asset($mediaItem->path) }}" class="glightbox"
+                                                    data-gallery="poi-gallery">
+                                                    <div class="mpv-gallery-item">
+                                                        <img src="{{ asset($mediaItem->path) }}"
+                                                            alt="{{ $mediaItem->getTranslation($currentLocale)->title ?? $mediaItem->original_name }}"
+                                                            class="img-fluid">
+                                                    </div>
+                                                </a>
                                             </div>
-                                        </a>
+                                        @endforeach
                                     </div>
-                                @endforeach
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                @endif
-
-                <!-- Conseils aux visiteurs -->
-                @if ($poi->translation($currentLocale)->tips)
-                    <div class="mpv-card shadow-sm mb-4 border-0">
-                        <div class="mpv-card-body p-4">
-                            <h4 class="mpv-card-title border-bottom pb-3 mb-3">
-                                <i class="fas fa-lightbulb text-warning me-2"></i>Conseils aux visiteurs
-                            </h4>
-
-                            <div class="mpv-tips-content">
-                                {!! nl2br(e($poi->translation($currentLocale)->tips)) !!}
+                        @else
+                            <div class="mpv-card shadow-sm mb-4 border-0 border-top-0 rounded-top-0">
+                                <div class="mpv-card-body p-4 text-center text-muted">
+                                    <i class="fas fa-images fa-3x mb-3"></i>
+                                    <h5>Aucune image</h5>
+                                    <p>Ce POI n'a pas encore d'images dans sa galerie.</p>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
-                @endif
+
+                </div>
             </div>
 
             <!-- Colonne latérale -->

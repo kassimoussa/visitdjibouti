@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\NewsCategoryController;
 use App\Http\Controllers\Admin\PoiController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\ReservationController;
+use App\Http\Controllers\Admin\AppUserController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -73,6 +75,27 @@ Route::middleware('auth.admin')->group(function () {
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
     Route::get('/events/{id}/edit', [EventController::class, 'edit'])->name('events.edit');
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+
+    // Routes pour les réservations (POI + Events)
+    Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations.index');
+    Route::get('/reservations/dashboard', [ReservationController::class, 'dashboard'])->name('reservations.dashboard');
+    Route::get('/reservations/export', [ReservationController::class, 'export'])->name('reservations.export');
+    Route::get('/reservations/stats', [ReservationController::class, 'stats'])->name('reservations.stats');
+
+    // Routes pour les utilisateurs mobiles (AppUsers)
+    Route::get('/app-users', [AppUserController::class, 'index'])->name('app-users.index');
+    Route::get('/app-users/dashboard', [AppUserController::class, 'dashboard'])->name('app-users.dashboard');
+    Route::get('/app-users/{id}', [AppUserController::class, 'show'])->name('app-users.show');
+    Route::get('/app-users/{id}/edit', [AppUserController::class, 'edit'])->name('app-users.edit');
+    Route::put('/app-users/{id}', [AppUserController::class, 'update'])->name('app-users.update');
+    Route::delete('/app-users/{id}', [AppUserController::class, 'destroy'])->name('app-users.destroy');
+    Route::post('/app-users/{id}/restore', [AppUserController::class, 'restore'])->name('app-users.restore');
+    Route::delete('/app-users/{id}/force', [AppUserController::class, 'forceDelete'])->name('app-users.force-delete');
+    Route::patch('/app-users/{id}/toggle-status', [AppUserController::class, 'toggleStatus'])->name('app-users.toggle-status');
+    Route::post('/app-users/{id}/reset-password', [AppUserController::class, 'sendPasswordReset'])->name('app-users.reset-password');
+    Route::get('/app-users-stats', [AppUserController::class, 'stats'])->name('app-users.stats');
+    Route::get('/app-users-export', [AppUserController::class, 'export'])->name('app-users.export');
+    Route::post('/app-users/bulk-action', [AppUserController::class, 'bulkAction'])->name('app-users.bulk-action');
 
     // Catégories avec interface moderne par défaut
     Route::get('/categories', function () {

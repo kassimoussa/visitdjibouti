@@ -6,7 +6,8 @@ Développer une application mobile Flutter (iOS/Android) pour le tourisme à Dji
 ## 📋 **Context & Backend Existant**
 
 ### API Backend Laravel Complète ✅
-- **28 endpoints API** déjà développés et entièrement fonctionnels
+- **33 endpoints API** déjà développés et entièrement fonctionnels
+- **🚀 NEW: Authentification Anonyme** : Système révolutionnaire pour onboarding sans friction
 - **Authentification OAuth** : Google + Facebook + Email/Password avec Laravel Sanctum
 - **Système de Favoris** : Gestion complète des favoris POIs et Events avec synchronisation cloud
 - **Tour Operators** : Système complet de gestion des opérateurs de tour avec géolocalisation
@@ -17,12 +18,17 @@ Développer une application mobile Flutter (iOS/Android) pour le tourisme à Dji
 
 ### Endpoints API Disponibles
 ```
-🔐 AUTHENTIFICATION (5 endpoints)
+🔐 AUTHENTIFICATION (10 endpoints) - ENHANCED 🚀
 ├── POST /api/auth/register          # Inscription utilisateur
 ├── POST /api/auth/login             # Connexion email/password
 ├── GET  /api/auth/profile           # Profil utilisateur (protégé)
 ├── GET  /api/auth/{provider}/redirect # OAuth redirect (Google/Facebook)
-└── POST /api/auth/{provider}/token   # OAuth mobile token
+├── POST /api/auth/{provider}/token   # OAuth mobile token
+├── 🆔 POST /api/auth/anonymous      # Créer utilisateur anonyme (NEW)
+├── 🔍 POST /api/auth/anonymous/retrieve # Récupérer utilisateur anonyme (NEW)
+├── 🔄 POST /api/auth/convert-anonymous # Convertir anonyme → complet (NEW)
+├── ⚙️ PUT /api/auth/anonymous/preferences # MAJ préférences anonyme (NEW)
+└── 🗑️ DELETE /api/auth/anonymous   # Supprimer utilisateur anonyme (NEW)
 
 🏛️ POINTS D'INTÉRÊT (4 endpoints)
 ├── GET /api/pois                    # Liste POIs avec filtres avancés
@@ -79,6 +85,52 @@ Développer une application mobile Flutter (iOS/Android) pour le tourisme à Dji
   - Synchronisation cloud automatique
   - Compteurs de favoris en temps réel
   - Statistiques et historique des favoris
+
+## 🚀 **Innovation : Système d'Utilisateurs Anonymes**
+
+### Concept Révolutionnaire
+Le backend implémente un système d'**onboarding progressif** permettant aux utilisateurs d'utiliser l'application immédiatement sans inscription :
+
+### 🎯 Workflow Utilisateur Anonyme
+```
+📱 LANCEMENT APP
+│
+├─ API: POST /auth/anonymous (device_id)
+├─ Token anonyme généré automatiquement
+├─ ID anonyme unique : "anon_xyz_timestamp"
+│
+📍 UTILISATION IMMÉDIATE
+│
+├─ Navigation libre dans tous les contenus
+├─ Ajout de favoris (synchronisation cloud)
+├─ Réservations d'événements possibles
+├─ Préférences langue/notifications
+│
+🔄 CONVERSION PROGRESSIVE
+│
+├─ Incitation contextuelle (après 5 favoris, avant réservation, etc.)
+├─ API: POST /auth/convert-anonymous
+├─ Conservation de TOUTES les données existantes
+└─ Transition fluide vers compte complet
+```
+
+### 💾 Stockage Local Requis
+- **anonymous_id** : Identifiant unique persistant
+- **anonymous_token** : Token d'authentification
+- **device_id** : Identifiant de l'appareil
+
+### 🔄 Moments de Conversion Suggérés
+- **Après 3-5 favoris** : "Sauvegardez vos découvertes !"
+- **Avant réservation événement** : "Finalisez votre inscription"
+- **Lors de l'export d'itinéraire** : "Recevez votre itinéraire par email"
+- **Après 7 jours d'utilisation** : "Créez votre profil voyageur"
+
+### 🛡️ Avantages Techniques
+- **0% de friction** à l'entrée
+- **Taux de rétention maximisé**
+- **Données utilisateur préservées**
+- **Analytics complets** (utilisateurs anonymes vs. complets)
+- **Progressive onboarding** basé sur l'engagement
 
 ## 🎨 **Inspiration Design : VisitMalta+**
 

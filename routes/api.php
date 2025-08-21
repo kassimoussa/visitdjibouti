@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\SocialAuthController;
+use App\Http\Controllers\Api\AnonymousAuthController;
 use App\Http\Controllers\Api\PoiController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\CategoryController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Api\EmbassyController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\AppSettingController;
 use App\Http\Controllers\Api\TourOperatorController;
+use App\Http\Controllers\Api\ReservationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +39,10 @@ Route::prefix('auth')->group(function () {
          ->where('provider', 'google|facebook');
     Route::post('/{provider}/token', [SocialAuthController::class, 'authenticateWithToken'])
          ->where('provider', 'google|facebook');
+    
+    // Routes pour utilisateurs anonymes (publiques)
+    Route::post('/anonymous', [AnonymousAuthController::class, 'createAnonymous']);
+    Route::post('/anonymous/retrieve', [AnonymousAuthController::class, 'getAnonymous']);
 });
 
 // Routes publiques pour les catégories
@@ -95,6 +101,12 @@ Route::prefix('tour-operators')->group(function () {
     Route::get('/{identifier}', [TourOperatorController::class, 'show']); // Détails (ID ou slug)
 });
 
+// Routes publiques pour les réservations
+Route::prefix('reservations')->group(function () {
+    Route::post('/', [ReservationController::class, 'store']); // Créer une réservation
+    Route::get('/{confirmation_number}', [ReservationController::class, 'show']); // Détails par numéro de confirmation
+});
+
 // Routes protégées par Sanctum
 Route::middleware('auth:sanctum')->group(function () {
     
@@ -110,6 +122,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{provider}/unlink', [SocialAuthController::class, 'unlinkSocialAccount'])
              ->where('provider', 'google|facebook');
         Route::get('/linked-accounts', [SocialAuthController::class, 'getLinkedAccounts']);
+        
+        // Routes pour utilisateurs anonymes authentifiés
+        Route::post('/convert-anonymous', [AnonymousAuthController::class, 'convertToComplete']);
+        Route::put('/anonymous/preferences', [AnonymousAuthController::class, 'updatePreferences']);
+        Route::delete('/anonymous', [AnonymousAuthController::class, 'deleteAnonymous']);
     });
     
     // Test route pour vérifier l'authentification
@@ -123,7 +140,13 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     
     // Routes protégées pour les réservations utilisateur
-    Route::get('/my-registrations', [EventController::class, 'myRegistrations']);
+    Route::get('/my-registrations', [EventController::class, 'myRegistrations']); // Legacy events
+    
+    // Routes protégées pour les réservations (nouveau système unifié)
+    Route::prefix('reservations')->group(function () {
+        Route::get('/', [ReservationController::class, 'getUserReservations']); // Toutes les réservations de l'utilisateur
+        Route::patch('/{confirmation_number}/cancel', [ReservationController::class, 'cancel']); // Annuler une réservation
+    });
     
     // Routes protégées pour les favoris
     Route::prefix('favorites')->group(function () {

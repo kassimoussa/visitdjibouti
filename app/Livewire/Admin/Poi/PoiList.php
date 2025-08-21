@@ -40,6 +40,11 @@ class PoiList extends Component
     {
         $this->view = $view;
         $this->dispatch('viewChanged', viewMode: $view);
+        
+        // Si on passe en vue carte, envoyer les données
+        if ($view === 'map') {
+            $this->dispatchMapUpdate();
+        }
     }
     
     /**
@@ -57,11 +62,13 @@ class PoiList extends Component
     public function updatedSearch()
     {
         $this->resetPage();
+        $this->dispatchMapUpdate();
     }
     
     public function updatedStatus()
     {
         $this->resetPage();
+        $this->dispatchMapUpdate();
     }
     
     public function updatedParentCategory()
@@ -69,16 +76,30 @@ class PoiList extends Component
         $this->resetPage();
         // Réinitialiser la sous-catégorie quand on change de catégorie parent
         $this->subcategory = '';
+        $this->dispatchMapUpdate();
     }
     
     public function updatedSubcategory()
     {
         $this->resetPage();
+        $this->dispatchMapUpdate();
     }
     
     public function updatedRegion()
     {
         $this->resetPage();
+        $this->dispatchMapUpdate();
+    }
+    
+    /**
+     * Dispatch map update avec les données filtrées
+     */
+    private function dispatchMapUpdate()
+    {
+        if ($this->view === 'map') {
+            $poisForMap = $this->getFilteredPoisForMap();
+            $this->dispatch('mapDataUpdated', pois: $poisForMap->toArray(), locale: $this->currentLocale);
+        }
     }
     
     /**
@@ -136,6 +157,47 @@ class PoiList extends Component
             'Obock' => 'Obock',
             'Arta' => 'Arta',
         ];
+    }
+    
+    /**
+     * Récupérer tous les POI filtrés (sans pagination) pour la carte
+     */
+    private function getFilteredPoisForMap()
+    {
+        $query = Poi::with(['categories.translations', 'featuredImage', 'translations'])
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude');
+        
+        // Appliquer les mêmes filtres que pour la liste
+        if ($this->search) {
+            $query->whereHas('translations', function ($subQuery) {
+                $subQuery->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('description', 'like', '%' . $this->search . '%')
+                    ->orWhere('short_description', 'like', '%' . $this->search . '%');
+            })->orWhere('slug', 'like', '%' . $this->search . '%');
+        }
+        
+        if ($this->status) {
+            $query->where('status', $this->status);
+        }
+        
+        if ($this->parentCategory) {
+            $query->whereHas('categories', function ($q) {
+                $q->where('categories.id', $this->parentCategory);
+            });
+        }
+        
+        if ($this->subcategory) {
+            $query->whereHas('categories', function ($q) {
+                $q->where('categories.id', $this->subcategory);
+            });
+        }
+        
+        if ($this->region) {
+            $query->where('region', $this->region);
+        }
+        
+        return $query->get();
     }
     
     /**
@@ -211,8 +273,12 @@ class PoiList extends Component
         // Pagination
         $pois = $query->paginate(10);
         
+        // POI filtrés pour la carte (tous les résultats sans pagination)
+        $poisForMap = $this->getFilteredPoisForMap();
+        
         return view('livewire.admin.poi.poi-list', [
             'pois' => $pois,
+            'poisForMap' => $poisForMap,
             'parentCategories' => $parentCategories,
             'subcategories' => $subcategories,
             'regions' => $regions,

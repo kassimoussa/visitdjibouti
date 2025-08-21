@@ -125,9 +125,10 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
+                                    @endif
 
-                                    <!-- Carte interactive pour géolocalisation -->
-                                    <div class="mb-3">
+                                    <!-- Carte interactive pour géolocalisation (toujours visible) -->
+                                    <div class="mb-3" wire:ignore>
                                         <label class="form-label">Localisation sur la carte</label>
                                         <div class="border rounded" style="height: 300px; width: 100%; position: relative;">
                                             <div id="poiLocationMap" style="height: 300px; width: 100%; min-height: 300px; min-width: 200px;"></div>
@@ -144,6 +145,7 @@
                                         @enderror
                                     </div>
 
+                                    @if($activeLocale === 'fr')
                                     <!-- Recherche d'adresse -->
                                     <div class="mb-3">
                                         <label for="poiAddressSearch" class="form-label">Rechercher une adresse</label>
@@ -776,22 +778,50 @@ function initPoiLocationMap() {
     }
 }
 
-// Écouter les changements de locale pour réinitialiser la carte si nécessaire
+// Écouter les changements et événements pour maintenir la carte
 document.addEventListener('livewire:init', () => {
+    // Changements de locale - ne plus détruire la carte, juste la redimensionner
     Livewire.on('locale-changed', () => {
-        // Réinitialiser les variables globales pour forcer la recréation
         if (globalPoiMap) {
-            globalPoiMap.remove();
-            globalPoiMap = null;
-            globalPoiMarker = null;
+            setTimeout(() => {
+                globalPoiMap.invalidateSize();
+            }, 100);
         }
-        
-        // Petite pause pour laisser le DOM se mettre à jour
-        setTimeout(() => {
-            if (document.getElementById('poiLocationMap')) {
-                initPoiLocationMap();
-            }
-        }, 100);
+    });
+    
+    // Écouteur pour les modals Bootstrap
+    document.addEventListener('shown.bs.modal', function (e) {
+        if (globalPoiMap) {
+            setTimeout(() => {
+                globalPoiMap.invalidateSize();
+            }, 200);
+        }
+    });
+    
+    document.addEventListener('hidden.bs.modal', function (e) {
+        if (globalPoiMap) {
+            setTimeout(() => {
+                globalPoiMap.invalidateSize();
+            }, 200);
+        }
+    });
+    
+    // Observer les changements de visibilité du conteneur de carte
+    const observer = new MutationObserver(() => {
+        const mapElement = document.getElementById('poiLocationMap');
+        if (globalPoiMap && mapElement && mapElement.offsetParent !== null) {
+            setTimeout(() => {
+                globalPoiMap.invalidateSize();
+            }, 100);
+        }
+    });
+    
+    // Observer les changements dans le document
+    observer.observe(document.body, { 
+        childList: true, 
+        subtree: true, 
+        attributes: true, 
+        attributeFilter: ['style', 'class'] 
     });
 });
 

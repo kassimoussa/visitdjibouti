@@ -1,6 +1,9 @@
 # 📱 API Documentation - Visit Djibouti Mobile App
 
-**Complete API with 28 endpoints** for mobile tourism application with authentication, POIs, events, favorites, tour operators, app settings, and organization management.
+**Complete API with 33 endpoints** for mobile tourism application with authentication, POIs, events, favorites, tour operators, app settings, and organization management.
+
+## 🚀 New: Anonymous User Support
+The API now supports **anonymous users** for a frictionless onboarding experience. Users can browse, add favorites, and make reservations without providing personal information, then convert to full accounts when ready.
 
 ## 🔐 Authentication Endpoints
 
@@ -94,6 +97,158 @@ Accept: application/json
   "message": "Logged out successfully"
 }
 ```
+
+---
+
+## 🎭 Anonymous User Authentication
+
+### 🆔 Create Anonymous User
+**POST** `/auth/anonymous`
+
+Create an anonymous user for immediate app usage without requiring personal information.
+
+**Request Body:**
+```json
+{
+  "device_id": "unique-device-identifier", // Optional but recommended
+  "preferred_language": "fr" // Optional: fr, en, ar
+}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Utilisateur anonyme créé avec succès",
+  "data": {
+    "user": {
+      "id": 123,
+      "is_anonymous": true,
+      "anonymous_id": "anon_66c5f9d47a2ef_1724234196",
+      "device_id": "unique-device-identifier",
+      "preferred_language": "fr",
+      "is_active": true,
+      "display_name": "Utilisateur anonyme",
+      "unique_identifier": "anon_66c5f9d47a2ef_1724234196"
+    },
+    "token": "3|PlainTextToken",
+    "anonymous_id": "anon_66c5f9d47a2ef_1724234196",
+    "is_existing": false
+  }
+}
+```
+
+### 🔍 Retrieve Anonymous User
+**POST** `/auth/anonymous/retrieve`
+
+Retrieve an existing anonymous user by their anonymous_id.
+
+**Request Body:**
+```json
+{
+  "anonymous_id": "anon_66c5f9d47a2ef_1724234196"
+}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Utilisateur anonyme récupéré",
+  "data": {
+    "user": { /* anonymous user object */ },
+    "token": "4|NewPlainTextToken",
+    "anonymous_id": "anon_66c5f9d47a2ef_1724234196"
+  }
+}
+```
+
+### 🔄 Convert Anonymous to Complete Account
+**POST** `/auth/convert-anonymous` (Protected - Anonymous Token Required)
+
+Convert an anonymous user to a complete account with full registration.
+
+**Request Body:**
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "password_confirmation": "password123",
+  "phone": "+253 21 35 40 50",
+  "date_of_birth": "1990-05-15",
+  "gender": "male",
+  "city": "Djibouti",
+  "country": "Djibouti",
+  "conversion_source": "favorites_prompted" // Optional tracking
+}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Compte converti avec succès",
+  "data": {
+    "user": {
+      "id": 123,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "is_anonymous": false,
+      "converted_at": "2024-08-21T10:30:00.000000Z",
+      "conversion_source": {
+        "source": "favorites_prompted",
+        "timestamp": "2024-08-21T10:30:00.000000Z"
+      }
+      // ... complete user object
+    },
+    "token": "5|NewCompleteUserToken"
+  }
+}
+```
+
+### ⚙️ Update Anonymous Preferences
+**PUT** `/auth/anonymous/preferences` (Protected - Anonymous Token Required)
+
+Update preferences for an anonymous user.
+
+**Request Body:**
+```json
+{
+  "preferred_language": "en",
+  "push_notifications_enabled": true
+}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Préférences mises à jour",
+  "data": {
+    "user": { /* updated anonymous user object */ }
+  }
+}
+```
+
+### 🗑️ Delete Anonymous User
+**DELETE** `/auth/anonymous` (Protected - Anonymous Token Required)
+
+Delete an anonymous user and all associated data (favorites, reservations).
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Utilisateur anonyme supprimé avec succès"
+}
+```
+
+### 🔄 Anonymous User Workflow
+1. **App Launch**: Call `POST /auth/anonymous` with device_id
+2. **Usage**: Use returned token for all API calls (favorites, reservations)
+3. **Conversion**: When user decides to register, call `POST /auth/convert-anonymous`
+4. **Seamless Transition**: All existing data (favorites, reservations) is preserved
 
 ---
 

@@ -24,39 +24,91 @@
 
 ## 🔄 Workflow de Test Recommandé
 
-### Phase 1 : Authentification
+### Phase 1A : Authentification Anonyme (NEW) 🚀
 ```
-1. Register (créer un compte test)
-2. Login (récupérer le token)
-3. Get Profile (vérifier l'authentification)
+1. Create Anonymous User (onboarding sans friction)
+2. Retrieve Anonymous User (récupération par anonymous_id)
+3. Update Anonymous Preferences (langue, notifications)
+```
+
+### Phase 1B : Authentification Traditionnelle
+```
+4. Register (créer un compte test)
+5. Login (récupérer le token)
+6. Get Profile (vérifier l'authentification)
+```
+
+### Phase 1C : Conversion Anonyme (NEW) 🔄
+```
+7. Convert Anonymous to Complete (utilisateur anonyme → complet)
+8. Verify Data Preservation (favoris et données conservées)
 ```
 
 ### Phase 2 : Contenu Public
 ```
-4. Get All POIs (tester les filtres)
-5. Get POI Details (par ID et slug)
-6. Get Nearby POIs (géolocalisation)
-7. Get All Events (tester les filtres)
-8. Get Event Details
-9. Get Organization Info
-10. Get External Links
-11. Get Embassies
+9. Get All POIs (tester les filtres)
+10. Get POI Details (par ID et slug)
+11. Get Nearby POIs (géolocalisation)
+12. Get All Events (tester les filtres)
+13. Get Event Details
+14. Get Organization Info
+15. Get External Links
+16. Get Embassies
 ```
 
-### Phase 3 : Fonctionnalités Utilisateur
+### Phase 3 : Fonctionnalités Utilisateur (Anonyme + Authentifié)
 ```
-12. Register for Event (authentifié)
-13. Get My Registrations
-14. Update Profile
-15. Change Password
+17. Register for Event (anonyme et authentifié)
+18. Get My Registrations
+19. Update Profile
+20. Add POI to Favorites (anonyme)
+21. Add Event to Favorites (anonyme)
+22. Get All Favorites (vérifier synchronisation)
 ```
 
-### Phase 4 : OAuth (si configuré)
+### Phase 4 : Test Complet du Workflow Anonyme
 ```
-16. Google OAuth Redirect
-17. Facebook OAuth Redirect
-18. Mobile OAuth Token
+23. Create Anonymous User avec device_id
+24. Add 3-5 Favorites (POIs et Events)
+25. Make Event Reservation (anonyme)
+26. Convert to Complete Account
+27. Verify All Data Preserved (favoris + réservations)
+28. Delete Anonymous User (cleanup test)
 ```
+
+### Phase 5 : OAuth (si configuré)
+```
+29. Google OAuth Redirect
+30. Facebook OAuth Redirect
+31. Mobile OAuth Token
+```
+
+---
+
+## 🚀 Tests Spécifiques Utilisateurs Anonymes
+
+### 🔍 Variables à Surveiller
+```javascript
+// Variables Postman à créer pour les tests anonymes
+anonymous_id          // Stocké après création
+anonymous_token       // Token pour authentification anonyme
+device_id            // Identifiant unique de l'appareil test
+```
+
+### 📋 Checklist de Validation
+- [ ] Création utilisateur anonyme avec device_id
+- [ ] Récupération utilisateur existant avec même device_id
+- [ ] Ajout favoris avec utilisateur anonyme
+- [ ] Réservation événement avec utilisateur anonyme
+- [ ] Conversion vers compte complet
+- [ ] Préservation des données lors de la conversion
+- [ ] Suppression utilisateur anonyme
+
+### 🎯 Points de Test Critiques
+1. **Unicité device_id** : Un seul utilisateur anonyme par device_id
+2. **Conservation des données** : Favoris + réservations préservées lors conversion
+3. **Tokens valides** : Tokens anonymes vs. complets fonctionnent correctement
+4. **Synchronisation** : Les favoris apparaissent immédiatement après ajout
 
 ---
 
@@ -77,6 +129,32 @@ pm.test('Response has success field', function () {
 
 pm.test('Status code is successful', function () {
     pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+});
+```
+
+### 🚀 Script Spécifique Utilisateurs Anonymes (NEW)
+```javascript
+// Auto-sauvegarde des données anonymes
+if (pm.response.json() && pm.response.json().data && pm.response.json().data.anonymous_id) {
+    pm.environment.set('anonymous_id', pm.response.json().data.anonymous_id);
+    pm.environment.set('anonymous_token', pm.response.json().data.token);
+    console.log('Anonymous data saved: ' + pm.response.json().data.anonymous_id);
+}
+
+// Test spécifique utilisateurs anonymes
+pm.test('Anonymous user created successfully', function () {
+    const response = pm.response.json();
+    pm.expect(response.data.user.is_anonymous).to.be.true;
+    pm.expect(response.data.anonymous_id).to.be.a('string');
+});
+
+// Test conversion anonyme
+pm.test('Anonymous conversion preserves data', function () {
+    const response = pm.response.json();
+    if (response.data && response.data.user && response.data.user.converted_at) {
+        pm.expect(response.data.user.is_anonymous).to.be.false;
+        pm.expect(response.data.user.converted_at).to.be.a('string');
+    }
 });
 ```
 

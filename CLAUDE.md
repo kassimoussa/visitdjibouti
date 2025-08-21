@@ -32,28 +32,33 @@ This is a Laravel 11 application for managing tourist attractions and events in 
 ## Architecture
 
 ### Mobile User Authentication System
-The application features a complete authentication system for mobile app users:
+The application features a complete authentication system for mobile app users with revolutionary anonymous user support:
 - **Separate AppUser Model**: Mobile users stored in `app_users` table, isolated from admin users
-- **Laravel Sanctum**: API token authentication for mobile app integration
+- **🚀 Anonymous User System**: Progressive onboarding without friction - users can use the app immediately
+- **Laravel Sanctum**: API token authentication for both anonymous and registered users
 - **OAuth Integration**: Google and Facebook social login via Laravel Socialite
-- **Flexible Authentication**: Support for email/password and social authentication
-- **Optional Registration**: Users can browse without accounts, register for event reservations
+- **Flexible Authentication**: Support for email/password, social authentication, and anonymous usage
+- **Progressive Registration**: Anonymous users can convert to full accounts while preserving all data
 - **Multilingual Support**: User preferences for language (French, English, Arabic)
 - **Complete Profile Management**: Full CRUD operations for user profiles
 
 #### Authentication Endpoints
-- **Public Routes**: Register, Login, OAuth flows (`/api/auth/*`)
+- **Public Routes**: Register, Login, OAuth flows, Anonymous user creation (`/api/auth/*`)
+- **Anonymous Routes**: Create anonymous user, retrieve by anonymous_id (public)
 - **Protected Routes**: Profile management, password change, account deletion, social account linking
+- **Anonymous Protected Routes**: Convert to complete, update preferences, delete anonymous user
 - **OAuth Flows**: Web callback, mobile token-based authentication
 - **API Structure**: RESTful design with standardized JSON responses
 
 #### Key Files
-- `app/Models/AppUser.php` - Mobile user model with Sanctum authentication
+- `app/Models/AppUser.php` - Mobile user model with Sanctum authentication and anonymous support
 - `app/Http/Controllers/Api/AuthController.php` - User authentication endpoints
+- `app/Http/Controllers/Api/AnonymousAuthController.php` - Anonymous user management (NEW)
 - `app/Http/Controllers/Api/SocialAuthController.php` - OAuth integration
 - `database/migrations/*_create_app_users_table.php` - Mobile user schema
+- `database/migrations/*_add_anonymous_support_to_app_users_table.php` - Anonymous user fields (NEW)
 - `routes/api.php` - Complete API routes for mobile app
-- `API_DOCUMENTATION.md` - Complete API documentation with 18 endpoints
+- `API_DOCUMENTATION.md` - Complete API documentation with 33 endpoints
 
 ### Multilingual Content System
 The application implements a custom translation system for content:
@@ -149,15 +154,20 @@ FACEBOOK_CLIENT_SECRET=your_facebook_app_secret
 
 ## Complete Mobile API Implementation
 
-### 30+ API Endpoints Available
+### 33+ API Endpoints Available
 The mobile API is fully implemented with comprehensive endpoints:
 
-#### Authentication & User Management (5 endpoints)
+#### Authentication & User Management (10 endpoints) - ENHANCED 🚀
 - `POST /api/auth/register` - User registration 
 - `POST /api/auth/login` - User login
 - `GET /api/auth/{provider}/redirect` - OAuth redirect (Google/Facebook)
 - `GET /api/auth/{provider}/callback` - OAuth callback
 - `POST /api/auth/{provider}/token` - Mobile OAuth token authentication
+- `POST /api/auth/anonymous` - Create anonymous user (NEW)
+- `POST /api/auth/anonymous/retrieve` - Retrieve anonymous user (NEW)
+- `POST /api/auth/convert-anonymous` - Convert anonymous to complete (NEW)
+- `PUT /api/auth/anonymous/preferences` - Update anonymous preferences (NEW)
+- `DELETE /api/auth/anonymous` - Delete anonymous user (NEW)
 - Plus protected routes for profile, logout, password change, etc.
 
 #### Points of Interest (4 endpoints)
@@ -200,8 +210,9 @@ The mobile API is fully implemented with comprehensive endpoints:
 - `GET /api/tour-operators/{identifier}` - Operator details (ID or slug)
 
 ### Key Features Implemented
+- **🚀 Anonymous User System**: Revolutionary progressive onboarding without friction (NEW)
 - **Complete OAuth Integration**: Google & Facebook login with Laravel Socialite
-- **Event Reservation System**: Full booking system with guest and authenticated user support
+- **Event Reservation System**: Full booking system with guest, anonymous, and authenticated user support
 - **Favorites Management System**: Complete favorites system for POIs and Events with polymorphic relations
 - **Tour Operators Management**: Complete system with service filtering, geolocation, and certification levels
 - **Dynamic App Settings**: Mobile app configuration system for splash screens, onboarding, and app info
@@ -211,10 +222,12 @@ The mobile API is fully implemented with comprehensive endpoints:
 - **Comprehensive Documentation**: API_DOCUMENTATION.md with examples and cURL commands
 
 ### Mobile App Ready Features
-- Optional user accounts (browse without registration)
-- Event bookings for registered users
+- **🎯 Zero-friction onboarding**: Anonymous users can use the app immediately (NEW)
+- **Progressive registration**: Anonymous users convert to full accounts seamlessly (NEW)
+- **Data preservation**: All anonymous user data (favorites, reservations) is preserved during conversion (NEW)
+- Event bookings for anonymous and registered users
 - Social login integration
-- **Favorites system with cloud synchronization**
+- **Favorites system with cloud synchronization** (works for anonymous users)
 - **Real-time favorites count and status**
 - **Tour operators with geolocation and filtering**
 - **Dynamic app configuration (splash screens, onboarding)**

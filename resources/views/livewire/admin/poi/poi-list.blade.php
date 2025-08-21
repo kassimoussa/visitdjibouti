@@ -3,7 +3,7 @@
         <!-- En-tête avec bouton d'ajout et basculement de vue -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="d-flex align-items-center">
-                <h1 class="h3 mb-0 me-3">Liste des points d'intérêt</h1>
+                <h1 class="h3 mb-0 me-3">Gestion des points d'intérêt</h1>
                 <div class="btn-group" role="group">
                     <button type="button" class="btn {{ $view === 'list' ? 'btn-primary' : 'btn-outline-primary' }}"
                         wire:click="toggleView('list')">
@@ -248,6 +248,9 @@
 
     @push('scripts')
         <script>
+            let map = null;
+            let mapMarkers = [];
+            
             document.addEventListener('livewire:init', () => {
                 Livewire.on('viewChanged', ({
                     viewMode
@@ -259,19 +262,56 @@
                         }, 300); // Attente pour que la carte s'affiche bien
                     }
                 });
+                
+                // Écouter les mises à jour des données de la carte
+                Livewire.on('mapDataUpdated', ({pois, locale}) => {
+                    if (map) {
+                        setTimeout(() => {
+                            updateMapMarkers(pois, locale);
+                        }, 100);
+                    }
+                });
             });
 
             function initMap() {
-                const pois = @json($pois->items());
-                const currentLocale = @json($currentLocale);
                 const mapDiv = document.getElementById('map');
                 mapDiv.innerHTML = '';
+                
+                // Réinitialiser les marqueurs
+                mapMarkers = [];
 
-                const map = L.map('map').setView([11.8251, 42.5903], 8);
+                map = L.map('map').setView([11.8251, 42.5903], 8);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; OpenStreetMap contributors'
                 }).addTo(map);
+
+                // Ajouter les marqueurs avec les données initiales
+                const initialPois = @json($poisForMap);
+                const initialLocale = @json($currentLocale);
+                updateMapMarkers(initialPois, initialLocale);
+
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 300);
+            }
+            
+            function updateMapMarkers(pois = null, currentLocale = null) {
+                if (!map) return;
+                
+                // Supprimer les marqueurs existants
+                mapMarkers.forEach(marker => {
+                    map.removeLayer(marker);
+                });
+                mapMarkers = [];
+                
+                // Utiliser les données passées en paramètre ou les données par défaut
+                if (!pois) {
+                    pois = @json($poisForMap);
+                }
+                if (!currentLocale) {
+                    currentLocale = @json($currentLocale);
+                }
 
                 pois.forEach(poi => {
                     if (poi.latitude && poi.longitude) {
@@ -283,16 +323,98 @@
                         const name = translation ? translation.name : poi.slug;
                         const description = translation ? translation.short_description : '';
                         
-                        L.marker([poi.latitude, poi.longitude])
+                        // Créer le contenu du popup avec plus d'informations
+                        let popupContent = `<div class="poi-popup">
+                            <h6 class="mb-2"><strong>${name}</strong></h6>`;
+                        
+                        if (description) {
+                            popupContent += `<p class="mb-2">${description}</p>`;
+                        }
+                        
+                        if (poi.region) {
+                            popupContent += `<small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${poi.region}</small><br>`;
+                        }
+                        
+                        // Afficher les catégories
+                        if (poi.categories && poi.categories.length > 0) {
+                            popupContent += '<div class="mt-2">';
+                            poi.categories.forEach(category => {
+                                const categoryColor = category.color || '#6c757d';
+                                // Récupérer le nom de la catégorie selon la locale
+                                let categoryName = 'Sans nom';
+                                if (category.translations && category.translations.length > 0) {
+                                    const categoryTranslation = category.translations.find(t => t.locale === currentLocale) 
+                                        || category.translations.find(t => t.locale === 'fr') 
+                                        || category.translations[0];
+                                    categoryName = categoryTranslation ? categoryTranslation.name : category.name || 'Sans nom';
+                                } else if (category.name) {
+                                    categoryName = category.name;
+                                }
+                                popupContent += `<span class="badge me-1" style="background-color: ${categoryColor}; color: white;">${categoryName}</span>`;
+                            });
+                            popupContent += '</div>';
+                        }
+                        
+                        popupContent += `<div class="mt-2">
+                            <a href="/pois/${poi.id}" class="btn btn-sm btn-primary" style="text-decoration: none; color: white;">
+                                <i class="fas fa-eye me-1"></i>Voir détails
+                            </a>
+                        </div></div>`;
+                        
+                        const marker = L.marker([poi.latitude, poi.longitude])
                             .addTo(map)
-                            .bindPopup(`<strong>${name}</strong><br>${description}`);
+                            .bindPopup(popupContent, {
+                                maxWidth: 300,
+                                className: 'custom-popup'
+                            });
+                        
+                        mapMarkers.push(marker);
                     }
                 });
-
-                setTimeout(() => {
-                    map.invalidateSize();
-                }, 300);
+                
+                // Ne pas changer le zoom automatiquement - laisser l'utilisateur contrôler
             }
         </script>
+        
+        <style>
+            .poi-popup h6 {
+                color: #333;
+                margin-bottom: 8px;
+            }
+            
+            .poi-popup p {
+                font-size: 0.9rem;
+                line-height: 1.4;
+                margin-bottom: 8px;
+            }
+            
+            .custom-popup .leaflet-popup-content {
+                margin: 8px 12px;
+                line-height: 1.4;
+            }
+            
+            .custom-popup .btn {
+                display: inline-block !important;
+                padding: 4px 8px !important;
+                font-size: 0.8rem !important;
+                font-weight: 500 !important;
+                text-align: center !important;
+                border-radius: 4px !important;
+                border: none !important;
+                background-color: #0d6efd !important;
+                color: white !important;
+                text-decoration: none !important;
+            }
+            
+            .custom-popup .btn:hover {
+                background-color: #0b5ed7 !important;
+                color: white !important;
+            }
+            
+            .custom-popup .badge {
+                font-size: 0.7rem !important;
+                padding: 2px 6px !important;
+            }
+        </style>
     @endpush
 </div>

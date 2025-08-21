@@ -36,6 +36,12 @@ class AppUser extends Authenticatable
         'is_active',
         'last_login_at',
         'last_login_ip',
+        // Champs pour utilisateurs anonymes
+        'is_anonymous',
+        'anonymous_id',
+        'device_id',
+        'converted_at',
+        'conversion_source',
     ];
 
     /**
@@ -63,6 +69,10 @@ class AppUser extends Authenticatable
             'email_notifications_enabled' => 'boolean',
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
+            // Nouveaux champs pour utilisateurs anonymes
+            'is_anonymous' => 'boolean',
+            'converted_at' => 'datetime',
+            'conversion_source' => 'array',
         ];
     }
 
@@ -160,6 +170,14 @@ class AppUser extends Authenticatable
     }
 
     /**
+     * Get all reservations (new unified system) for this user.
+     */
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class, 'app_user_id');
+    }
+
+    /**
      * Get all favorites for this user.
      */
     public function favorites()
@@ -241,6 +259,117 @@ class AppUser extends Authenticatable
     }
 
     /**
+     * Méthodes pour la gestion des utilisateurs anonymes
+     */
+
+    /**
+     * Vérifier si l'utilisateur est anonyme.
+     */
+    public function isAnonymous(): bool
+    {
+        return $this->is_anonymous;
+    }
+
+    /**
+     * Vérifier si l'utilisateur est complet (non anonyme).
+     */
+    public function isComplete(): bool
+    {
+        return !$this->is_anonymous;
+    }
+
+    /**
+     * Créer un utilisateur anonyme.
+     */
+    public static function createAnonymous(?string $deviceId = null): self
+    {
+        $anonymousId = 'anon_' . uniqid() . '_' . time();
+        
+        return self::create([
+            'is_anonymous' => true,
+            'anonymous_id' => $anonymousId,
+            'device_id' => $deviceId,
+            'is_active' => true,
+            'preferred_language' => config('app.locale', 'fr'),
+        ]);
+    }
+
+    /**
+     * Convertir un utilisateur anonyme en utilisateur complet.
+     */
+    public function convertToComplete(array $userData, string $source = 'manual'): bool
+    {
+        if (!$this->is_anonymous) {
+            return false; // Déjà un utilisateur complet
+        }
+
+        $updateData = [
+            'is_anonymous' => false,
+            'converted_at' => now(),
+            'conversion_source' => ['source' => $source, 'timestamp' => now()],
+        ];
+
+        // Ajouter les données utilisateur
+        $updateData = array_merge($updateData, $userData);
+
+        return $this->update($updateData);
+    }
+
+    /**
+     * Scope pour récupérer uniquement les utilisateurs anonymes.
+     */
+    public function scopeAnonymous($query)
+    {
+        return $query->where('is_anonymous', true);
+    }
+
+    /**
+     * Scope pour récupérer uniquement les utilisateurs complets.
+     */
+    public function scopeComplete($query)
+    {
+        return $query->where('is_anonymous', false);
+    }
+
+    /**
+     * Trouver un utilisateur anonyme par son ID anonyme.
+     */
+    public static function findByAnonymousId(string $anonymousId): ?self
+    {
+        return self::where('anonymous_id', $anonymousId)->first();
+    }
+
+    /**
+     * Trouver un utilisateur anonyme par device ID.
+     */
+    public static function findByDeviceId(string $deviceId): ?self
+    {
+        return self::where('device_id', $deviceId)
+                   ->where('is_anonymous', true)
+                   ->first();
+    }
+
+    /**
+     * Obtenir le nom d'affichage pour l'utilisateur (anonyme ou complet).
+     */
+    public function getDisplayName(): string
+    {
+        if ($this->is_anonymous) {
+            return 'Utilisateur anonyme';
+        }
+
+        return $this->name ?? 'Utilisateur';
+    }
+
+    /**
+     * Obtenir l'identifiant unique pour l'utilisateur (ID ou anonymous_id).
+     */
+    public function getUniqueIdentifier(): string
+    {
+        return $this->is_anonymous ? $this->anonymous_id : (string) $this->id;
+    }
+
+    /**
      * API Resource transformation.
      */
     public function toArray(): array
@@ -251,6 +380,13 @@ class AppUser extends Authenticatable
         $data['avatar_url'] = $this->avatar_url;
         $data['age'] = $this->age;
         $data['is_social_user'] = $this->isSocialUser();
+        $data['display_name'] = $this->getDisplayName();
+        $data['unique_identifier'] = $this->getUniqueIdentifier();
+        
+        // Masquer certains champs pour les utilisateurs anonymes
+        if ($this->is_anonymous) {
+            $data = array_except($data, ['email', 'phone', 'date_of_birth', 'gender', 'city', 'country']);
+        }
         
         return $data;
     }

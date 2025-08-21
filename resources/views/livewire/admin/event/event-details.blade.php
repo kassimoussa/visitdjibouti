@@ -39,8 +39,8 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link {{ $activeTab === 'registrations' ? 'active' : '' }}" 
                             wire:click="changeTab('registrations')" type="button">
-                            <i class="fas fa-users me-1"></i>Inscriptions 
-                            <span class="badge bg-primary ms-1">{{ $detailedStats['total_registrations'] }}</span>
+                            <i class="fas fa-users me-1"></i>Inscriptions (Legacy)
+                            <span class="badge bg-secondary ms-1">{{ $detailedStats['total_registrations'] }}</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">

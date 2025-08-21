@@ -18,8 +18,19 @@
       "Bash(mv:*)",
       "Bash(curl:*)",
       "WebSearch",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.3.0-nts-Win32-vs16-x64/php artisan tinker --execute=\"echo ''Total POIs: '' . App\\Models\\Poi::count(); echo PHP_EOL; echo ''Published POIs: '' . App\\Models\\Poi::where(''status'', ''published'')->count(); echo PHP_EOL; echo ''Draft POIs: '' . App\\Models\\Poi::where(''status'', ''draft'')->count();\")",
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php artisan migrate:status)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan migrate:status)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan tinker --execute=\"use Illuminate\\Support\\Facades\\Schema; if(Schema::hasTable(''reservations'')) { echo ''Table exists - dropping it''; Schema::drop(''reservations''); echo '' - dropped successfully''; } else { echo ''Table does not exist''; }\")",
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan migrate)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan tinker:*)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan make:migration add_anonymous_support_to_app_users_table)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan make:controller Api/AnonymousAuthController)"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "/mnt/c/laragon/bin/php"
+    ]
   }
 }

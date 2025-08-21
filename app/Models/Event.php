@@ -351,4 +351,83 @@ class Event extends Model
             $this->decrement('current_participants');
         }
     }
+
+    /**
+     * Get all reservations for this event.
+     */
+    public function reservations()
+    {
+        return $this->morphMany(Reservation::class, 'reservable');
+    }
+
+    /**
+     * Get confirmed reservations for this event.
+     */
+    public function confirmedReservations()
+    {
+        return $this->reservations()->confirmed();
+    }
+
+    /**
+     * Get pending reservations for this event.
+     */
+    public function pendingReservations()
+    {
+        return $this->reservations()->pending();
+    }
+
+    /**
+     * Get upcoming reservations for this event.
+     */
+    public function upcomingReservations()
+    {
+        return $this->reservations()->upcoming();
+    }
+
+
+    /**
+     * Get confirmed registrations.
+     */
+    public function confirmedRegistrations()
+    {
+        return $this->registrations()->where('status', 'confirmed');
+    }
+
+    /**
+     * Get reservations count.
+     */
+    public function getReservationsCountAttribute(): int
+    {
+        return $this->reservations()->count();
+    }
+
+    /**
+     * Get confirmed reservations count.
+     */
+    public function getConfirmedReservationsCountAttribute(): int
+    {
+        return $this->confirmedReservations()->count();
+    }
+
+    /**
+     * Check if event is available for reservations.
+     */
+    public function isAvailableForReservation(): bool
+    {
+        return $this->status === 'published' 
+            && $this->start_date >= now()->toDateString()
+            && ($this->max_participants === null || $this->current_participants < $this->max_participants);
+    }
+
+    /**
+     * Get remaining spots for the event.
+     */
+    public function getRemainingSpots(): ?int
+    {
+        if ($this->max_participants === null) {
+            return null; // Unlimited spots
+        }
+        
+        return max(0, $this->max_participants - $this->current_participants);
+    }
 }

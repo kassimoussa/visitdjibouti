@@ -267,6 +267,13 @@
                 <div class="menu-section">
                     <div class="menu-section-title">INTERACTIONS</div>
                     <ul class="list-unstyled components">
+                        <li class="{{ request()->is('reservations*') ? 'active' : '' }}">
+                            <a href="{{ route('reservations.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Réservations">
+                                <i class="fas fa-calendar-check"></i>
+                                <span>Réservations</span>
+                            </a>
+                        </li>
                         <li class="{{ request()->is('reviews*') ? 'active' : '' }}">
                             <a href="#" class="coming-soon-link" data-feature="Avis & Commentaires" data-icon="fas fa-comments" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Avis & Commentaires">
@@ -285,6 +292,13 @@
                                 title="Utilisateurs">
                                 <i class="fas fa-users"></i>
                                 <span>Utilisateurs</span>
+                            </a>
+                        </li>
+                        <li class="{{ request()->is('app-users*') ? 'active' : '' }}">
+                            <a href="{{ route('app-users.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Utilisateurs Mobiles">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span>Utilisateurs Mobiles</span>
                             </a>
                         </li>
                         <li class="{{ request()->is('stats*') ? 'active' : '' }}">

@@ -252,4 +252,60 @@ class Poi extends Model
             $q->where('app_user_id', $userId);
         });
     }
+
+    /**
+     * Get all reservations for this POI.
+     */
+    public function reservations()
+    {
+        return $this->morphMany(Reservation::class, 'reservable');
+    }
+
+    /**
+     * Get confirmed reservations for this POI.
+     */
+    public function confirmedReservations()
+    {
+        return $this->reservations()->confirmed();
+    }
+
+    /**
+     * Get pending reservations for this POI.
+     */
+    public function pendingReservations()
+    {
+        return $this->reservations()->pending();
+    }
+
+    /**
+     * Get upcoming reservations for this POI.
+     */
+    public function upcomingReservations()
+    {
+        return $this->reservations()->upcoming();
+    }
+
+    /**
+     * Get reservations count.
+     */
+    public function getReservationsCountAttribute(): int
+    {
+        return $this->reservations()->count();
+    }
+
+    /**
+     * Get confirmed reservations count.
+     */
+    public function getConfirmedReservationsCountAttribute(): int
+    {
+        return $this->confirmedReservations()->count();
+    }
+
+    /**
+     * Check if POI allows reservations and has availability.
+     */
+    public function isAvailableForReservation(): bool
+    {
+        return $this->allow_reservations && $this->status === 'published';
+    }
 }
