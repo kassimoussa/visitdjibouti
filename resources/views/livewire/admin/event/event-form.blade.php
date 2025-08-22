@@ -219,7 +219,6 @@
                                         </div>
                                         <div class="form-text">Exemple: "Palais du Peuple, Djibouti"</div>
                                     </div>
-                                    @endif
 
                                     <!-- Détails du lieu (spécifique à chaque langue) -->
                                     <div class="mb-3">
