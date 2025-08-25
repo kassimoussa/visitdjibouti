@@ -162,6 +162,12 @@
                     <th width="30">
                         <input type="checkbox" wire:model.live="selectAll" class="form-check-input">
                     </th>
+                    <th width="60" style="cursor: pointer;" wire:click="sortBy('id')">
+                        ID
+                        @if($sortField === 'id')
+                            <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                        @endif
+                    </th>
                     <th style="cursor: pointer;" wire:click="sortBy('name')">
                         Utilisateur
                         @if($sortField === 'name')
@@ -199,6 +205,9 @@
                     <tr>
                         <td>
                             <input type="checkbox" wire:model.live="selectedUsers" value="{{ $user->id }}" class="form-check-input">
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ $user->id }}</span>
                         </td>
                         <td>
                             <div class="d-flex align-items-center">

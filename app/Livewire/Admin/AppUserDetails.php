@@ -49,8 +49,8 @@ class AppUserDetails extends Component
             'total_favorites' => $this->appUser->favorites()->count(),
             'favorite_pois' => $this->appUser->favoritePois()->count(),
             'favorite_events' => $this->appUser->favoriteEvents()->count(),
-            'account_age_days' => $this->appUser->created_at->diffInDays(now()),
-            'last_login_days_ago' => $this->appUser->last_login_at ? $this->appUser->last_login_at->diffInDays(now()) : null,
+            'account_age_days' => (int) $this->appUser->created_at->diffInDays(now()),
+            'last_login_days_ago' => $this->appUser->last_login_at ? (int) $this->appUser->last_login_at->diffInDays(now()) : null,
         ];
     }
 

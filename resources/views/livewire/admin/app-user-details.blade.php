@@ -80,6 +80,10 @@
                         <h5 class="mb-3">Informations personnelles</h5>
                         <table class="table table-borderless">
                             <tr>
+                                <td class="fw-medium">ID Utilisateur:</td>
+                                <td><span class="badge bg-secondary">{{ $appUser->id }}</span></td>
+                            </tr>
+                            <tr>
                                 <td class="fw-medium">Nom complet:</td>
                                 <td>{{ $appUser->name }}</td>
                             </tr>
