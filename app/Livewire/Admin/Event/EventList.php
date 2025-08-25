@@ -109,8 +109,8 @@ class EventList extends Component
             $this->eventToDelete->categories()->detach();
             $this->eventToDelete->media()->detach();
             
-            // Supprimer les inscriptions liées (soft delete)
-            $this->eventToDelete->registrations()->delete();
+            // Supprimer les réservations liées (soft delete)
+            $this->eventToDelete->reservations()->delete();
             
             // Supprimer les avis liés (soft delete)
             $this->eventToDelete->reviews()->delete();

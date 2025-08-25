@@ -1,6 +1,6 @@
 # 📱 API Documentation - Visit Djibouti Mobile App
 
-**Complete API with 33 endpoints** for mobile tourism application with authentication, POIs, events, favorites, tour operators, app settings, and organization management.
+**Complete API with 39 endpoints** for mobile tourism application with authentication, POIs, events, favorites, tour operators, app settings, device tracking, and organization management.
 
 ## 🚀 New: Anonymous User Support
 The API now supports **anonymous users** for a frictionless onboarding experience. Users can browse, add favorites, and make reservations without providing personal information, then convert to full accounts when ready.
@@ -1732,6 +1732,276 @@ curl -X GET "http://your-domain.com/api/tour-operators/desert-adventures-djibout
 
 ---
 
+## 📱 Device Tracking & Location Management
+
+Comprehensive device information tracking and geolocation features for mobile analytics, user experience optimization, and location-based services.
+
+### 🔄 Update Device Information
+**POST** `/device/update` *(Protected)*
+
+Update comprehensive device and application information for analytics and user experience optimization.
+
+**Request Body:**
+```json
+{
+  "device_type": "ios",
+  "device_brand": "Apple", 
+  "device_model": "iPhone 15 Pro Max",
+  "device_name": "iPhone de John",
+  "device_os": "iOS",
+  "device_os_version": "17.1.2",
+  "device_platform": "native",
+  "app_version": "1.2.3",
+  "app_build": "142",
+  "app_bundle_id": "com.visitdjibouti.app",
+  "screen_resolution": "1290x2796",
+  "screen_density": 3.0,
+  "screen_size": "6.7 inch",
+  "orientation": "portrait",
+  "network_type": "5G",
+  "carrier_name": "Telecom",
+  "connection_type": "cellular",
+  "is_roaming": false,
+  "total_memory": 8589934592,
+  "available_memory": 4294967296,
+  "battery_level": 85.5,
+  "is_charging": false,
+  "push_token": "fcm_token_here",
+  "push_provider": "fcm",
+  "location_permission": true,
+  "camera_permission": true,
+  "device_languages": ["fr", "en"],
+  "dark_mode_enabled": false,
+  "new_session": true
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Device information updated successfully",
+  "data": {
+    "device_info_updated_at": "2024-08-24T15:30:00.000000Z",
+    "session_count": 45
+  }
+}
+```
+
+### 📍 Update Current Location
+**POST** `/device/location` *(Protected)*
+
+Update user's current location for location-based services.
+
+**Request Body:**
+```json
+{
+  "latitude": 11.5721,
+  "longitude": 43.1456,
+  "accuracy": 5.0,
+  "altitude": 10.5,
+  "speed": 0.0,
+  "heading": 180.5,
+  "location_source": "gps",
+  "current_address": "Avenue République, Djibouti",
+  "current_city": "Djibouti",
+  "current_country": "Djibouti",
+  "current_timezone": "Africa/Djibouti"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Location updated successfully",
+  "data": {
+    "latitude": 11.5721,
+    "longitude": 43.1456,
+    "location_updated_at": "2024-08-24T15:32:00.000000Z"
+  }
+}
+```
+
+### 📊 Record Location History
+**POST** `/device/location/history` *(Protected)*
+
+Record detailed location history entry with contextual information.
+
+**Request Body:**
+```json
+{
+  "latitude": 11.5721,
+  "longitude": 43.1456,
+  "accuracy": 5.0,
+  "activity_type": "walking",
+  "confidence_level": 85,
+  "address": "Avenue République, Djibouti Ville",
+  "city": "Djibouti",
+  "country": "Djibouti",
+  "place_name": "Marché Central",
+  "place_category": "shopping",
+  "timezone": "Africa/Djibouti",
+  "weather_condition": "sunny",
+  "temperature": 32.5,
+  "session_id": "session_123",
+  "trigger": "auto_periodic"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Location history recorded successfully",
+  "data": {
+    "id": 1234,
+    "recorded_at": "2024-08-24T15:35:00.000000Z"
+  }
+}
+```
+
+### 📜 Get Location History
+**GET** `/device/location/history` *(Protected)*
+
+Retrieve user's location history with filtering options.
+
+**Query Parameters:**
+- `limit` - Number of records (default: 100, max: 1000)
+- `from_date` - Start date filter (ISO 8601)
+- `to_date` - End date filter (ISO 8601)
+- `activity_type` - Filter by activity type
+- `near_latitude` - Filter near coordinates (requires near_longitude)
+- `near_longitude` - Filter near coordinates (requires near_latitude)
+- `radius_km` - Radius for proximity filter (default: 1.0)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1234,
+      "latitude": 11.5721,
+      "longitude": 43.1456,
+      "accuracy": 5.0,
+      "activity_type": "walking",
+      "address": "Avenue République, Djibouti",
+      "city": "Djibouti",
+      "place_name": "Marché Central",
+      "weather_condition": "sunny",
+      "temperature": 32.5,
+      "recorded_at": "2024-08-24T15:35:00.000000Z"
+    }
+  ],
+  "meta": {
+    "total": 156,
+    "limit": 100
+  }
+}
+```
+
+### 📋 Get Device Information
+**GET** `/device/info` *(Protected)*
+
+Retrieve comprehensive device information summary.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "device": {
+      "type": "ios",
+      "brand": "Apple",
+      "model": "iPhone 15 Pro Max",
+      "name": "iPhone de John",
+      "os": "iOS",
+      "os_version": "17.1.2",
+      "platform": "native"
+    },
+    "app": {
+      "version": "1.2.3",
+      "build": "142",
+      "bundle_id": "com.visitdjibouti.app",
+      "debug_mode": false
+    },
+    "location": {
+      "latitude": 11.5721,
+      "longitude": 43.1456,
+      "accuracy": 5.0,
+      "address": "Avenue République, Djibouti",
+      "city": "Djibouti",
+      "country": "Djibouti",
+      "updated_at": "2024-08-24T15:32:00.000000Z"
+    },
+    "system": {
+      "total_memory": 8589934592,
+      "available_memory": 4294967296,
+      "battery_level": 85.5,
+      "is_charging": false,
+      "is_low_power_mode": false
+    },
+    "usage": {
+      "session_count": 45,
+      "total_app_launches": 120,
+      "total_time_spent": 86400,
+      "crashes_count": 0,
+      "last_crash_at": null
+    },
+    "permissions": {
+      "location": true,
+      "camera": true,
+      "contacts": false,
+      "storage": true,
+      "notifications": true
+    },
+    "last_updated": "2024-08-24T15:30:00.000000Z"
+  }
+}
+```
+
+### 👥 Get Nearby Users (Privacy-Aware)
+**GET** `/device/nearby-users` *(Protected)*
+
+Get count of nearby users within a radius (privacy-preserving - only returns aggregated data).
+
+**Query Parameters:**
+- `radius_km` - Search radius in km (default: 5.0, max: 50)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "nearby_users_count": 12,
+    "radius_km": 5.0,
+    "center": {
+      "latitude": 11.5721,
+      "longitude": 43.1456
+    }
+  }
+}
+```
+
+**cURL Example:**
+```bash
+curl -X POST "http://your-domain.com/api/device/update" \
+  -H "Authorization: Bearer your_token_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "device_type": "android",
+    "device_brand": "Samsung",
+    "device_model": "Galaxy S24 Ultra",
+    "app_version": "1.2.3",
+    "battery_level": 78.2,
+    "location_permission": true,
+    "new_session": true
+  }'
+```
+
+---
+
 ## 🔮 Future Endpoints (To be implemented)
 
 - `POST /tour-operators/{id}/contact` - Contact tour operator
@@ -1747,3 +2017,9 @@ curl -X GET "http://your-domain.com/api/tour-operators/desert-adventures-djibout
 3. **Offline Support**: Cache user profile data for offline access
 4. **Language**: Send `Accept-Language` header based on user preference
 5. **Push Notifications**: Use FCM tokens for push notifications (to be implemented)
+6. **Device Tracking**: 
+   - Update device info on app launch and significant system changes
+   - Send location updates responsibly with user consent
+   - Use location history for better user experience and analytics
+   - Respect user privacy settings and permissions
+7. **Privacy Compliance**: All device tracking features respect user permissions and privacy preferences

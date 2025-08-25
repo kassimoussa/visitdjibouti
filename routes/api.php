@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\AppSettingController;
 use App\Http\Controllers\Api\TourOperatorController;
 use App\Http\Controllers\Api\ReservationController;
+use App\Http\Controllers\Api\DeviceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -161,5 +162,15 @@ Route::middleware('auth:sanctum')->group(function () {
         // Gestion des favoris Events
         Route::post('/events/{event}', [FavoriteController::class, 'addEvent']);
         Route::delete('/events/{event}', [FavoriteController::class, 'removeEvent']);
+    });
+    
+    // Routes protégées pour la gestion des appareils et géolocalisation
+    Route::prefix('device')->group(function () {
+        Route::post('/update', [DeviceController::class, 'updateDeviceInfo']); // Mettre à jour les infos de l'appareil
+        Route::get('/info', [DeviceController::class, 'getDeviceInfo']); // Récupérer les infos de l'appareil
+        Route::post('/location', [DeviceController::class, 'updateLocation']); // Mettre à jour la localisation actuelle
+        Route::post('/location/history', [DeviceController::class, 'recordLocationHistory']); // Enregistrer un historique de localisation
+        Route::get('/location/history', [DeviceController::class, 'getLocationHistory']); // Récupérer l'historique de localisation
+        Route::get('/nearby-users', [DeviceController::class, 'getNearbyUsers']); // Utilisateurs à proximité (respect vie privée)
     });
 });

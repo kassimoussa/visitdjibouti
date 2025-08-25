@@ -178,11 +178,13 @@ class Event extends Model
     }
 
     /**
-     * Get event registrations.
+     * Get event registrations (legacy - use reservations() instead).
+     * @deprecated Use reservations() method instead
      */
     public function registrations(): HasMany
     {
-        return $this->hasMany(EventRegistration::class);
+        // Rediriger vers les réservations pour compatibilité
+        return $this->reservations();
     }
 
     /**
@@ -386,11 +388,12 @@ class Event extends Model
 
 
     /**
-     * Get confirmed registrations.
+     * Get confirmed registrations (legacy - use confirmedReservations() instead).
+     * @deprecated Use confirmedReservations() method instead
      */
     public function confirmedRegistrations()
     {
-        return $this->registrations()->where('status', 'confirmed');
+        return $this->confirmedReservations();
     }
 
     /**

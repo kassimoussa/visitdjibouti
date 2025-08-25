@@ -242,7 +242,7 @@ class Reservation extends Model
     /**
      * Cancel the reservation.
      */
-    public function cancel(string $reason = null): bool
+    public function cancel(?string $reason = null): bool
     {
         $this->status = 'cancelled';
         $this->cancelled_at = now();

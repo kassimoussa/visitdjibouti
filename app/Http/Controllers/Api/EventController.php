@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
-use App\Models\EventRegistration;
+use App\Models\Reservation;
 use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -218,12 +218,13 @@ class EventController extends Controller
 
             // Check if authenticated user already registered
             if ($user) {
-                $existingRegistration = EventRegistration::where('event_id', $event->id)
-                                                        ->where('user_id', $user->id)
-                                                        ->whereIn('status', ['confirmed', 'pending'])
-                                                        ->first();
+                $existingReservation = Reservation::where('reservable_id', $event->id)
+                                                  ->where('reservable_type', Event::class)
+                                                  ->where('app_user_id', $user->id)
+                                                  ->whereIn('status', ['confirmed', 'pending'])
+                                                  ->first();
                 
-                if ($existingRegistration) {
+                if ($existingReservation) {
                     return response()->json([
                         'success' => false,
                         'message' => 'You are already registered for this event'
@@ -233,10 +234,13 @@ class EventController extends Controller
 
             DB::beginTransaction();
 
-            // Create registration
-            $registrationData = [
-                'event_id' => $event->id,
-                'participants_count' => $participants_count,
+            // Create reservation
+            $reservationData = [
+                'reservable_id' => $event->id,
+                'reservable_type' => Event::class,
+                'reservation_date' => $event->start_date,
+                'reservation_time' => $event->start_time,
+                'number_of_people' => $participants_count,
                 'status' => 'pending',
                 'payment_status' => $event->price > 0 ? 'pending' : 'paid',
                 'payment_amount' => $event->price * $participants_count,
@@ -245,26 +249,22 @@ class EventController extends Controller
 
             if ($user) {
                 // Authenticated user
-                $registrationData = array_merge($registrationData, [
-                    'user_id' => $user->id,
-                    'user_name' => $user->name,
-                    'user_email' => $user->email,
-                    'user_phone' => $user->phone ?? null
-                ]);
+                $reservationData['app_user_id'] = $user->id;
             } else {
                 // Guest registration
-                $registrationData = array_merge($registrationData, [
-                    'user_name' => $validated['user_name'],
-                    'user_email' => $validated['user_email'],
-                    'user_phone' => $validated['user_phone'] ?? null
+                $reservationData = array_merge($reservationData, [
+                    'guest_name' => $validated['user_name'],
+                    'guest_email' => $validated['user_email'],
+                    'guest_phone' => $validated['user_phone'] ?? null
                 ]);
             }
 
-            $registration = EventRegistration::create($registrationData);
+            $reservation = Reservation::create($reservationData);
 
-            // If free event, auto-confirm registration
+            // If free event, auto-confirm reservation
             if ($event->price == 0) {
-                $registration->confirm();
+                $reservation->confirm();
+                $event->addParticipant();
             }
 
             DB::commit();
@@ -273,9 +273,9 @@ class EventController extends Controller
                 'success' => true,
                 'message' => 'Registration successful',
                 'data' => [
-                    'registration' => $this->transformRegistration($registration),
+                    'reservation' => $this->transformReservation($reservation),
                     'payment_required' => $event->price > 0,
-                    'total_amount' => $registration->total_amount
+                    'total_amount' => $reservation->payment_amount
                 ]
             ], 201);
 
@@ -305,12 +305,13 @@ class EventController extends Controller
                 ], 401);
             }
 
-            $registration = EventRegistration::where('event_id', $event->id)
-                                           ->where('user_id', $user->id)
-                                           ->whereIn('status', ['confirmed', 'pending'])
-                                           ->first();
+            $reservation = Reservation::where('reservable_id', $event->id)
+                                       ->where('reservable_type', Event::class)
+                                       ->where('app_user_id', $user->id)
+                                       ->whereIn('status', ['confirmed', 'pending'])
+                                       ->first();
 
-            if (!$registration) {
+            if (!$reservation) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Registration not found'
@@ -321,7 +322,8 @@ class EventController extends Controller
                 'reason' => 'nullable|string|max:255'
             ]);
 
-            $registration->cancel($request->get('reason'));
+            $reservation->cancel($request->get('reason'));
+            $event->removeParticipant();
 
             return response()->json([
                 'success' => true,
@@ -352,30 +354,31 @@ class EventController extends Controller
                 ], 401);
             }
 
-            $query = EventRegistration::where('user_id', $user->id)
-                                     ->with(['event.featuredImage', 'event.translations']);
+            $query = Reservation::where('app_user_id', $user->id)
+                                    ->where('reservable_type', Event::class)
+                                    ->with(['reservable.featuredImage', 'reservable.translations']);
 
             // Filter by status
             if ($request->filled('status')) {
                 $query->where('status', $request->get('status'));
             }
 
-            $registrations = $query->orderBy('created_at', 'desc')->paginate(20);
+            $reservations = $query->orderBy('created_at', 'desc')->paginate(20);
 
             $locale = $request->header('Accept-Language', 'fr');
-            $transformedRegistrations = $registrations->getCollection()->map(function ($registration) use ($locale) {
-                return $this->transformRegistrationWithEvent($registration, $locale);
+            $transformedReservations = $reservations->getCollection()->map(function ($reservation) use ($locale) {
+                return $this->transformReservationWithEvent($reservation, $locale);
             });
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'registrations' => $transformedRegistrations,
+                    'reservations' => $transformedReservations,
                     'pagination' => [
-                        'current_page' => $registrations->currentPage(),
-                        'last_page' => $registrations->lastPage(),
-                        'per_page' => $registrations->perPage(),
-                        'total' => $registrations->total()
+                        'current_page' => $reservations->currentPage(),
+                        'last_page' => $reservations->lastPage(),
+                        'per_page' => $reservations->perPage(),
+                        'total' => $reservations->total()
                     ]
                 ]
             ]);
@@ -470,32 +473,34 @@ class EventController extends Controller
     }
 
     /**
-     * Transform registration
+     * Transform reservation
      */
-    private function transformRegistration(EventRegistration $registration): array
+    private function transformReservation(Reservation $reservation): array
     {
         return [
-            'id' => $registration->id,
-            'registration_number' => $registration->registration_number,
-            'participants_count' => $registration->participants_count,
-            'status' => $registration->status,
-            'payment_status' => $registration->payment_status,
-            'payment_amount' => $registration->payment_amount,
-            'total_amount' => $registration->total_amount,
-            'special_requirements' => $registration->special_requirements,
-            'created_at' => $registration->created_at->toISOString()
+            'id' => $reservation->id,
+            'confirmation_number' => $reservation->confirmation_number,
+            'number_of_people' => $reservation->number_of_people,
+            'status' => $reservation->status,
+            'payment_status' => $reservation->payment_status,
+            'payment_amount' => $reservation->payment_amount,
+            'special_requirements' => $reservation->special_requirements,
+            'reservation_date' => $reservation->reservation_date?->toDateString(),
+            'user_name' => $reservation->user_name,
+            'user_email' => $reservation->user_email,
+            'created_at' => $reservation->created_at->toISOString()
         ];
     }
 
     /**
-     * Transform registration with event details
+     * Transform reservation with event details
      */
-    private function transformRegistrationWithEvent(EventRegistration $registration, string $locale = 'fr'): array
+    private function transformReservationWithEvent(Reservation $reservation, string $locale = 'fr'): array
     {
-        $basic = $this->transformRegistration($registration);
+        $basic = $this->transformReservation($reservation);
         
         return array_merge($basic, [
-            'event' => $this->transformEvent($registration->event, $locale)
+            'event' => $this->transformEvent($reservation->reservable, $locale)
         ]);
     }
 

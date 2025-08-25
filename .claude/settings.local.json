@@ -26,7 +26,12 @@
       "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan migrate)",
       "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan tinker:*)",
       "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan make:migration add_anonymous_support_to_app_users_table)",
-      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan make:controller Api/AnonymousAuthController)"
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan make:controller Api/AnonymousAuthController)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan make:migration add_comprehensive_device_info_to_app_users_table)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan make:migration create_user_location_history_table)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan make:model UserLocationHistory)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan make:controller Api/DeviceController)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.4.3-nts-Win32-vs17-x64/php.exe artisan make:migration migrate_event_registrations_to_reservations)"
     ],
     "deny": [],
     "additionalDirectories": [

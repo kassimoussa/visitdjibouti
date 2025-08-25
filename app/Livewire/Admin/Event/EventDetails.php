@@ -23,7 +23,7 @@ class EventDetails extends Component
             'creator', 
             'featuredImage', 
             'translations',
-            'registrations.user',
+            'reservations.appUser',
             'reviews' => function($query) {
                 $query->approved()->latest();
             }
@@ -90,9 +90,9 @@ class EventDetails extends Component
     public function getGroupedRegistrations()
     {
         return [
-            'confirmed' => $this->event->registrations()->confirmed()->latest()->get(),
-            'pending' => $this->event->registrations()->pending()->latest()->get(),
-            'cancelled' => $this->event->registrations()->where('status', 'cancelled')->latest()->get(),
+            'confirmed' => $this->event->reservations()->confirmed()->latest()->get(),
+            'pending' => $this->event->reservations()->pending()->latest()->get(),
+            'cancelled' => $this->event->reservations()->where('status', 'cancelled')->latest()->get(),
         ];
     }
     
@@ -101,25 +101,25 @@ class EventDetails extends Component
      */
     public function getDetailedStats()
     {
-        $registrations = $this->event->registrations;
+        $reservations = $this->event->reservations;
         
         return [
-            'total_registrations' => $registrations->count(),
-            'confirmed_registrations' => $registrations->where('status', 'confirmed')->count(),
-            'pending_registrations' => $registrations->where('status', 'pending')->count(),
-            'cancelled_registrations' => $registrations->where('status', 'cancelled')->count(),
-            'total_participants' => $registrations->where('status', 'confirmed')->sum('participants_count'),
-            'total_revenue' => $registrations->where('payment_status', 'paid')->sum('payment_amount'),
-            'pending_payments' => $registrations->where('payment_status', 'pending')->sum('payment_amount'),
+            'total_registrations' => $reservations->count(),
+            'confirmed_registrations' => $reservations->where('status', 'confirmed')->count(),
+            'pending_registrations' => $reservations->where('status', 'pending')->count(),
+            'cancelled_registrations' => $reservations->where('status', 'cancelled')->count(),
+            'total_participants' => $reservations->where('status', 'confirmed')->sum('number_of_people'),
+            'total_revenue' => $reservations->where('payment_status', 'paid')->sum('payment_amount'),
+            'pending_payments' => $reservations->where('payment_status', 'pending')->sum('payment_amount'),
         ];
     }
     public function getEventStats()
     {
-        $confirmedRegistrations = $this->event->registrations()->confirmed()->count();
-        $pendingRegistrations = $this->event->registrations()->pending()->count();
-        $totalParticipants = $this->event->registrations()
+        $confirmedRegistrations = $this->event->reservations()->confirmed()->count();
+        $pendingRegistrations = $this->event->reservations()->pending()->count();
+        $totalParticipants = $this->event->reservations()
             ->confirmed()
-            ->sum('participants_count');
+            ->sum('number_of_people');
         
         $approvedReviews = $this->event->reviews()->approved()->count();
         $averageRating = $this->event->reviews()->approved()->avg('rating');

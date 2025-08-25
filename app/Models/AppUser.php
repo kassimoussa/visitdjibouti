@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Arr;
 
 class AppUser extends Authenticatable
 {
@@ -42,6 +43,37 @@ class AppUser extends Authenticatable
         'device_id',
         'converted_at',
         'conversion_source',
+        // Informations techniques appareil
+        'device_type', 'device_brand', 'device_model', 'device_name',
+        'device_os', 'device_os_version', 'device_platform',
+        // Application
+        'app_version', 'app_build', 'app_bundle_id', 'app_debug_mode',
+        // Écran
+        'screen_resolution', 'screen_density', 'screen_size', 'orientation',
+        // Réseau
+        'network_type', 'carrier_name', 'connection_type', 'is_roaming',
+        // Système
+        'total_memory', 'available_memory', 'total_storage', 'available_storage',
+        'battery_level', 'is_charging', 'is_low_power_mode',
+        // Localisation
+        'current_latitude', 'current_longitude', 'location_accuracy',
+        'altitude', 'speed', 'heading', 'location_updated_at', 'location_source',
+        'current_address', 'current_city', 'current_country', 'current_timezone',
+        // Notifications et permissions
+        'push_token', 'push_provider', 'location_permission', 'camera_permission',
+        'contacts_permission', 'storage_permission', 'notification_permission',
+        // Paramètres utilisateur
+        'device_languages', 'keyboard_language', 'number_format', 'currency_format',
+        'dark_mode_enabled', 'accessibility_enabled',
+        // Tracking
+        'user_agent', 'advertising_id', 'ad_tracking_enabled', 'session_count',
+        'first_install_at', 'last_app_update_at', 'installed_apps',
+        // Métriques
+        'total_app_launches', 'total_time_spent', 'crashes_count', 'last_crash_at',
+        'feature_usage',
+        // Sécurité
+        'is_jailbroken_rooted', 'developer_mode_enabled', 'mock_location_enabled',
+        'device_fingerprint', 'device_info_updated_at'
     ];
 
     /**
@@ -69,10 +101,56 @@ class AppUser extends Authenticatable
             'email_notifications_enabled' => 'boolean',
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
-            // Nouveaux champs pour utilisateurs anonymes
+            // Champs pour utilisateurs anonymes
             'is_anonymous' => 'boolean',
             'converted_at' => 'datetime',
             'conversion_source' => 'array',
+            // Informations appareil
+            'app_debug_mode' => 'boolean',
+            'screen_density' => 'decimal:2',
+            'is_roaming' => 'boolean',
+            'total_memory' => 'integer',
+            'available_memory' => 'integer',
+            'total_storage' => 'integer',
+            'available_storage' => 'integer',
+            'battery_level' => 'decimal:2',
+            'is_charging' => 'boolean',
+            'is_low_power_mode' => 'boolean',
+            // Localisation
+            'current_latitude' => 'decimal:8',
+            'current_longitude' => 'decimal:8',
+            'location_accuracy' => 'decimal:2',
+            'altitude' => 'decimal:2',
+            'speed' => 'decimal:2',
+            'heading' => 'decimal:2',
+            'location_updated_at' => 'datetime',
+            // Permissions
+            'location_permission' => 'boolean',
+            'camera_permission' => 'boolean',
+            'contacts_permission' => 'boolean',
+            'storage_permission' => 'boolean',
+            'notification_permission' => 'boolean',
+            // Paramètres
+            'device_languages' => 'array',
+            'dark_mode_enabled' => 'boolean',
+            'accessibility_enabled' => 'boolean',
+            // Tracking
+            'ad_tracking_enabled' => 'boolean',
+            'session_count' => 'integer',
+            'first_install_at' => 'datetime',
+            'last_app_update_at' => 'datetime',
+            'installed_apps' => 'array',
+            // Métriques
+            'total_app_launches' => 'integer',
+            'total_time_spent' => 'integer',
+            'crashes_count' => 'integer',
+            'last_crash_at' => 'datetime',
+            'feature_usage' => 'array',
+            // Sécurité
+            'is_jailbroken_rooted' => 'boolean',
+            'developer_mode_enabled' => 'boolean',
+            'mock_location_enabled' => 'boolean',
+            'device_info_updated_at' => 'datetime',
         ];
     }
 
@@ -164,10 +242,10 @@ class AppUser extends Authenticatable
     /**
      * Get all event reservations for this user.
      */
-    public function eventReservations()
+    /* public function eventReservations()
     {
         return $this->hasMany(EventReservation::class, 'app_user_id');
-    }
+    } */
 
     /**
      * Get all reservations (new unified system) for this user.
@@ -175,6 +253,14 @@ class AppUser extends Authenticatable
     public function reservations()
     {
         return $this->hasMany(Reservation::class, 'app_user_id');
+    }
+
+    /**
+     * Get all location history for this user.
+     */
+    public function locationHistory()
+    {
+        return $this->hasMany(UserLocationHistory::class, 'app_user_id');
     }
 
     /**
@@ -385,7 +471,7 @@ class AppUser extends Authenticatable
         
         // Masquer certains champs pour les utilisateurs anonymes
         if ($this->is_anonymous) {
-            $data = array_except($data, ['email', 'phone', 'date_of_birth', 'gender', 'city', 'country']);
+            $data = Arr::except($data, ['email', 'phone', 'date_of_birth', 'gender', 'city', 'country']);
         }
         
         return $data;
