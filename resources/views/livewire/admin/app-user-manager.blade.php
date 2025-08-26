@@ -294,7 +294,7 @@
                                         <i class="fas fa-check"></i>
                                     </button>
                                 @endif
-                                
+                                 
                                 <button wire:click="openActionModal({{ $user->id }}, 'delete')" 
                                         class="btn btn-outline-danger btn-sm" 
                                         data-bs-toggle="tooltip" title="Supprimer">

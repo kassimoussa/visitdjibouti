@@ -65,12 +65,19 @@ class PoiController extends Controller
             $sortOrder = $request->get('sort_order', 'desc');
 
             if ($sortBy === 'name') {
-                // Sort by translated name
+                // Sort by translated name using subquery to avoid ID conflicts
                 $locale = $request->header('Accept-Language', 'fr');
-                $query->leftJoin('poi_translations', function ($join) use ($locale) {
-                    $join->on('pois.id', '=', 'poi_translations.poi_id')
-                         ->where('poi_translations.locale', '=', $locale);
-                })->orderBy('poi_translations.name', $sortOrder);
+                
+                // Use raw SQL with subquery to properly handle the sort
+                $query->addSelect([
+                    'translation_name' => function($subQuery) use ($locale) {
+                        $subQuery->select('name')
+                                ->from('poi_translations')
+                                ->whereRaw('poi_translations.poi_id = pois.id')
+                                ->where('locale', $locale)
+                                ->limit(1);
+                    }
+                ])->orderBy('translation_name', $sortOrder);
             } else {
                 $query->orderBy($sortBy, $sortOrder);
             }
