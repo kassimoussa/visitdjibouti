@@ -116,7 +116,9 @@ class Reservation extends Model
     public function getUserNameAttribute(): string
     {
         if ($this->appUser) {
-            return $this->appUser->name;
+            // Utiliser la méthode getDisplayName() qui gère les utilisateurs anonymes
+            $displayName = $this->appUser->getDisplayName();
+            return $displayName ?? 'Utilisateur';
         }
         
         return $this->guest_name ?? '';
@@ -128,7 +130,11 @@ class Reservation extends Model
     public function getUserEmailAttribute(): string
     {
         if ($this->appUser) {
-            return $this->appUser->email;
+            // Pour les utilisateurs anonymes, l'email peut être null
+            if ($this->appUser->is_anonymous) {
+                return $this->appUser->email ?? '';
+            }
+            return $this->appUser->email ?? '';
         }
         
         return $this->guest_email ?? '';
@@ -139,8 +145,9 @@ class Reservation extends Model
      */
     public function getUserPhoneAttribute(): string
     {
-        if ($this->appUser && $this->appUser->phone) {
-            return $this->appUser->phone;
+        if ($this->appUser) {
+            // Pour tous les utilisateurs (anonymes et normaux), le phone peut être null
+            return $this->appUser->phone ?? '';
         }
         
         return $this->guest_phone ?? '';
