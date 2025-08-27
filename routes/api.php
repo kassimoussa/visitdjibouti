@@ -147,6 +147,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('reservations')->group(function () {
         Route::get('/', [ReservationController::class, 'getUserReservations']); // Toutes les réservations de l'utilisateur
         Route::patch('/{confirmation_number}/cancel', [ReservationController::class, 'cancel']); // Annuler une réservation
+        Route::delete('/{confirmation_number}', [ReservationController::class, 'delete']); // Supprimer une réservation annulée
     });
     
     // Routes protégées pour les favoris

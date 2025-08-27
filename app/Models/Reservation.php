@@ -292,6 +292,14 @@ class Reservation extends Model
     }
 
     /**
+     * Check if reservation can be deleted.
+     */
+    public function canBeDeleted(): bool
+    {
+        return $this->status === 'cancelled';
+    }
+
+    /**
      * Check if reservation is active (not cancelled or completed).
      */
     public function isActive(): bool

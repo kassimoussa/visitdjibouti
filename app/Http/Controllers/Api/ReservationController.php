@@ -327,6 +327,55 @@ class ReservationController extends Controller
     }
 
     /**
+     * Delete a cancelled reservation permanently
+     */
+    public function delete(Request $request, string $confirmationNumber): JsonResponse
+    {
+        try {
+            $reservation = Reservation::where('confirmation_number', $confirmationNumber)->first();
+
+            if (!$reservation) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Reservation not found'
+                ], 404);
+            }
+
+            // Check if user has access to this reservation
+            $user = Auth::guard('sanctum')->user();
+            if ($user && $reservation->app_user_id !== $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Access denied'
+                ], 403);
+            }
+
+            // Only allow deletion of cancelled reservations
+            if (!$reservation->canBeDeleted()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only cancelled reservations can be deleted. Please cancel the reservation first.'
+                ], 400);
+            }
+
+            // Soft delete the reservation
+            $reservation->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Reservation deleted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete reservation',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+
+    /**
      * Transform reservation for API response
      */
     private function transformReservation(Reservation $reservation, string $locale = 'fr'): array
@@ -362,6 +411,7 @@ class ReservationController extends Controller
             'payment_status' => $reservation->payment_status,
             'payment_amount' => $reservation->payment_amount,
             'can_be_cancelled' => $reservation->canBeCancelled(),
+            'can_be_deleted' => $reservation->canBeDeleted(),
             'is_active' => $reservation->isActive(),
             'created_at' => $reservation->created_at->toISOString(),
             'updated_at' => $reservation->updated_at->toISOString()

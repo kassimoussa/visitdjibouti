@@ -1,6 +1,6 @@
 # 📱 API Documentation - Visit Djibouti Mobile App
 
-**Complete API with 39 endpoints** for mobile tourism application with authentication, POIs, events, favorites, tour operators, app settings, device tracking, and organization management.
+**Complete API with 40+ endpoints** for mobile tourism application with authentication, POIs, events, favorites, tour operators, app settings, device tracking, organization management, and comprehensive reservation system.
 
 ## 🚀 New: Anonymous User Support
 The API now supports **anonymous users** for a frictionless onboarding experience. Users can browse, add favorites, and make reservations without providing personal information, then convert to full accounts when ready.
@@ -554,10 +554,11 @@ curl -X GET http://localhost/api/organization \
   -H "Accept-Language: fr"
 ```
 
-### Get external links
+### Get external links  
 ```bash
 curl -X GET http://localhost/api/external-links \
-  -H "Accept: application/json"
+  -H "Accept: application/json" \
+  -H "Accept-Language: fr"
 ```
 
 ### Get embassies by type
@@ -1998,6 +1999,322 @@ curl -X POST "http://your-domain.com/api/device/update" \
     "location_permission": true,
     "new_session": true
   }'
+```
+
+---
+
+## 📅 Reservation Management System
+
+### ✅ Create Reservation
+**POST** `/reservations`
+
+Create a reservation for a POI or Event. Works for both authenticated and anonymous users.
+
+**Request Body (Authenticated User):**
+```json
+{
+  "reservable_type": "event",
+  "reservable_id": 1,
+  "reservation_date": "2024-12-20",
+  "reservation_time": "18:00",
+  "number_of_people": 2,
+  "special_requirements": "Accès PMR nécessaire",
+  "notes": "Première visite en famille"
+}
+```
+
+**Request Body (Guest/Anonymous User):**
+```json
+{
+  "reservable_type": "poi", 
+  "reservable_id": 5,
+  "reservation_date": "2024-12-18",
+  "number_of_people": 1,
+  "guest_name": "Jean Dupont",
+  "guest_email": "jean@example.com",
+  "guest_phone": "+253 21 35 40 50",
+  "special_requirements": "Visite guidée en français"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Reservation created successfully",
+  "data": {
+    "reservation": {
+      "id": 15,
+      "confirmation_number": "EVT-A8D3F2E1",
+      "reservable_type": "event",
+      "reservable_id": 1,
+      "reservable_name": "Festival Culturel de Djibouti",
+      "reservation_date": "2024-12-20",
+      "reservation_time": "18:00",
+      "number_of_people": 2,
+      "status": "pending",
+      "user_name": "John Doe",
+      "user_email": "john@example.com",
+      "user_phone": "+253 21 35 40 50",
+      "special_requirements": "Accès PMR nécessaire",
+      "payment_status": "not_required",
+      "payment_amount": null,
+      "can_be_cancelled": true,
+      "can_be_deleted": false,
+      "is_active": true,
+      "created_at": "2024-08-27T15:30:00Z",
+      "updated_at": "2024-08-27T15:30:00Z"
+    }
+  }
+}
+```
+
+### 📋 Get User Reservations
+**GET** `/reservations` (Protected)
+
+Get all reservations for the authenticated user.
+
+**Query Parameters:**
+- `type` - Filter by type: `poi`, `event`
+- `status` - Filter by status: `pending`, `confirmed`, `cancelled`
+- `upcoming` - Show only upcoming reservations (true/false)
+- `per_page` - Items per page (default: 15, max: 50)
+- `page` - Page number
+
+**Headers:**
+- `Authorization: Bearer {token}` (Required)
+- `Accept-Language` - Language code (fr, en, ar)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "reservations": [
+      {
+        "id": 15,
+        "confirmation_number": "EVT-A8D3F2E1",
+        "reservable_type": "event",
+        "reservable_id": 1,
+        "reservable_name": "Festival Culturel de Djibouti",
+        "reservation_date": "2024-12-20",
+        "reservation_time": "18:00",
+        "number_of_people": 2,
+        "status": "confirmed",
+        "user_name": "John Doe",
+        "user_email": "john@example.com",
+        "user_phone": "+253 21 35 40 50",
+        "special_requirements": "Accès PMR nécessaire",
+        "payment_status": "not_required",
+        "payment_amount": null,
+        "can_be_cancelled": true,
+        "can_be_deleted": false,
+        "is_active": true,
+        "created_at": "2024-08-27T15:30:00Z",
+        "updated_at": "2024-08-27T15:30:00Z"
+      }
+    ],
+    "pagination": {
+      "current_page": 1,
+      "last_page": 1,
+      "per_page": 15,
+      "total": 1,
+      "from": 1,
+      "to": 1
+    }
+  }
+}
+```
+
+### 🔍 Get Reservation Details
+**GET** `/reservations/{confirmation_number}`
+
+Get detailed information about a specific reservation using its confirmation number. No authentication required - accessible by confirmation number.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "reservation": {
+      "id": 15,
+      "confirmation_number": "EVT-A8D3F2E1",
+      "reservable_type": "event",
+      "reservable_id": 1,
+      "reservable_name": "Festival Culturel de Djibouti",
+      "reservation_date": "2024-12-20",
+      "reservation_time": "18:00",
+      "number_of_people": 2,
+      "status": "confirmed",
+      "user_name": "John Doe",
+      "user_email": "john@example.com",
+      "user_phone": "+253 21 35 40 50",
+      "special_requirements": "Accès PMR nécessaire",
+      "payment_status": "not_required",
+      "payment_amount": null,
+      "notes": "Première visite en famille",
+      "contact_info": null,
+      "cancellation_reason": null,
+      "cancelled_at": null,
+      "confirmation_sent_at": "2024-08-27T15:35:00Z",
+      "reminder_sent_at": null,
+      "can_be_cancelled": true,
+      "can_be_deleted": false,
+      "is_active": true,
+      "created_at": "2024-08-27T15:30:00Z",
+      "updated_at": "2024-08-27T15:30:00Z",
+      "reservable_details": {
+        "type": "event",
+        "slug": "festival-culturel-djibouti",
+        "title": "Festival Culturel de Djibouti 2024",
+        "start_date": "2024-12-20",
+        "end_date": "2024-12-22",
+        "start_time": "18:00",
+        "end_time": "23:00",
+        "location": "Place du 27 Juin",
+        "price": 0,
+        "max_participants": 500,
+        "remaining_spots": 255,
+        "featured_image": {
+          "url": "https://domain.com/storage/media/images/festival.jpg",
+          "alt": "Festival Culturel de Djibouti"
+        }
+      }
+    }
+  }
+}
+```
+
+### ❌ Cancel Reservation
+**PATCH** `/reservations/{confirmation_number}/cancel` (Protected)
+
+Cancel an existing reservation. Only the owner can cancel their reservation.
+
+**Request Body:**
+```json
+{
+  "reason": "Empêchement de dernière minute"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Reservation cancelled successfully",
+  "data": {
+    "reservation": {
+      "id": 15,
+      "confirmation_number": "EVT-A8D3F2E1",
+      "status": "cancelled",
+      "cancellation_reason": "Empêchement de dernière minute",
+      "cancelled_at": "2024-08-27T16:00:00Z",
+      "can_be_cancelled": false,
+      "can_be_deleted": true,
+      "is_active": false
+    }
+  }
+}
+```
+
+### 🗑️ Delete Cancelled Reservation
+**DELETE** `/reservations/{confirmation_number}` (Protected)
+
+Permanently delete a cancelled reservation from user's history. Only cancelled reservations can be deleted.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Reservation deleted successfully"
+}
+```
+
+**Error Response (if not cancelled):**
+```json
+{
+  "success": false,
+  "message": "Only cancelled reservations can be deleted. Please cancel the reservation first."
+}
+```
+
+### 📊 Reservation Status Flow
+
+```
+pending → confirmed → completed
+   ↓           ↓
+cancelled → [deleted]
+```
+
+**Status Descriptions:**
+- `pending` - Awaiting confirmation
+- `confirmed` - Confirmed and active
+- `cancelled` - Cancelled by user
+- `completed` - Event/visit completed
+
+**Available Actions:**
+- `can_be_cancelled` - Can cancel if pending/confirmed and date is future
+- `can_be_deleted` - Can delete if status is cancelled
+
+### 🧪 cURL Examples
+
+**Create reservation (authenticated):**
+```bash
+curl -X POST http://your-domain.com/api/reservations \
+  -H "Authorization: Bearer your_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "reservable_type": "event",
+    "reservable_id": 1,
+    "reservation_date": "2024-12-20",
+    "reservation_time": "18:00",
+    "number_of_people": 2,
+    "special_requirements": "Accès PMR nécessaire"
+  }'
+```
+
+**Create reservation (guest):**
+```bash
+curl -X POST http://your-domain.com/api/reservations \
+  -H "Content-Type: application/json" \
+  -d '{
+    "reservable_type": "poi",
+    "reservable_id": 5,
+    "reservation_date": "2024-12-18",
+    "number_of_people": 1,
+    "guest_name": "Jean Dupont",
+    "guest_email": "jean@example.com",
+    "guest_phone": "+253 21 35 40 50"
+  }'
+```
+
+**Get user reservations:**
+```bash
+curl -X GET "http://your-domain.com/api/reservations?type=event&status=confirmed" \
+  -H "Authorization: Bearer your_token" \
+  -H "Accept-Language: fr"
+```
+
+**Get reservation details:**
+```bash
+curl -X GET http://your-domain.com/api/reservations/EVT-A8D3F2E1 \
+  -H "Accept-Language: fr"
+```
+
+**Cancel reservation:**
+```bash
+curl -X PATCH http://your-domain.com/api/reservations/EVT-A8D3F2E1/cancel \
+  -H "Authorization: Bearer your_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "reason": "Empêchement de dernière minute"
+  }'
+```
+
+**Delete cancelled reservation:**
+```bash
+curl -X DELETE http://your-domain.com/api/reservations/EVT-A8D3F2E1 \
+  -H "Authorization: Bearer your_token"
 ```
 
 ---
