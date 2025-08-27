@@ -41,7 +41,7 @@ class TourOperatorController extends Controller
                 'translations',
                 'logo',
                 'media' => function ($query) {
-                    $query->wherePivot('media_type', 'gallery')->orderByPivot('order');
+                    $query->orderByPivot('order');
                 }
             ])->active();
 
@@ -123,7 +123,7 @@ class TourOperatorController extends Controller
                 'translations',
                 'logo',
                 'media' => function ($query) {
-                    $query->orderByPivot('media_type')->orderByPivot('order');
+                    $query->orderByPivot('order');
                 }
             ]);
 
