@@ -3,22 +3,26 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\ExternalLink;
+use App\Models\Link;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ExternalLinkController extends Controller
 {
     /**
-     * Get all active external links
+     * Get all external links from organization
      */
     public function index(Request $request): JsonResponse
     {
         try {
-            $links = ExternalLink::active()->orderBy('name')->get();
+            $locale = $request->header('Accept-Language', config('app.fallback_locale', 'fr'));
+            
+            $links = Link::with(['translations', 'organizationInfo'])
+                         ->orderBy('order')
+                         ->get();
 
-            $transformedLinks = $links->map(function ($link) {
-                return $this->transformLink($link);
+            $transformedLinks = $links->map(function ($link) use ($locale) {
+                return $this->transformLink($link, $locale);
             });
 
             return response()->json([
@@ -26,14 +30,15 @@ class ExternalLinkController extends Controller
                 'data' => [
                     'links' => $transformedLinks,
                     'total' => $links->count()
-                ]
+                ],
+                'locale' => $locale
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch external links',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }
@@ -44,7 +49,9 @@ class ExternalLinkController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         try {
-            $link = ExternalLink::active()->find($id);
+            $locale = $request->header('Accept-Language', config('app.fallback_locale', 'fr'));
+            
+            $link = Link::with(['translations', 'organizationInfo'])->find($id);
 
             if (!$link) {
                 return response()->json([
@@ -56,31 +63,38 @@ class ExternalLinkController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'link' => $this->transformLink($link)
-                ]
+                    'link' => $this->transformLink($link, $locale)
+                ],
+                'locale' => $locale
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch external link',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }
 
     /**
-     * Transform external link for API response
+     * Transform link for API response
      */
-    private function transformLink(ExternalLink $link): array
+    private function transformLink(Link $link, string $locale = 'fr'): array
     {
+        $translation = $link->translation($locale);
+        
         return [
             'id' => $link->id,
-            'name' => $link->name,
+            'name' => $translation ? $translation->name : '',
             'url' => $link->url,
-            'status' => $link->status,
+            'platform' => $link->platform,
+            'order' => $link->order,
+            'icon' => $link->icon,
+            'color' => $link->color,
             'is_external' => $this->isExternalUrl($link->url),
             'domain' => $this->extractDomain($link->url),
+            'organization_info_id' => $link->organization_info_id,
             'created_at' => $link->created_at->toISOString(),
             'updated_at' => $link->updated_at->toISOString()
         ];
