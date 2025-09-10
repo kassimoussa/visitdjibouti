@@ -251,19 +251,6 @@
                                 </div>
                             @endif
 
-                            @if ($poi->contact)
-                                <div class="mpv-info-item">
-                                    <div class="d-flex">
-                                        <div class="flex-shrink-0 mpv-info-icon">
-                                            <i class="fas fa-phone-alt"></i>
-                                        </div>
-                                        <div class="ms-3 flex-grow-1">
-                                            <div class="fw-medium">Contact</div>
-                                            <div>{!! nl2br(e($poi->contact)) !!}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
 
                             @if ($poi->website)
                                 <div class="mpv-info-item">
@@ -282,6 +269,113 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Contacts -->
+                @if($poi->hasContacts())
+                    <div class="mpv-card shadow-sm mb-4 border-0">
+                        <div class="mpv-card-body p-4">
+                            <h4 class="mpv-card-title border-bottom pb-3 mb-3">
+                                <i class="fas fa-address-book me-2"></i>Contacts ({{ count($poi->contacts) }})
+                            </h4>
+
+                            <div class="row g-3">
+                                @foreach($poi->contacts as $index => $contact)
+                                    <div class="col-12 {{ count($poi->contacts) > 1 ? 'col-lg-6' : '' }}">
+                                        <div class="contact-card border rounded p-3 h-100 position-relative"
+                                             style="background: linear-gradient(135deg, {{ $this->getContactTypeColor($contact['type']) }}15, {{ $this->getContactTypeColor($contact['type']) }}05);">
+                                            
+                                            @if($contact['is_primary'] ?? false)
+                                                <span class="position-absolute top-0 end-0 mt-2 me-2">
+                                                    <i class="fas fa-star text-warning" title="Contact principal"></i>
+                                                </span>
+                                            @endif
+                                            
+                                            <!-- En-tête du contact -->
+                                            <div class="d-flex align-items-start mb-3">
+                                                <div class="contact-type-badge me-3 d-flex align-items-center justify-content-center rounded-circle" 
+                                                     style="background-color: {{ $this->getContactTypeColor($contact['type']) }}; width: 48px; height: 48px; color: white;">
+                                                    <i class="{{ $this->getContactTypeIcon($contact['type']) }} fa-lg"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h5 class="contact-name mb-1 fw-bold">{{ $contact['name'] }}</h5>
+                                                    <span class="badge rounded-pill px-3 py-1" 
+                                                          style="background-color: {{ $this->getContactTypeColor($contact['type']) }}20; color: {{ $this->getContactTypeColor($contact['type']) }};">
+                                                        {{ $this->getContactTypeName($contact['type']) }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Informations de contact -->
+                                            <div class="contact-info">
+                                                @if(!empty($contact['phone']))
+                                                    <div class="contact-item d-flex align-items-center mb-2">
+                                                        <div class="contact-icon me-3">
+                                                            <i class="fas fa-phone text-muted"></i>
+                                                        </div>
+                                                        <div class="contact-value">
+                                                            <a href="tel:{{ $contact['phone'] }}" class="text-decoration-none fw-medium">
+                                                                {{ $contact['phone'] }}
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                                
+                                                @if(!empty($contact['email']))
+                                                    <div class="contact-item d-flex align-items-center mb-2">
+                                                        <div class="contact-icon me-3">
+                                                            <i class="fas fa-envelope text-muted"></i>
+                                                        </div>
+                                                        <div class="contact-value">
+                                                            <a href="mailto:{{ $contact['email'] }}" class="text-decoration-none fw-medium">
+                                                                {{ $contact['email'] }}
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                                
+                                                @if(!empty($contact['website']))
+                                                    <div class="contact-item d-flex align-items-center mb-2">
+                                                        <div class="contact-icon me-3">
+                                                            <i class="fas fa-globe text-muted"></i>
+                                                        </div>
+                                                        <div class="contact-value">
+                                                            <a href="{{ $contact['website'] }}" target="_blank" class="text-decoration-none fw-medium">
+                                                                <span class="text-truncate d-inline-block" style="max-width: 150px;">
+                                                                    {{ str_replace(['http://', 'https://'], '', $contact['website']) }}
+                                                                </span>
+                                                                <i class="fas fa-external-link-alt fa-xs ms-1"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                                
+                                                @if(!empty($contact['address']))
+                                                    <div class="contact-item d-flex align-items-start mb-2">
+                                                        <div class="contact-icon me-3 mt-1">
+                                                            <i class="fas fa-map-marker-alt text-muted"></i>
+                                                        </div>
+                                                        <div class="contact-value">
+                                                            <span class="fw-medium">{{ $contact['address'] }}</span>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                                
+                                                @if(!empty($contact['description']))
+                                                    <div class="contact-description mt-3 pt-3 border-top">
+                                                        <small class="text-muted fst-italic">
+                                                            <i class="fas fa-quote-left fa-xs me-1"></i>
+                                                            {{ $contact['description'] }}
+                                                        </small>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <!-- Localisation sur la carte -->
                 @if ($poi->latitude && $poi->longitude)
@@ -355,6 +449,47 @@
         </div>
     </div>
 </div>
+
+@push('styles')
+<style>
+.contact-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent !important;
+}
+
+.contact-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+.contact-type-badge {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.contact-item {
+    transition: all 0.2s ease;
+}
+
+.contact-item:hover {
+    transform: translateX(5px);
+}
+
+.contact-icon {
+    width: 24px;
+    text-align: center;
+}
+
+.contact-value a:hover {
+    color: var(--bs-primary) !important;
+}
+
+.contact-description {
+    background-color: rgba(255,255,255,0.7);
+    border-radius: 8px;
+    padding: 12px;
+}
+</style>
+@endpush
 
 @push('scripts')
     @if ($poi->latitude && $poi->longitude)

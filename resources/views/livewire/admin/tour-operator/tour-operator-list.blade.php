@@ -135,6 +135,10 @@
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
+                                            <a href="{{ route('tour-operators.show', $operator->id) }}" 
+                                               class="btn btn-sm btn-outline-info" title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
                                             <a href="{{ route('tour-operators.edit', $operator->id) }}" 
                                                class="btn btn-sm btn-outline-primary" title="Modifier">
                                                 <i class="fas fa-edit"></i>
@@ -142,7 +146,7 @@
                                             <button type="button" class="btn btn-sm btn-outline-{{ $operator->is_active ? 'warning' : 'success' }}" 
                                                     wire:click="toggleStatus({{ $operator->id }})" 
                                                     title="{{ $operator->is_active ? 'Désactiver' : 'Activer' }}">
-                                                <i class="fas fa-{{ $operator->is_active ? 'eye-slash' : 'eye' }}"></i>
+                                                <i class="fas fa-{{ $operator->is_active ? 'power-off' : 'power-off' }}"></i>
                                             </button>
                                             <button type="button" class="btn btn-sm btn-outline-{{ $operator->featured ? 'secondary' : 'warning' }}" 
                                                     wire:click="toggleFeatured({{ $operator->id }})" 

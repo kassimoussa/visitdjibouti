@@ -10,6 +10,52 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * POI API Controller
+ * 
+ * Exemple de structure API avec contacts multiples:
+ * {
+ *   "contacts": [
+ *     {
+ *       "name": "Restaurant Le Palmier",
+ *       "type": "restaurant",
+ *       "type_label": "Restaurant", 
+ *       "phone": "+253 77 XX XX XX",
+ *       "email": "contact@palmier.dj",
+ *       "website": "https://www.palmier.dj",
+ *       "address": "Avenue Hassan Gouled, Djibouti",
+ *       "description": "Spécialités locales",
+ *       "is_primary": true
+ *     }
+ *   ],
+ *   "has_contacts": true,
+ *   "contacts_count": 2,
+ *   "primary_contact": { ... },
+ *   "tour_operators": [
+ *     {
+ *       "id": 5,
+ *       "name": "Desert Tours Djibouti",
+ *       "service_type": "full_package",
+ *       "service_type_label": "Package complet",
+ *       "is_primary": true,
+ *       "phone": "+253 77 XX XX XX",
+ *       "website": "https://deserttours.dj",
+ *       "notes": "Excursions vers le Lac Assal incluses"
+ *     }
+ *   ],
+ *   "has_tour_operators": true,
+ *   "tour_operators_count": 1,
+ *   "primary_tour_operator": { ... }
+ * }
+ * 
+ * Paramètres de filtrage:
+ * - contact_type: restaurant, tour_operator, guide, etc.
+ * - has_contacts: true/false
+ * - tour_operator_id: ID du tour operator
+ * - service_type: guide, transport, full_package, accommodation, activity, other
+ * - has_tour_operators: true/false
+ * - has_primary_operator: true/false
+ */
 class PoiController extends Controller
 {
     /**
@@ -19,7 +65,7 @@ class PoiController extends Controller
     {
         try {
             $query = Poi::published()
-                         ->with(['featuredImage', 'categories.translations', 'translations']);
+                         ->with(['featuredImage', 'categories.translations', 'translations', 'tourOperators.translations']);
 
             // Search by name
             if ($request->filled('search')) {
@@ -58,6 +104,47 @@ class PoiController extends Controller
             // Filter by featured
             if ($request->filled('featured')) {
                 $query->featured();
+            }
+
+            // Filter by contact type
+            if ($request->filled('contact_type')) {
+                $contactType = $request->get('contact_type');
+                $query->whereRaw('JSON_SEARCH(contacts, "one", ?) IS NOT NULL', [$contactType]);
+            }
+
+            // Filter POIs that have contacts
+            if ($request->filled('has_contacts') && $request->boolean('has_contacts')) {
+                $query->whereNotNull('contacts')
+                      ->where('contacts', '!=', '[]')
+                      ->where('contacts', '!=', 'null');
+            }
+
+            // Filter by tour operator ID
+            if ($request->filled('tour_operator_id')) {
+                $tourOperatorId = $request->get('tour_operator_id');
+                $query->whereHas('tourOperators', function ($q) use ($tourOperatorId) {
+                    $q->where('tour_operators.id', $tourOperatorId);
+                });
+            }
+
+            // Filter by tour operator service type
+            if ($request->filled('service_type')) {
+                $serviceType = $request->get('service_type');
+                $query->whereHas('tourOperators', function ($q) use ($serviceType) {
+                    $q->where('poi_tour_operator.service_type', $serviceType);
+                });
+            }
+
+            // Filter POIs that have tour operators
+            if ($request->filled('has_tour_operators') && $request->boolean('has_tour_operators')) {
+                $query->whereHas('tourOperators');
+            }
+
+            // Filter POIs with primary tour operators
+            if ($request->filled('has_primary_operator') && $request->boolean('has_primary_operator')) {
+                $query->whereHas('tourOperators', function ($q) {
+                    $q->where('poi_tour_operator.is_primary', true);
+                });
             }
 
             // Sort options
@@ -106,7 +193,8 @@ class PoiController extends Controller
                     ],
                     'filters' => [
                         'regions' => $this->getAvailableRegions(),
-                        'categories' => $this->getAvailableCategories($request->header('Accept-Language', 'fr'))
+                        'categories' => $this->getAvailableCategories($request->header('Accept-Language', 'fr')),
+                        'contact_types' => $this->getAvailableContactTypes()
                     ]
                 ]
             ]);
@@ -131,7 +219,8 @@ class PoiController extends Controller
                              'featuredImage', 
                              'media', 
                              'categories.translations', 
-                             'translations'
+                             'translations',
+                             'tourOperators.translations'
                          ]);
 
             // Try to find by ID first, then by slug
@@ -302,7 +391,10 @@ class PoiController extends Controller
             'is_featured' => $poi->is_featured,
             'allow_reservations' => $poi->allow_reservations,
             'website' => $poi->website,
-            'contact' => $poi->contact,
+            'contacts' => $this->transformContacts($poi->contacts ?? []),
+            'has_contacts' => !empty($poi->contacts),
+            'contacts_count' => count($poi->contacts ?? []),
+            'primary_contact' => $this->getPrimaryContact($poi->contacts ?? []),
             'featured_image' => $poi->featuredImage ? [
                 'id' => $poi->featuredImage->id,
                 'url' => $poi->featuredImage->getImageUrl(),
@@ -318,6 +410,10 @@ class PoiController extends Controller
                     'parent_name' => $category->parent ? ($category->parent->translation($locale)->name ?? $category->parent->name) : null
                 ];
             }),
+            'tour_operators' => $this->transformTourOperators($poi->tourOperators, $locale),
+            'has_tour_operators' => $poi->tourOperators->isNotEmpty(),
+            'tour_operators_count' => $poi->tourOperators->count(),
+            'primary_tour_operator' => $this->getPrimaryTourOperator($poi->tourOperators, $locale),
             'favorites_count' => $poi->favorites_count,
             'is_favorited' => $user ? $poi->isFavoritedBy($user->id) : false,
             'created_at' => $poi->created_at->toISOString(),
@@ -359,6 +455,25 @@ class PoiController extends Controller
     }
 
     /**
+     * Get available contact types
+     */
+    private function getAvailableContactTypes(): array
+    {
+        return [
+            ['key' => 'general', 'label' => 'Contact général'],
+            ['key' => 'restaurant', 'label' => 'Restaurant'],
+            ['key' => 'tour_operator', 'label' => 'Opérateur de tourisme'],
+            ['key' => 'guide', 'label' => 'Guide local'],
+            ['key' => 'accommodation', 'label' => 'Hébergement'],
+            ['key' => 'park_office', 'label' => 'Bureau du parc'],
+            ['key' => 'emergency', 'label' => 'Urgence'],
+            ['key' => 'transport', 'label' => 'Transport'],
+            ['key' => 'shop', 'label' => 'Boutique/Commerce'],
+            ['key' => 'other', 'label' => 'Autre']
+        ];
+    }
+
+    /**
      * Get available categories
      */
     private function getAvailableCategories(string $locale = 'fr'): array
@@ -373,5 +488,202 @@ class PoiController extends Controller
                 ];
             })
             ->toArray();
+    }
+
+    /**
+     * Transform contacts array for API response
+     */
+    private function transformContacts(array $contacts): array
+    {
+        if (empty($contacts)) {
+            return [];
+        }
+
+        return collect($contacts)->map(function ($contact) {
+            return [
+                'name' => $contact['name'] ?? '',
+                'type' => $contact['type'] ?? 'general',
+                'type_label' => $this->getContactTypeLabel($contact['type'] ?? 'general'),
+                'phone' => $contact['phone'] ?? null,
+                'email' => $contact['email'] ?? null,
+                'website' => $contact['website'] ?? null,
+                'address' => $contact['address'] ?? null,
+                'description' => $contact['description'] ?? null,
+                'is_primary' => $contact['is_primary'] ?? false,
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Get contact type label
+     */
+    private function getContactTypeLabel(string $type): string
+    {
+        $labels = [
+            'general' => 'Contact général',
+            'restaurant' => 'Restaurant',
+            'tour_operator' => 'Opérateur de tourisme',
+            'guide' => 'Guide local',
+            'accommodation' => 'Hébergement',
+            'park_office' => 'Bureau du parc',
+            'emergency' => 'Urgence',
+            'transport' => 'Transport',
+            'shop' => 'Boutique/Commerce',
+            'other' => 'Autre'
+        ];
+
+        return $labels[$type] ?? 'Type inconnu';
+    }
+
+    /**
+     * Get primary contact from contacts array
+     */
+    private function getPrimaryContact(array $contacts): ?array
+    {
+        if (empty($contacts)) {
+            return null;
+        }
+
+        // Try to find primary contact
+        $primaryContact = collect($contacts)->firstWhere('is_primary', true);
+        
+        // If no primary found, use first contact
+        $contact = $primaryContact ?: $contacts[0] ?? null;
+        
+        if (!$contact) {
+            return null;
+        }
+
+        // Transform the contact for API response
+        return [
+            'name' => $contact['name'] ?? '',
+            'type' => $contact['type'] ?? 'general',
+            'type_label' => $this->getContactTypeLabel($contact['type'] ?? 'general'),
+            'phone' => $contact['phone'] ?? null,
+            'email' => $contact['email'] ?? null,
+            'website' => $contact['website'] ?? null,
+            'address' => $contact['address'] ?? null,
+            'description' => $contact['description'] ?? null,
+            'is_primary' => $contact['is_primary'] ?? false,
+        ];
+    }
+
+    /**
+     * Transform tour operators collection for API response
+     */
+    private function transformTourOperators($tourOperators, string $locale = 'fr'): array
+    {
+        if ($tourOperators->isEmpty()) {
+            return [];
+        }
+
+        return $tourOperators->map(function ($tourOperator) use ($locale) {
+            return [
+                'id' => $tourOperator->id,
+                'name' => $tourOperator->getTranslatedName($locale),
+                'description' => $tourOperator->getTranslatedDescription($locale),
+                'slug' => $tourOperator->slug,
+                'service_type' => $tourOperator->pivot->service_type ?? 'guide',
+                'service_type_label' => $this->getServiceTypeLabel($tourOperator->pivot->service_type ?? 'guide', $locale),
+                'is_primary' => (bool) ($tourOperator->pivot->is_primary ?? false),
+                'notes' => $tourOperator->pivot->notes ?? null,
+                'phone' => $tourOperator->first_phone,
+                'email' => $tourOperator->first_email,
+                'website' => $tourOperator->website,
+                'website_url' => $tourOperator->website_url,
+                'address' => $tourOperator->address,
+                'latitude' => $tourOperator->latitude,
+                'longitude' => $tourOperator->longitude,
+                'is_active' => $tourOperator->is_active,
+                'featured' => $tourOperator->featured,
+                'logo' => $tourOperator->logo ? [
+                    'id' => $tourOperator->logo->id,
+                    'url' => $tourOperator->logo->getImageUrl(),
+                    'alt' => $tourOperator->logo->translation($locale)->alt_text ?? ''
+                ] : null,
+                'created_at' => $tourOperator->created_at->toISOString(),
+                'updated_at' => $tourOperator->updated_at->toISOString()
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Get primary tour operator for this POI
+     */
+    private function getPrimaryTourOperator($tourOperators, string $locale = 'fr'): ?array
+    {
+        if ($tourOperators->isEmpty()) {
+            return null;
+        }
+
+        // Try to find primary tour operator
+        $primaryOperator = $tourOperators->firstWhere('pivot.is_primary', true);
+        
+        // If no primary found, use first tour operator
+        $operator = $primaryOperator ?: $tourOperators->first();
+        
+        if (!$operator) {
+            return null;
+        }
+
+        // Transform the tour operator for API response
+        return [
+            'id' => $operator->id,
+            'name' => $operator->getTranslatedName($locale),
+            'description' => $operator->getTranslatedDescription($locale),
+            'slug' => $operator->slug,
+            'service_type' => $operator->pivot->service_type ?? 'guide',
+            'service_type_label' => $this->getServiceTypeLabel($operator->pivot->service_type ?? 'guide', $locale),
+            'is_primary' => true,
+            'notes' => $operator->pivot->notes ?? null,
+            'phone' => $operator->first_phone,
+            'email' => $operator->first_email,
+            'website' => $operator->website,
+            'website_url' => $operator->website_url,
+            'address' => $operator->address,
+            'latitude' => $operator->latitude,
+            'longitude' => $operator->longitude,
+            'logo' => $operator->logo ? [
+                'id' => $operator->logo->id,
+                'url' => $operator->logo->getImageUrl(),
+                'alt' => $operator->logo->translation($locale)->alt_text ?? ''
+            ] : null
+        ];
+    }
+
+    /**
+     * Get service type label in specified language
+     */
+    private function getServiceTypeLabel(string $type, string $locale = 'fr'): string
+    {
+        $types = [
+            'fr' => [
+                'guide' => 'Guide touristique',
+                'transport' => 'Transport',
+                'full_package' => 'Package complet',
+                'accommodation' => 'Hébergement',
+                'activity' => 'Activité spécialisée',
+                'other' => 'Autre service'
+            ],
+            'en' => [
+                'guide' => 'Tour Guide',
+                'transport' => 'Transportation',
+                'full_package' => 'Complete Package',
+                'accommodation' => 'Accommodation',
+                'activity' => 'Specialized Activity',
+                'other' => 'Other Service'
+            ],
+            'ar' => [
+                'guide' => 'مرشد سياحي',
+                'transport' => 'نقل',
+                'full_package' => 'حزمة كاملة',
+                'accommodation' => 'إقامة',
+                'activity' => 'نشاط متخصص',
+                'other' => 'خدمة أخرى'
+            ]
+        ];
+
+        $localeTypes = $types[$locale] ?? $types['fr'];
+        return $localeTypes[$type] ?? ucfirst($type);
     }
 }

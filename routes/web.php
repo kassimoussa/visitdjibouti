@@ -211,16 +211,25 @@ Route::middleware('auth.admin')->group(function () {
         return view('admin.settings.index');
     })->name('settings.index');
 
-    // Routes pour les opérateurs de tour
-    Route::get('/tour-operators', function () {
-        return view('admin.tour-operators.index');
-    })->name('tour-operators.index');
-    Route::get('/tour-operators/create', function () {
-        return view('admin.tour-operators.create');
-    })->name('tour-operators.create');
-    Route::get('/tour-operators/{id}/edit', function ($id) {
-        return view('admin.tour-operators.edit', ['tourOperatorId' => $id]);
-    })->name('tour-operators.edit');
+    // Routes pour les opérateurs de tour avec structure Resource-like
+    Route::prefix('tour-operators')->name('tour-operators.')->group(function () {
+        Route::get('/', function () {
+            return view('admin.tour-operators.index');
+        })->name('index');
+        
+        Route::get('/create', function () {
+            return view('admin.tour-operators.create');
+        })->name('create');
+        
+        Route::get('/{id}/edit', function ($id) {
+            return view('admin.tour-operators.edit', ['tourOperatorId' => $id]);
+        })->where('id', '[0-9]+')->name('edit');
+        
+        Route::get('/{id}', function ($id) {
+            $tourOperator = \App\Models\TourOperator::findOrFail($id);
+            return view('admin.tour-operators.show', compact('tourOperator'));
+        })->where('id', '[0-9]+')->name('show');
+    });
 });
 
 // Route de test pour le sélecteur d'icônes

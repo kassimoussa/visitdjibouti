@@ -23,7 +23,7 @@ class Poi extends Model
         'latitude',
         'longitude',
         'region',
-        'contact',
+        'contacts',
         'website',
         'is_featured',
         'allow_reservations',
@@ -42,6 +42,7 @@ class Poi extends Model
         'longitude' => 'decimal:7',
         'is_featured' => 'boolean',
         'allow_reservations' => 'boolean',
+        'contacts' => 'array',
     ];
 
     /**
@@ -156,6 +157,45 @@ class Poi extends Model
         return $this->belongsToMany(Media::class, 'media_poi')
                     ->withPivot('order')
                     ->orderBy('order');
+    }
+
+    /**
+     * Relation many-to-many avec les tour operators
+     */
+    public function tourOperators(): BelongsToMany
+    {
+        return $this->belongsToMany(TourOperator::class, 'poi_tour_operator')
+                    ->withPivot(['service_type', 'is_primary', 'is_active', 'notes'])
+                    ->withTimestamps()
+                    ->where('poi_tour_operator.is_active', true)
+                    ->orderByPivot('is_primary', 'desc');
+    }
+
+    /**
+     * Obtenir les tour operators actifs
+     */
+    public function activeTourOperators(): BelongsToMany
+    {
+        return $this->tourOperators()
+                    ->where('tour_operators.is_active', true);
+    }
+
+    /**
+     * Obtenir le tour operator principal
+     */
+    public function primaryTourOperator()
+    {
+        return $this->tourOperators()
+                    ->wherePivot('is_primary', true)
+                    ->first();
+    }
+
+    /**
+     * Vérifier si ce POI a des tour operators
+     */
+    public function hasTourOperators(): bool
+    {
+        return $this->tourOperators()->exists();
     }
 
     /**
@@ -307,5 +347,51 @@ class Poi extends Model
     public function isAvailableForReservation(): bool
     {
         return $this->allow_reservations && $this->status === 'published';
+    }
+
+    /**
+     * Get primary contact.
+     */
+    public function getPrimaryContactAttribute()
+    {
+        if (empty($this->contacts)) {
+            return null;
+        }
+
+        $primaryContact = collect($this->contacts)->firstWhere('is_primary', true);
+        
+        return $primaryContact ?: $this->contacts[0] ?? null;
+    }
+
+    /**
+     * Get contacts by type.
+     */
+    public function getContactsByType(string $type): array
+    {
+        if (empty($this->contacts)) {
+            return [];
+        }
+
+        return collect($this->contacts)->where('type', $type)->values()->toArray();
+    }
+
+    /**
+     * Get all contact types for this POI.
+     */
+    public function getContactTypesAttribute(): array
+    {
+        if (empty($this->contacts)) {
+            return [];
+        }
+
+        return collect($this->contacts)->pluck('type')->unique()->values()->toArray();
+    }
+
+    /**
+     * Check if POI has contacts.
+     */
+    public function hasContacts(): bool
+    {
+        return !empty($this->contacts) && count($this->contacts) > 0;
     }
 }

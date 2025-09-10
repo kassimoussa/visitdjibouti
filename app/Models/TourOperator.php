@@ -234,4 +234,42 @@ class TourOperator extends Model
     {
         return $this->media;
     }
+
+    /**
+     * Relation many-to-many avec les POIs
+     */
+    public function pois(): BelongsToMany
+    {
+        return $this->belongsToMany(Poi::class, 'poi_tour_operator')
+                    ->withPivot(['service_type', 'is_primary', 'is_active', 'notes'])
+                    ->withTimestamps()
+                    ->where('poi_tour_operator.is_active', true)
+                    ->orderByPivot('is_primary', 'desc');
+    }
+
+    /**
+     * Obtenir les POIs actifs
+     */
+    public function activePois(): BelongsToMany
+    {
+        return $this->pois()
+                    ->where('pois.status', 'published');
+    }
+
+    /**
+     * Obtenir les POIs principaux (où ce tour operator est principal)
+     */
+    public function primaryPois(): BelongsToMany
+    {
+        return $this->pois()
+                    ->wherePivot('is_primary', true);
+    }
+
+    /**
+     * Vérifier si ce tour operator dessert des POIs
+     */
+    public function hasPois(): bool
+    {
+        return $this->pois()->exists();
+    }
 }

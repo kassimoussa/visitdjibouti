@@ -213,35 +213,15 @@
                                     </div>
 
                                     @if($activeLocale === 'fr')
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <!-- Contact (commun à toutes les langues) -->
-                                            <div class="mb-3">
-                                                <label for="contact" class="form-label">Contact</label>
-                                                <textarea 
-                                                    class="form-control @error('contact') is-invalid @enderror"
-                                                    id="contact" 
-                                                    wire:model="contact" 
-                                                    rows="6"
-                                                    placeholder="Téléphones, emails, horaires de disponibilité, instructions spéciales..."></textarea>
-                                                <div class="form-text">Numéros de téléphone, emails, ou autres informations de contact</div>
-                                                @error('contact')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <!-- Site web (commun à toutes les langues) -->
-                                            <div class="mb-3">
-                                                <label for="website" class="form-label">Site web</label>
-                                                <input type="url"
-                                                    class="form-control @error('website') is-invalid @enderror"
-                                                    id="website" wire:model="website">
-                                                @error('website')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
+                                    <!-- Site web (commun à toutes les langues) -->
+                                    <div class="mb-3">
+                                        <label for="website" class="form-label">Site web</label>
+                                        <input type="url"
+                                            class="form-control @error('website') is-invalid @enderror"
+                                            id="website" wire:model="website">
+                                        @error('website')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     @endif
 
@@ -526,6 +506,204 @@
                                     @endif
                                 </div>
                             </div>
+
+                            <!-- Contacts multiples avec modal -->
+                            <div class="card mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Contacts ({{ count($contacts) }})</h6>
+                                    <button type="button" class="btn btn-sm btn-success" wire:click="openContactModal">
+                                        <i class="fas fa-plus me-1"></i>Ajouter un contact
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    @if(count($contacts) > 0)
+                                        <div class="contacts-list">
+                                            @foreach($contacts as $index => $contact)
+                                                <div class="contact-item border rounded p-3 mb-3 position-relative"
+                                                     style="background: linear-gradient(135deg, {{ $this->getContactTypeColor($contact['type'] ?? 'general') }}15, {{ $this->getContactTypeColor($contact['type'] ?? 'general') }}05);">
+                                                    
+                                                    @if($contact['is_primary'] ?? false)
+                                                        <span class="position-absolute top-0 end-0 mt-2 me-2">
+                                                            <i class="fas fa-star text-warning" title="Contact principal"></i>
+                                                        </span>
+                                                    @endif
+                                                    
+                                                    <div class="d-flex align-items-start">
+                                                        <div class="contact-type-badge me-3 d-flex align-items-center justify-content-center rounded-circle" 
+                                                             style="background-color: {{ $this->getContactTypeColor($contact['type'] ?? 'general') }}; width: 48px; height: 48px; color: white;">
+                                                            <i class="{{ $this->getContactTypeIcon($contact['type'] ?? 'general') }} fa-lg"></i>
+                                                        </div>
+                                                        
+                                                        <div class="flex-grow-1">
+                                                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                                                <div>
+                                                                    <h6 class="mb-1 fw-bold">{{ $contact['name'] ?: 'Nouveau contact' }}</h6>
+                                                                    <span class="badge rounded-pill px-2 py-1" 
+                                                                          style="background-color: {{ $this->getContactTypeColor($contact['type'] ?? 'general') }}20; color: {{ $this->getContactTypeColor($contact['type'] ?? 'general') }};">
+                                                                        {{ $this->getContactTypes()[$contact['type'] ?? 'general'] ?? 'Type non défini' }}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="btn-group btn-group-sm">
+                                                                    <button type="button" 
+                                                                            class="btn btn-outline-primary"
+                                                                            wire:click="editContact({{ $index }})"
+                                                                            title="Modifier">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </button>
+                                                                    <button type="button" 
+                                                                            class="btn btn-outline-danger"
+                                                                            wire:click="removeContact({{ $index }})"
+                                                                            onclick="return confirm('Supprimer ce contact ?')"
+                                                                            title="Supprimer">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div class="contact-info small">
+                                                                @if(!empty($contact['phone']))
+                                                                    <div class="d-flex align-items-center mb-1">
+                                                                        <i class="fas fa-phone text-muted me-2" style="width: 16px;"></i>
+                                                                        <span>{{ $contact['phone'] }}</span>
+                                                                    </div>
+                                                                @endif
+                                                                @if(!empty($contact['email']))
+                                                                    <div class="d-flex align-items-center mb-1">
+                                                                        <i class="fas fa-envelope text-muted me-2" style="width: 16px;"></i>
+                                                                        <span>{{ $contact['email'] }}</span>
+                                                                    </div>
+                                                                @endif
+                                                                @if(!empty($contact['address']))
+                                                                    <div class="d-flex align-items-start mb-1">
+                                                                        <i class="fas fa-map-marker-alt text-muted me-2 mt-1" style="width: 16px;"></i>
+                                                                        <span>{{ $contact['address'] }}</span>
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <div class="text-center py-5 border-dashed rounded" style="border: 2px dashed #dee2e6;">
+                                            <i class="fas fa-address-book fa-4x text-muted mb-3"></i>
+                                            <h6 class="text-muted mb-3">Aucun contact ajouté</h6>
+                                            <p class="text-muted mb-3">Ajoutez des contacts pour faciliter la prise de contact avec ce POI</p>
+                                            <button type="button" class="btn btn-success" wire:click="openContactModal">
+                                                <i class="fas fa-plus me-2"></i>Ajouter le premier contact
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tour Operators associés -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Tour Operators Associés ({{ count($selectedTourOperators) }})</h6>
+                            <button type="button" class="btn btn-sm btn-success" wire:click="openTourOperatorModal">
+                                <i class="fas fa-plus me-1"></i>Associer un tour operator
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            @if(count($selectedTourOperators) > 0)
+                                <div class="row g-3">
+                                    @foreach($selectedTourOperators as $index => $tourOperatorData)
+                                        @php
+                                            $tourOperator = $tourOperators->firstWhere('id', $tourOperatorData['id']);
+                                            $serviceType = $tourOperatorData['service_type'] ?? 'other';
+                                            $isPrimary = $tourOperatorData['is_primary'] ?? false;
+                                        @endphp
+                                        <div class="col-md-6">
+                                            <div class="card border-start border-4 tour-operator-item h-100" 
+                                                 style="border-color: {{ $this->getServiceTypeColor($serviceType) }} !important;">
+                                                <div class="card-body p-3">
+                                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="service-type-badge rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                                                 style="background-color: {{ $this->getServiceTypeColor($serviceType) }}; width: 40px; height: 40px;">
+                                                                <i class="{{ $this->getServiceTypeIcon($serviceType) }} text-white"></i>
+                                                            </div>
+                                                            <div>
+                                                                <h6 class="mb-0">{{ $tourOperator?->getTranslatedName($activeLocale) ?? 'Tour operator introuvable' }}</h6>
+                                                                <div class="d-flex align-items-center mt-1">
+                                                                    <span class="badge rounded-pill" 
+                                                                          style="background-color: {{ $this->getServiceTypeColor($serviceType) }}">
+                                                                        {{ $this->getServiceTypes()[$serviceType] ?? $serviceType }}
+                                                                    </span>
+                                                                    @if($isPrimary)
+                                                                        <span class="badge bg-warning text-dark ms-1">
+                                                                            <i class="fas fa-star me-1"></i>Principal
+                                                                        </span>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="btn-group" role="group">
+                                                            <button type="button" 
+                                                                    class="btn btn-outline-primary btn-sm"
+                                                                    wire:click="editTourOperator({{ $index }})"
+                                                                    title="Modifier">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                            <button type="button" 
+                                                                    class="btn btn-outline-danger btn-sm"
+                                                                    wire:click="removeTourOperator({{ $index }})"
+                                                                    onclick="return confirm('Supprimer cette association ?')"
+                                                                    title="Supprimer">
+                                                                <i class="fas fa-unlink"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    @if($tourOperator)
+                                                        <div class="tour-operator-info small text-muted">
+                                                            @if($tourOperator->first_phone)
+                                                                <div class="d-flex align-items-center mb-1">
+                                                                    <i class="fas fa-phone me-2" style="width: 16px;"></i>
+                                                                    <span>{{ $tourOperator->first_phone }}</span>
+                                                                </div>
+                                                            @endif
+                                                            @if($tourOperator->first_email)
+                                                                <div class="d-flex align-items-center mb-1">
+                                                                    <i class="fas fa-envelope me-2" style="width: 16px;"></i>
+                                                                    <span>{{ $tourOperator->first_email }}</span>
+                                                                </div>
+                                                            @endif
+                                                            @if($tourOperator->website)
+                                                                <div class="d-flex align-items-center mb-1">
+                                                                    <i class="fas fa-globe me-2" style="width: 16px;"></i>
+                                                                    <a href="{{ $tourOperator->website_url }}" target="_blank" class="text-decoration-none">
+                                                                        {{ $tourOperator->website }}
+                                                                    </a>
+                                                                </div>
+                                                            @endif
+                                                            @if(!empty($tourOperatorData['notes']))
+                                                                <div class="mt-2">
+                                                                    <i class="fas fa-sticky-note me-2" style="width: 16px;"></i>
+                                                                    <small class="fst-italic">{{ $tourOperatorData['notes'] }}</small>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-5 border-dashed rounded" style="border: 2px dashed #dee2e6;">
+                                    <i class="fas fa-route fa-4x text-muted mb-3"></i>
+                                    <h6 class="text-muted mb-3">Aucun tour operator associé</h6>
+                                    <p class="text-muted mb-3">Associez des tour operators pour enrichir l'expérience des visiteurs</p>
+                                    <button type="button" class="btn btn-success" wire:click="openTourOperatorModal">
+                                        <i class="fas fa-plus me-2"></i>Associer le premier tour operator
+                                    </button>
+                                </div>
+                            @endif
                         </div>
                     </div>
 
@@ -543,6 +721,316 @@
 
     <!-- Modal de sélection de médias -->
     @livewire('admin.media-selector-modal')
+
+    <!-- Modal de gestion des contacts -->
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contactModalLabel">
+                        @if($editingContactIndex !== null)
+                            <i class="fas fa-edit me-2"></i>Modifier le contact
+                        @else
+                            <i class="fas fa-plus me-2"></i>Ajouter un contact
+                        @endif
+                    </h5>
+                    <button type="button" class="btn-close" wire:click="cancelContactEdit" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body">
+                        <!-- Messages d'erreur globaux -->
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show">
+                                {{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+                        <div class="row g-3">
+                            <!-- Nom du contact -->
+                            <div class="col-md-6">
+                                <label class="form-label">Nom <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control @error('modalContact.name') is-invalid @enderror"
+                                       wire:model="modalContact.name"
+                                       placeholder="Ex: Restaurant Le Palmier"
+                                       required>
+                                @error('modalContact.name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <!-- Type de contact -->
+                            <div class="col-md-6">
+                                <label class="form-label">Type <span class="text-danger">*</span></label>
+                                <select class="form-select @error('modalContact.type') is-invalid @enderror"
+                                        wire:model="modalContact.type"
+                                        required>
+                                    <option value="">Sélectionner un type</option>
+                                    @foreach($this->getContactTypes() as $typeKey => $typeName)
+                                        <option value="{{ $typeKey }}">{{ $typeName }}</option>
+                                    @endforeach
+                                </select>
+                                @error('modalContact.type')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <!-- Téléphone -->
+                            <div class="col-md-6">
+                                <label class="form-label">Téléphone</label>
+                                <input type="tel" 
+                                       class="form-control @error('modalContact.phone') is-invalid @enderror"
+                                       wire:model="modalContact.phone"
+                                       placeholder="+253 77 XX XX XX">
+                                @error('modalContact.phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" 
+                                       class="form-control @error('modalContact.email') is-invalid @enderror"
+                                       wire:model="modalContact.email"
+                                       placeholder="contact@example.com">
+                                @error('modalContact.email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <!-- Site web -->
+                            <div class="col-12">
+                                <label class="form-label">Site web</label>
+                                <input type="text" 
+                                       class="form-control @error('modalContact.website') is-invalid @enderror"
+                                       wire:model="modalContact.website"
+                                       placeholder="www.example.com ou https://www.example.com">
+                                @error('modalContact.website')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <!-- Adresse -->
+                            <div class="col-12">
+                                <label class="form-label">Adresse</label>
+                                <input type="text" 
+                                       class="form-control @error('modalContact.address') is-invalid @enderror"
+                                       wire:model="modalContact.address"
+                                       placeholder="Ex: Avenue Hassan Gouled, Djibouti">
+                                @error('modalContact.address')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <!-- Description -->
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control @error('modalContact.description') is-invalid @enderror"
+                                          wire:model="modalContact.description"
+                                          rows="3"
+                                          placeholder="Spécialités, services, horaires..."></textarea>
+                                @error('modalContact.description')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <!-- Contact principal -->
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           wire:model="modalContact.is_primary"
+                                           id="modalContactPrimary">
+                                    <label class="form-check-label" for="modalContactPrimary">
+                                        <strong>Contact principal</strong>
+                                        <div class="form-text">Ce contact sera mis en avant et considéré comme le contact principal du POI</div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        @if(!empty($modalContact['type']) && $modalContact['type'])
+                            <div class="alert alert-info mt-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="contact-type-preview me-3 d-flex align-items-center justify-content-center rounded-circle"
+                                         style="background-color: {{ $this->getContactTypeColor($modalContact['type']) }}; width: 40px; height: 40px; color: white;">
+                                        <i class="{{ $this->getContactTypeIcon($modalContact['type']) }}"></i>
+                                    </div>
+                                    <div>
+                                        <strong>Aperçu du type:</strong> {{ $this->getContactTypes()[$modalContact['type']] ?? 'Type inconnu' }}
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                        
+                        <!-- Debug temporaire -->
+                        @if(config('app.debug'))
+                            <div class="alert alert-secondary mt-2">
+                                <small>
+                                    <strong>Debug:</strong> 
+                                    Mode: {{ $editingContactIndex !== null ? 'Edition (index: '.$editingContactIndex.')' : 'Ajout' }} |
+                                    Nom: "{{ $modalContact['name'] ?? 'vide' }}" |
+                                    Type: "{{ $modalContact['type'] ?? 'vide' }}"
+                                </small>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" wire:click="cancelContactEdit">
+                            <i class="fas fa-times me-1"></i>Annuler
+                        </button>
+                        
+                        
+                        <button type="button" class="btn btn-primary" 
+                                wire:click="saveContact" 
+                                data-editing-index="{{ $editingContactIndex }}"
+                                id="saveContactButton">
+                            @if($editingContactIndex !== null)
+                                <i class="fas fa-save me-1"></i>Mettre à jour
+                            @else
+                                <i class="fas fa-plus me-1"></i>Ajouter
+                            @endif
+                        </button>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de gestion des tour operators -->
+    <div class="modal fade" id="tourOperatorModal" tabindex="-1" aria-labelledby="tourOperatorModalLabel" wire:ignore.self>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tourOperatorModalLabel">
+                        @if($editingTourOperatorIndex !== null)
+                            <i class="fas fa-edit me-2"></i>Modifier l'association
+                        @else
+                            <i class="fas fa-plus me-2"></i>Associer un tour operator
+                        @endif
+                    </h5>
+                    <button type="button" class="btn-close" wire:click="cancelTourOperatorEdit" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body">
+                    <!-- Messages d'erreur globaux -->
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+                    
+                    <div class="row g-3">
+                        <!-- Sélection du tour operator -->
+                        <div class="col-12">
+                            <label class="form-label">Tour Operator <span class="text-danger">*</span></label>
+                            <select class="form-select @error('modalTourOperator.tour_operator_id') is-invalid @enderror"
+                                    wire:model="modalTourOperator.tour_operator_id"
+                                    required>
+                                <option value="">Sélectionner un tour operator</option>
+                                @foreach($tourOperators as $operator)
+                                    <option value="{{ $operator->id }}">
+                                        {{ $operator->getTranslatedName($activeLocale) }}
+                                        @if($operator->featured)
+                                            ⭐
+                                        @endif
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('modalTourOperator.tour_operator_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            
+                            @if($tourOperators->isEmpty())
+                                <div class="form-text text-warning">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    Aucun tour operator actif disponible. 
+                                    <a href="{{ route('tour-operators.create') }}" target="_blank" class="text-decoration-none">
+                                        Créer un tour operator
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                        
+                        <!-- Type de service -->
+                        <div class="col-md-6">
+                            <label class="form-label">Type de service <span class="text-danger">*</span></label>
+                            <select class="form-select @error('modalTourOperator.service_type') is-invalid @enderror"
+                                    wire:model="modalTourOperator.service_type"
+                                    required>
+                                @foreach($this->getServiceTypes() as $typeKey => $typeName)
+                                    <option value="{{ $typeKey }}">
+                                        {{ $typeName }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('modalTourOperator.service_type')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <!-- Tour operator principal -->
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="form-check">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       wire:model="modalTourOperator.is_primary"
+                                       id="modalTourOperatorPrimary">
+                                <label class="form-check-label" for="modalTourOperatorPrimary">
+                                    <strong>Tour operator principal</strong>
+                                    <div class="form-text">Ce tour operator sera mis en avant pour ce POI</div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Notes -->
+                        <div class="col-12">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control @error('modalTourOperator.notes') is-invalid @enderror"
+                                      wire:model="modalTourOperator.notes"
+                                      rows="3"
+                                      placeholder="Informations spécifiques sur cette association (horaires, tarifs, conditions particulières...)"></textarea>
+                            @error('modalTourOperator.notes')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <!-- Aperçu du type de service sélectionné -->
+                        @if(!empty($modalTourOperator['service_type']))
+                            <div class="col-12">
+                                <div class="alert alert-info d-flex align-items-center">
+                                    <div class="service-type-preview rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                         style="background-color: {{ $this->getServiceTypeColor($modalTourOperator['service_type']) }}; width: 36px; height: 36px;">
+                                        <i class="{{ $this->getServiceTypeIcon($modalTourOperator['service_type']) }} text-white"></i>
+                                    </div>
+                                    <div>
+                                        <strong>{{ $this->getServiceTypes()[$modalTourOperator['service_type']] ?? $modalTourOperator['service_type'] }}</strong>
+                                        <div class="small">Ce tour operator proposera ce type de service pour ce POI</div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" wire:click="cancelTourOperatorEdit">
+                        <i class="fas fa-times me-1"></i>Annuler
+                    </button>
+                    
+                    <button type="button" class="btn btn-primary" wire:click="saveTourOperator">
+                        @if($editingTourOperatorIndex !== null)
+                            <i class="fas fa-save me-1"></i>Mettre à jour
+                        @else
+                            <i class="fas fa-link me-1"></i>Associer
+                        @endif
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Styles CSS pour l'amélioration de l'interface -->
     <style>
@@ -625,10 +1113,269 @@
             padding: 0.5rem 0.75rem;
             font-size: 0.875rem;
         }
+
+        /* Styles pour les contacts */
+        .contact-item {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent !important;
+        }
+
+        .contact-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+        }
+
+        .contact-type-badge {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .contact-item:hover .contact-type-badge {
+            transform: scale(1.1);
+        }
+
+        .contact-type-preview {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Animation du modal */
+        .modal.fade .modal-dialog {
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-dialog {
+            transform: scale(1);
+        }
+
+        /* Styles pour les alertes de preview */
+        .alert-info {
+            background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+            border: none;
+            border-left: 4px solid #2196f3;
+        }
+
+        /* Empty state styles */
+        .border-dashed {
+            border-style: dashed !important;
+            transition: all 0.3s ease;
+        }
+
+        .border-dashed:hover {
+            border-color: var(--bs-success) !important;
+            background-color: rgba(25, 135, 84, 0.05);
+        }
+
+        /* Styles pour les tour operators */
+        .tour-operator-item {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent !important;
+        }
+
+        .tour-operator-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+        }
+
+        .service-type-badge {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .tour-operator-item:hover .service-type-badge {
+            transform: scale(1.1);
+        }
+
+        .service-type-preview {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
     </style>
 </div>
 
 @push('scripts')
+<script>
+    // Gestion du modal de contacts
+    document.addEventListener('livewire:init', function () {
+        let contactModal = null;
+        const modalElement = document.getElementById('contactModal');
+        
+        // Initialiser le modal Bootstrap
+        if (modalElement) {
+            contactModal = new bootstrap.Modal(modalElement, {
+                backdrop: 'static',
+                keyboard: true,
+                focus: true
+            });
+            
+            // Gérer la fermeture propre du modal
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                // S'assurer que les classes et attributs sont correctement nettoyés
+                modalElement.removeAttribute('aria-hidden');
+                modalElement.classList.remove('show');
+                modalElement.style.display = 'none';
+                
+                // Nettoyer le backdrop s'il reste
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                
+                // Restaurer le scroll du body
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+                
+                // Remettre le focus sur un élément approprié
+                const addContactBtn = document.querySelector('[wire\\:click="openContactModal"]');
+                if (addContactBtn) {
+                    addContactBtn.focus();
+                }
+            });
+        }
+
+        // Écouter les événements Livewire pour le modal
+        Livewire.on('open-contact-modal', () => {
+            if (contactModal) {
+                contactModal.show();
+            }
+        });
+
+        Livewire.on('close-contact-modal', () => {
+            if (contactModal) {
+                contactModal.hide();
+            }
+        });
+        
+        // Empêcher la fermeture automatique lors des mises à jour Livewire
+        let modalWasOpen = false;
+        
+        document.addEventListener('livewire:morph-start', function() {
+            // Mémoriser si le modal était ouvert avant la mise à jour
+            modalWasOpen = modalElement && modalElement.classList.contains('show');
+        });
+        
+        document.addEventListener('livewire:morph-end', function() {
+            // Si le modal était ouvert et qu'il s'est fermé, le rouvrir
+            if (modalWasOpen && contactModal && !modalElement.classList.contains('show')) {
+                setTimeout(() => {
+                    contactModal.show();
+                }, 100);
+            }
+        });
+        
+        // Feedback visuel pour la sauvegarde des contacts
+        Livewire.on('contact-saved', (data) => {
+            // Optionnel : affichage discret du succès
+            console.log('Contact sauvegardé:', data);
+        });
+
+        // Gestion du modal de tour operators
+        let tourOperatorModal = null;
+        const tourOperatorModalElement = document.getElementById('tourOperatorModal');
+        
+        // Initialiser le modal Bootstrap pour tour operators
+        if (tourOperatorModalElement) {
+            tourOperatorModal = new bootstrap.Modal(tourOperatorModalElement, {
+                backdrop: 'static',
+                keyboard: true,
+                focus: true
+            });
+            
+            // Gérer la fermeture propre du modal
+            tourOperatorModalElement.addEventListener('hidden.bs.modal', function () {
+                // S'assurer que les classes et attributs sont correctement nettoyés
+                tourOperatorModalElement.removeAttribute('aria-hidden');
+                tourOperatorModalElement.classList.remove('show');
+                tourOperatorModalElement.style.display = 'none';
+                
+                // Nettoyer le backdrop s'il reste
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                
+                // Restaurer le scroll du body
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+                
+                // Remettre le focus sur un élément approprié
+                const addTourOperatorBtn = document.querySelector('[wire\\:click="openTourOperatorModal"]');
+                if (addTourOperatorBtn) {
+                    addTourOperatorBtn.focus();
+                }
+            });
+        }
+
+        // Écouter les événements Livewire pour le modal tour operators
+        Livewire.on('open-tour-operator-modal', () => {
+            if (tourOperatorModal) {
+                tourOperatorModal.show();
+            }
+        });
+
+        Livewire.on('close-tour-operator-modal', () => {
+            if (tourOperatorModal) {
+                tourOperatorModal.hide();
+            }
+        });
+        
+        // Empêcher la fermeture automatique lors des mises à jour Livewire (tour operators)
+        let tourOperatorModalWasOpen = false;
+        
+        document.addEventListener('livewire:morph-start', function() {
+            // Mémoriser si le modal tour operator était ouvert avant la mise à jour
+            tourOperatorModalWasOpen = tourOperatorModalElement && tourOperatorModalElement.classList.contains('show');
+        });
+        
+        document.addEventListener('livewire:morph-end', function() {
+            // Si le modal tour operator était ouvert et qu'il s'est fermé, le rouvrir
+            if (tourOperatorModalWasOpen && tourOperatorModal && !tourOperatorModalElement.classList.contains('show')) {
+                setTimeout(() => {
+                    tourOperatorModal.show();
+                }, 100);
+            }
+        });
+        
+        // Gérer la fermeture avec Escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modalElement.classList.contains('show')) {
+                if (contactModal) {
+                    contactModal.hide();
+                }
+            }
+        });
+        
+        // Rendre la fonction accessible globalement
+        window.contactModal = contactModal;
+    });
+    
+    // Fonction globale pour fermer le modal
+    function closeContactModal() {
+        if (window.contactModal) {
+            window.contactModal.hide();
+        }
+        
+        // Alternative si le modal ne se ferme pas correctement
+        setTimeout(() => {
+            const modalElement = document.getElementById('contactModal');
+            if (modalElement && modalElement.classList.contains('show')) {
+                modalElement.classList.remove('show');
+                modalElement.style.display = 'none';
+                modalElement.removeAttribute('aria-hidden');
+                
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+            }
+        }, 100);
+    }
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialiser la carte seulement si on est en français (où les coordonnées sont visibles)

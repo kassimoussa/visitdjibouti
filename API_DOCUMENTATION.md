@@ -1,6 +1,6 @@
 # 📱 API Documentation - Visit Djibouti Mobile App
 
-**Complete API with 40+ endpoints** for mobile tourism application with authentication, POIs, events, favorites, tour operators, app settings, device tracking, organization management, and comprehensive reservation system.
+**Complete API with 45+ endpoints** for mobile tourism application with authentication, POIs, events, favorites, tour operators, app settings, device tracking, organization management, comprehensive reservation system, and POI-tour operator integration.
 
 ## 🚀 New: Anonymous User Support
 The API now supports **anonymous users** for a frictionless onboarding experience. Users can browse, add favorites, and make reservations without providing personal information, then convert to full accounts when ready.
@@ -496,7 +496,7 @@ curl -X GET http://localhost/api/auth/profile \
 
 ### Get all POIs
 ```bash
-curl -X GET "http://localhost/api/pois?featured=1&region=Tadjourah" \
+curl -X GET "http://localhost/api/pois?featured=1&region=Tadjourah&tour_operator=desert-adventures&service_type=guide" \
   -H "Accept: application/json" \
   -H "Accept-Language: fr"
 ```
@@ -580,6 +580,10 @@ curl -X GET http://localhost/api/embassies/type/foreign_in_djibouti \
 - `category_id` - Filter by category ID
 - `region` - Filter by region (Djibouti, Ali Sabieh, Dikhil, Tadjourah, Obock, Arta)
 - `featured` - Filter featured POIs only (any value)
+- `contact_type` - Filter by contact type (restaurant, tour_operator, guide, accommodation, etc.)
+- `has_contacts` - Filter POIs that have contacts (true/false)
+- `tour_operator` - Filter by tour operator ID or slug **NEW**
+- `service_type` - Filter by tour operator service type (guide, transport, full_package, etc.) **NEW**
 - `sort_by` - Sort by: `created_at`, `name` (default: `created_at`)
 - `sort_order` - Sort order: `asc`, `desc` (default: `desc`)
 - `per_page` - Items per page (max 50, default: 15)
@@ -607,7 +611,32 @@ curl -X GET http://localhost/api/embassies/type/foreign_in_djibouti \
         "is_featured": true,
         "allow_reservations": false,
         "website": null,
-        "contact": "+253 21 35 40 50",
+        "contacts": [
+          {
+            "name": "Office du Tourisme",
+            "type": "general",
+            "type_label": "Contact général",
+            "phone": "+253 21 35 40 50",
+            "email": "info@lacassal.dj",
+            "website": null,
+            "address": "Bureau d'accueil, Route du Lac Assal",
+            "description": "Informations touristiques et guides",
+            "is_primary": true
+          }
+        ],
+        "has_contacts": true,
+        "contacts_count": 1,
+        "primary_contact": {
+          "name": "Office du Tourisme",
+          "type": "general",
+          "type_label": "Contact général",
+          "phone": "+253 21 35 40 50",
+          "email": "info@lacassal.dj",
+          "website": null,
+          "address": "Bureau d'accueil, Route du Lac Assal",
+          "description": "Informations touristiques et guides",
+          "is_primary": true
+        },
         "featured_image": {
           "id": 5,
           "url": "https://domain.com/storage/media/images/lac-assal.jpg",
@@ -622,6 +651,34 @@ curl -X GET http://localhost/api/embassies/type/foreign_in_djibouti \
         ],
         "favorites_count": 23,
         "is_favorited": true,
+        "tour_operators": [
+          {
+            "id": 1,
+            "slug": "desert-adventures",
+            "name": "Desert Adventures",
+            "pivot": {
+              "service_type": "guide",
+              "service_type_label": "Guide touristique",
+              "is_primary": true,
+              "is_active": true,
+              "notes": "Spécialiste du Lac Assal"
+            }
+          }
+        ],
+        "has_tour_operators": true,
+        "tour_operators_count": 1,
+        "primary_tour_operator": {
+          "id": 1,
+          "slug": "desert-adventures",
+          "name": "Desert Adventures",
+          "pivot": {
+            "service_type": "guide",
+            "service_type_label": "Guide touristique",
+            "is_primary": true,
+            "is_active": true,
+            "notes": "Spécialiste du Lac Assal"
+          }
+        },
         "created_at": "2024-08-12T10:00:00Z",
         "updated_at": "2024-08-12T10:00:00Z"
       }
@@ -639,6 +696,30 @@ curl -X GET http://localhost/api/embassies/type/foreign_in_djibouti \
       "categories": [
         {"id": 1, "name": "Attractions Touristiques", "slug": "attractions"},
         {"id": 2, "name": "Sites Naturels", "slug": "sites-naturels"}
+      ],
+      "contact_types": [
+        {"key": "general", "label": "Contact général"},
+        {"key": "restaurant", "label": "Restaurant"},
+        {"key": "tour_operator", "label": "Opérateur de tourisme"},
+        {"key": "guide", "label": "Guide local"},
+        {"key": "accommodation", "label": "Hébergement"},
+        {"key": "park_office", "label": "Bureau du parc"},
+        {"key": "emergency", "label": "Urgence"},
+        {"key": "transport", "label": "Transport"},
+        {"key": "shop", "label": "Boutique/Commerce"},
+        {"key": "other", "label": "Autre"}
+      ],
+      "service_types": [
+        {"key": "guide", "label": "Guide touristique"},
+        {"key": "transport", "label": "Transport"},
+        {"key": "full_package", "label": "Package complet"},
+        {"key": "accommodation", "label": "Hébergement"},
+        {"key": "equipment_rental", "label": "Location d'équipement"},
+        {"key": "cultural_experience", "label": "Expérience culturelle"},
+        {"key": "adventure_sports", "label": "Sports d'aventure"},
+        {"key": "consultation", "label": "Consultation"},
+        {"key": "photography", "label": "Photographie"},
+        {"key": "other", "label": "Autre"}
       ]
     }
   }
@@ -673,7 +754,43 @@ curl -X GET http://localhost/api/embassies/type/foreign_in_djibouti \
       "is_featured": true,
       "allow_reservations": false,
       "website": null,
-      "contact": "+253 21 35 40 50",
+      "contacts": [
+        {
+          "name": "Office du Tourisme",
+          "type": "general",
+          "type_label": "Contact général",
+          "phone": "+253 21 35 40 50",
+          "email": "info@lacassal.dj",
+          "website": null,
+          "address": "Bureau d'accueil, Route du Lac Assal",
+          "description": "Informations touristiques et guides",
+          "is_primary": true
+        },
+        {
+          "name": "Desert Adventures",
+          "type": "tour_operator",
+          "type_label": "Opérateur de tourisme",
+          "phone": "+253 77 XX XX XX",
+          "email": "contact@desert-adventures.dj",
+          "website": "https://www.desert-adventures.dj",
+          "address": "Djibouti Centre Ville",
+          "description": "Excursions guidées et transport",
+          "is_primary": false
+        }
+      ],
+      "has_contacts": true,
+      "contacts_count": 2,
+      "primary_contact": {
+        "name": "Office du Tourisme",
+        "type": "general",
+        "type_label": "Contact général",
+        "phone": "+253 21 35 40 50",
+        "email": "info@lacassal.dj",
+        "website": null,
+        "address": "Bureau d'accueil, Route du Lac Assal",
+        "description": "Informations touristiques et guides",
+        "is_primary": true
+      },
       "featured_image": { /* featured image object */ },
       "media": [
         {
@@ -690,6 +807,40 @@ curl -X GET http://localhost/api/embassies/type/foreign_in_djibouti \
         }
       ],
       "categories": [ /* categories array */ ],
+      "tour_operators": [
+        {
+          "id": 1,
+          "slug": "desert-adventures",
+          "name": "Desert Adventures",
+          "description": "Spécialiste des excursions dans le désert",
+          "pivot": {
+            "service_type": "guide",
+            "service_type_label": "Guide touristique",
+            "is_primary": true,
+            "is_active": true,
+            "notes": "Spécialiste du Lac Assal avec guides expérimentés"
+          },
+          "contact": {
+            "phones": ["+253 77 XX XX XX"],
+            "emails": ["contact@desert-adventures.dj"],
+            "website": "https://www.desert-adventures.dj",
+            "primary_phone": "+253 77 XX XX XX",
+            "primary_email": "contact@desert-adventures.dj"
+          }
+        }
+      ],
+      "has_tour_operators": true,
+      "tour_operators_count": 1,
+      "primary_tour_operator": {
+        "id": 1,
+        "slug": "desert-adventures", 
+        "name": "Desert Adventures",
+        "pivot": {
+          "service_type": "guide",
+          "service_type_label": "Guide touristique",
+          "is_primary": true
+        }
+      },
       "created_at": "2024-08-12T10:00:00Z",
       "updated_at": "2024-08-12T10:00:00Z"
     }
@@ -1601,6 +1752,76 @@ curl -X GET "http://your-domain.com/api/tour-operators?featured=true&per_page=5"
   -H "Accept-Language: fr"
 ```
 
+### 🎯 Get Tour Operators by Service Type  
+**GET** `/tour-operators/service/{type}`
+
+Filter tour operators by their primary service type.
+
+**Parameters:**
+- `type` - Service type (guide, transport, full_package, accommodation, equipment_rental, cultural_experience, adventure_sports, consultation, photography, other)
+
+**Query Parameters:**
+- `featured` - Show only featured operators (true/false)
+- `per_page` - Results per page (default: 15, max: 50)
+- `page` - Page number
+
+**Headers:**
+```
+Accept-Language: fr|en|ar (default: fr)
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "slug": "desert-adventures-djibouti",
+      "name": "Desert Adventures Djibouti",
+      "service_type": "guide",
+      "service_type_label": "Guide touristique",
+      "description": "Guides experts pour découvrir les merveilles du désert djiboutien",
+      "address": "Avenue République, Djibouti",
+      "contact": {
+        "phones": ["+253 21 35 40 50"],
+        "emails": ["guide@desertadventures.dj"],
+        "website": "https://desertadventures.dj"
+      },
+      "location": {
+        "latitude": 11.5721,
+        "longitude": 43.1456,
+        "has_coordinates": true
+      },
+      "logo": {
+        "url": "/storage/media/tour-operators/logo.png",
+        "alt_text": "Logo Desert Adventures"
+      },
+      "is_featured": true
+    }
+  ],
+  "service_type_info": {
+    "type": "guide",
+    "label": "Guide touristique",
+    "description": "Services de guides touristiques professionnels"
+  },
+  "pagination": {
+    "current_page": 1,
+    "per_page": 15,
+    "total": 8,
+    "last_page": 1
+  },
+  "locale": "fr"
+}
+```
+
+**cURL Example:**
+```bash
+curl -X GET "http://your-domain.com/api/tour-operators/service/guide?featured=true" \
+  -H "Accept: application/json" \
+  -H "Accept-Language: fr"
+```
+
 ### 🗺️ Get Nearby Tour Operators
 **GET** `/tour-operators/nearby`
 
@@ -1712,6 +1933,22 @@ Get detailed information about a specific tour operator by ID or slug.
         "order": 1
       }
     ],
+    "served_pois": [
+      {
+        "id": 1,
+        "slug": "lac-assal",
+        "name": "Lac Assal",
+        "region": "Tadjourah",
+        "pivot": {
+          "service_type": "guide",
+          "service_type_label": "Guide touristique",
+          "is_primary": true,
+          "is_active": true,
+          "notes": "Spécialiste du Lac Assal avec guides expérimentés"
+        }
+      }
+    ],
+    "served_pois_count": 1,
     "metadata": {
       "is_featured": true,
       "is_active": true,
@@ -2322,8 +2559,10 @@ curl -X DELETE http://your-domain.com/api/reservations/EVT-A8D3F2E1 \
 ## 🔮 Future Endpoints (To be implemented)
 
 - `POST /tour-operators/{id}/contact` - Contact tour operator
-- `POST /tour-operators/{id}/review` - Add review for tour operator
+- `POST /tour-operators/{id}/review` - Add review for tour operator  
 - `GET /tour-operators/{id}/reviews` - Get reviews for tour operator
+- `GET /pois/{id}/tour-operators` - Get all tour operators serving a specific POI
+- `POST /pois/{id}/tour-operators/{operator_id}/contact` - Contact tour operator for specific POI service
 
 ---
 
