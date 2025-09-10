@@ -124,7 +124,8 @@ class TourOperatorController extends Controller
                 'logo',
                 'media' => function ($query) {
                     $query->orderByPivot('order');
-                }
+                },
+                'pois.translations'
             ]);
 
             $tourOperator = is_numeric($identifier) 
@@ -261,6 +262,23 @@ class TourOperatorController extends Controller
                         'order' => $media->pivot->order,
                     ];
                 }),
+                'served_pois' => $tourOperator->pois->map(function ($poi) use ($locale) {
+                    $translation = $poi->translation($locale);
+                    return [
+                        'id' => $poi->id,
+                        'slug' => $poi->slug,
+                        'name' => $translation->name ?? '',
+                        'region' => $poi->region,
+                        'pivot' => [
+                            'service_type' => $poi->pivot->service_type ?? 'guide',
+                            'service_type_label' => $this->getServiceTypeLabel($poi->pivot->service_type ?? 'guide', $locale),
+                            'is_primary' => (bool)($poi->pivot->is_primary ?? false),
+                            'is_active' => (bool)($poi->pivot->is_active ?? true),
+                            'notes' => $poi->pivot->notes ?? null,
+                        ]
+                    ];
+                }),
+                'served_pois_count' => $tourOperator->pois->count(),
             ]);
         } else {
             // Version simplifiée pour les listes
@@ -273,5 +291,53 @@ class TourOperatorController extends Controller
         }
 
         return $data;
+    }
+
+    /**
+     * Obtenir le label traduit d'un type de service
+     */
+    private function getServiceTypeLabel(string $type, string $locale = 'fr'): string
+    {
+        $types = [
+            'fr' => [
+                'guide' => 'Guide touristique',
+                'transport' => 'Transport',
+                'full_package' => 'Package complet',
+                'accommodation' => 'Hébergement',
+                'equipment_rental' => 'Location d\'équipement',
+                'cultural_experience' => 'Expérience culturelle',
+                'adventure_sports' => 'Sports d\'aventure',
+                'consultation' => 'Consultation',
+                'photography' => 'Photographie',
+                'other' => 'Autre'
+            ],
+            'en' => [
+                'guide' => 'Tour Guide',
+                'transport' => 'Transportation',
+                'full_package' => 'Full Package',
+                'accommodation' => 'Accommodation',
+                'equipment_rental' => 'Equipment Rental',
+                'cultural_experience' => 'Cultural Experience',
+                'adventure_sports' => 'Adventure Sports',
+                'consultation' => 'Consultation',
+                'photography' => 'Photography',
+                'other' => 'Other'
+            ],
+            'ar' => [
+                'guide' => 'مرشد سياحي',
+                'transport' => 'نقل',
+                'full_package' => 'باقة شاملة',
+                'accommodation' => 'إقامة',
+                'equipment_rental' => 'تأجير المعدات',
+                'cultural_experience' => 'تجربة ثقافية',
+                'adventure_sports' => 'رياضات المغامرة',
+                'consultation' => 'استشارة',
+                'photography' => 'تصوير',
+                'other' => 'أخرى'
+            ]
+        ];
+
+        $localeTypes = $types[$locale] ?? $types['fr'];
+        return $localeTypes[$type] ?? ucfirst($type);
     }
 }
