@@ -93,12 +93,17 @@ class Reservation extends Model
      */
     private function generateConfirmationNumber(): string
     {
-        $prefix = $this->reservable_type === Poi::class ? 'POI' : 'EVT';
-        
+        $prefix = match($this->reservable_type) {
+            Poi::class => 'POI',
+            Event::class => 'EVT',
+            TourSchedule::class => 'TUR',
+            default => 'RES'
+        };
+
         do {
             $number = $prefix . '-' . strtoupper(Str::random(8));
         } while (self::where('confirmation_number', $number)->exists());
-        
+
         return $number;
     }
 
@@ -223,6 +228,14 @@ class Reservation extends Model
     public function scopeForEvents($query)
     {
         return $query->where('reservable_type', Event::class);
+    }
+
+    /**
+     * Scope to filter Tour reservations.
+     */
+    public function scopeForTours($query)
+    {
+        return $query->where('reservable_type', TourSchedule::class);
     }
 
     /**

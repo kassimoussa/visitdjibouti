@@ -76,6 +76,12 @@ Route::middleware('auth.admin')->group(function () {
     Route::get('/events/{id}/edit', [EventController::class, 'edit'])->name('events.edit');
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
 
+    // Routes pour les tours
+    Route::get('/tours', [App\Http\Controllers\Admin\TourController::class, 'index'])->name('tours.index');
+    Route::get('/tours/create', [App\Http\Controllers\Admin\TourController::class, 'create'])->name('tours.create');
+    Route::get('/tours/{id}/edit', [App\Http\Controllers\Admin\TourController::class, 'edit'])->name('tours.edit');
+    Route::get('/tours/{tour}', [App\Http\Controllers\Admin\TourController::class, 'show'])->name('tours.show');
+
     // Routes pour les réservations (POI + Events)
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations.index');
     Route::get('/reservations/dashboard', [ReservationController::class, 'dashboard'])->name('reservations.dashboard');

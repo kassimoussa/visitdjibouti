@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(php artisan:*)",
-      "Read(//usr/**)"
+      "Read(//usr/**)",
+      "Bash(vendor/bin/pint:*)"
     ],
     "deny": [],
     "ask": [],

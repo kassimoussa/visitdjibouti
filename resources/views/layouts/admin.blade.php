@@ -226,6 +226,13 @@
                                 <span>Événements</span>
                             </a>
                         </li>
+                        <li class="{{ request()->is('tours*') ? 'active' : '' }}">
+                            <a href="{{ route('tours.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Tours Guidés">
+                                <i class="fas fa-map-signs"></i>
+                                <span>Tours Guidés</span>
+                            </a>
+                        </li>
                         <li class="{{ request()->is('categories*') ? 'active' : '' }}">
                             <a href="{{ route('categories.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Catégories">

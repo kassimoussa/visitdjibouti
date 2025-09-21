@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\EmbassyController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\AppSettingController;
 use App\Http\Controllers\Api\TourOperatorController;
+use App\Http\Controllers\Api\TourController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\DeviceController;
 
@@ -102,6 +103,14 @@ Route::prefix('tour-operators')->group(function () {
     Route::get('/{identifier}', [TourOperatorController::class, 'show']); // Détails (ID ou slug)
 });
 
+// Routes publiques pour les tours
+Route::prefix('tours')->group(function () {
+    Route::get('/', [TourController::class, 'index']); // Liste des tours avec filtres
+    Route::get('/{identifier}', [TourController::class, 'show']); // Détails d'un tour (ID ou slug)
+    Route::get('/{tour}/schedules', [TourController::class, 'schedules']); // Créneaux disponibles
+    Route::post('/{schedule}/book', [TourController::class, 'book']); // Réserver un créneau
+});
+
 // Routes publiques pour les réservations
 Route::prefix('reservations')->group(function () {
     Route::post('/', [ReservationController::class, 'store']); // Créer une réservation
@@ -164,7 +173,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/events/{event}', [FavoriteController::class, 'addEvent']);
         Route::delete('/events/{event}', [FavoriteController::class, 'removeEvent']);
     });
-    
+
+    // Routes protégées pour les tours
+    Route::prefix('tours')->group(function () {
+        Route::delete('/bookings/{reservationId}', [TourController::class, 'cancelBooking']); // Annuler une réservation
+    });
+
+    // Routes protégées pour les réservations de tours
+    Route::get('/my-tour-bookings', [TourController::class, 'myBookings']); // Mes réservations de tours
+
     // Routes protégées pour la gestion des appareils et géolocalisation
     Route::prefix('device')->group(function () {
         Route::post('/update', [DeviceController::class, 'updateDeviceInfo']); // Mettre à jour les infos de l'appareil
