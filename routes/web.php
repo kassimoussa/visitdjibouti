@@ -236,6 +236,8 @@ Route::middleware('auth.admin')->group(function () {
             return view('admin.tour-operators.show', compact('tourOperator'));
         })->where('id', '[0-9]+')->name('show');
     });
+
+
 });
 
 // Route de test pour le sélecteur d'icônes

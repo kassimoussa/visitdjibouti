@@ -20,7 +20,7 @@ class EventController extends Controller
     {
         try {
             $query = Event::published()
-                          ->with(['featuredImage', 'categories.translations', 'translations']);
+                          ->with(['featuredImage', 'categories.translations', 'translations', 'tourOperator.translations']);
 
             // Search by title
             if ($request->filled('search')) {
@@ -63,6 +63,20 @@ class EventController extends Controller
             // Filter by location
             if ($request->filled('location')) {
                 $query->where('location', 'LIKE', '%' . $request->get('location') . '%');
+            }
+
+            // Filter by tour operator
+            if ($request->filled('tour_operator_id')) {
+                $query->where('tour_operator_id', $request->get('tour_operator_id'));
+            }
+
+            // Filter by manager type
+            if ($request->filled('manager_type')) {
+                if ($request->get('manager_type') === 'admin') {
+                    $query->whereNull('tour_operator_id');
+                } elseif ($request->get('manager_type') === 'tour_operator') {
+                    $query->whereNotNull('tour_operator_id');
+                }
             }
 
             // Sort options
@@ -125,10 +139,11 @@ class EventController extends Controller
         try {
             $query = Event::published()
                           ->with([
-                              'featuredImage', 
-                              'media', 
-                              'categories.translations', 
-                              'translations'
+                              'featuredImage',
+                              'media',
+                              'categories.translations',
+                              'translations',
+                              'tourOperator.translations'
                           ]);
 
             // Try to find by ID first, then by slug
@@ -422,6 +437,15 @@ class EventController extends Controller
             'is_ongoing' => $event->is_ongoing,
             'has_ended' => $event->has_ended,
             'organizer' => $event->organizer,
+            'manager_type' => $event->manager_type,
+            'tour_operator' => $event->tourOperator ? [
+                'id' => $event->tourOperator->id,
+                'name' => $event->tourOperator->getTranslatedName($locale),
+                'slug' => $event->tourOperator->slug,
+                'phones' => $event->tourOperator->phones_array,
+                'emails' => $event->tourOperator->emails_array,
+                'website' => $event->tourOperator->website_url,
+            ] : null,
             'featured_image' => $event->featuredImage ? [
                 'id' => $event->featuredImage->id,
                 'url' => $event->featuredImage->getImageUrl(),

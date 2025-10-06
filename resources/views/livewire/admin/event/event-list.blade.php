@@ -99,6 +99,7 @@
                                     <th>Titre</th>
                                     <th>Dates</th>
                                     <th>Lieu</th>
+                                    <th>Gestionnaire</th>
                                     <th>Statut</th>
                                     <th>Participants</th>
                                     <th width="180">Actions</th>
@@ -151,6 +152,21 @@
                                                 @endif
                                             @else
                                                 <span class="text-muted">Non spécifié</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($event->tourOperator)
+                                                <div class="small">
+                                                    <i class="fas fa-building text-primary me-1"></i>
+                                                    <strong>{{ $event->tourOperator->getTranslatedName(session('locale', 'fr')) }}</strong>
+                                                </div>
+                                                <div class="text-muted small">Tour Operator</div>
+                                            @else
+                                                <div class="small">
+                                                    <i class="fas fa-user-shield text-info me-1"></i>
+                                                    <strong>Administration</strong>
+                                                </div>
+                                                <div class="text-muted small">Géré par l'admin</div>
                                             @endif
                                         </td>
                                         <td>

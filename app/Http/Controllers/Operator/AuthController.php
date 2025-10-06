@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Operator;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\LoginRequest;
-use App\Models\AdminUser;
 use App\Models\TourOperatorUser;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -22,41 +21,46 @@ class AuthController extends Controller
      */
     public function showLoginForm(): View
     {
-        return view('auth.login');
+        return view('operator.auth.login');
     }
 
     /**
      * Handle an authentication attempt.
      */
-    public function login(LoginRequest $request): RedirectResponse
+    public function login(Request $request): RedirectResponse
     {
-        $credentials = $request->validated();
+        $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-        // Essayer d'abord la connexion admin
-        if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
+        $credentials = $request->only('email', 'password');
 
-            // Enregistrement du moment de connexion
-            Auth::guard('admin')->user()->recordLogin();
-
-            return redirect()->intended(route('dashboard'));
-        }
-
-        // Si échec admin, essayer la connexion tour operator
         if (Auth::guard('operator')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            // Enregistrement du moment de connexion
-            $operatorUser = Auth::guard('operator')->user();
-            $operatorUser->update(['last_login_at' => now()]);
+            $user = Auth::guard('operator')->user();
 
-            // Rediriger vers interface operator si c'est un tour operator
+            // Verify user and tour operator are active
+            if (!$user->is_active || !$user->tourOperator->is_active) {
+                Auth::guard('operator')->logout();
+                throw ValidationException::withMessages([
+                    'email' => 'Votre compte ou votre opérateur touristique a été désactivé.',
+                ]);
+            }
+
+            // Record login timestamp
+            $user->recordLogin();
+
+            // Set user's preferred language
+            session(['locale' => $user->preferred_language]);
+
             return redirect()->intended(route('operator.dashboard'));
         }
 
-        return back()->withErrors([
+        throw ValidationException::withMessages([
             'email' => 'Les identifiants fournis ne correspondent pas à nos enregistrements.',
-        ])->onlyInput('email');
+        ]);
     }
 
     /**
@@ -64,12 +68,12 @@ class AuthController extends Controller
      */
     public function logout(Request $request): RedirectResponse
     {
-        Auth::guard('admin')->logout();
+        Auth::guard('operator')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('operator.login');
     }
 
     /**
@@ -77,11 +81,11 @@ class AuthController extends Controller
      */
     public function showForgotPasswordForm(): View
     {
-        return view('auth.forgot-password');
+        return view('operator.auth.forgot-password');
     }
 
     /**
-     * Send a password reset link to the given admin user.
+     * Send a password reset link to the given operator user.
      */
     public function sendResetLinkEmail(Request $request): RedirectResponse
     {
@@ -89,7 +93,7 @@ class AuthController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        $status = Password::broker('admin_users')->sendResetLink(
+        $status = Password::broker('tour_operator_users')->sendResetLink(
             $request->only('email')
         );
 
@@ -103,7 +107,7 @@ class AuthController extends Controller
      */
     public function showResetPasswordForm(string $token): View
     {
-        return view('auth.reset-password', ['token' => $token]);
+        return view('operator.auth.reset-password', ['token' => $token]);
     }
 
     /**
@@ -117,9 +121,9 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', 'min:8'],
         ]);
 
-        $status = Password::broker('admin_users')->reset(
+        $status = Password::broker('tour_operator_users')->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (AdminUser $user, string $password) {
+            function (TourOperatorUser $user, string $password) {
                 $user->forceFill([
                     'password' => Hash::make($password),
                     'remember_token' => Str::random(60),
@@ -130,7 +134,7 @@ class AuthController extends Controller
         );
 
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('status', __($status))
+            ? redirect()->route('operator.login')->with('status', __($status))
             : back()->withErrors(['email' => [__($status)]]);
     }
 }

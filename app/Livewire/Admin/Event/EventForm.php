@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Media;
 use App\Models\Event;
 use App\Models\EventTranslation;
+use App\Models\TourOperator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -34,6 +35,7 @@ class EventForm extends Component
     public $is_featured = false;
     public $status = 'draft';
     public $featuredImageId = null;
+    public $tour_operator_id = null;
 
     // Traductions
     public $translations = [
@@ -106,6 +108,7 @@ class EventForm extends Component
             'status' => 'required|in:draft,published,archived',
             'selectedCategories' => 'required|array|min:1',
             'featuredImageId' => 'nullable|exists:media,id',
+            'tour_operator_id' => 'nullable|exists:tour_operators,id',
         ];
 
         // Ajouter les règles pour chaque langue
@@ -241,6 +244,7 @@ class EventForm extends Component
             $this->is_featured = (bool) $event->is_featured;
             $this->status = $event->status;
             $this->featuredImageId = $event->featured_image_id;
+            $this->tour_operator_id = $event->tour_operator_id;
 
             // Remplir les traductions
             foreach ($event->translations as $translation) {
@@ -364,6 +368,7 @@ class EventForm extends Component
                 'is_featured' => $this->is_featured,
                 'status' => $this->status,
                 'featured_image_id' => $this->featuredImageId,
+                'tour_operator_id' => $this->tour_operator_id,
             ]);
 
             // Mettre à jour les traductions
@@ -414,6 +419,7 @@ class EventForm extends Component
                 'is_featured' => $this->is_featured,
                 'status' => $this->status,
                 'featured_image_id' => $this->featuredImageId,
+                'tour_operator_id' => $this->tour_operator_id,
                 'creator_id' => Auth::guard('admin')->id(),
             ]);
 
@@ -474,9 +480,21 @@ class EventForm extends Component
         // Récupérer les médias disponibles
         $media = Media::orderBy('created_at', 'desc')->get();
 
+        // Récupérer les tour operators actifs avec leurs traductions
+        $tourOperators = TourOperator::where('is_active', true)
+            ->with(['translations' => function($query) {
+                $query->where('locale', session('locale', 'fr'))
+                      ->orWhere('locale', 'fr'); // fallback
+            }])
+            ->get()
+            ->sortBy(function($operator) {
+                return $operator->getTranslatedName(session('locale', 'fr'));
+            });
+
         return view('livewire.admin.event.event-form', [
             'parentCategories' => $parentCategories,
             'media' => $media,
+            'tourOperators' => $tourOperators,
             'availableLocales' => ['fr', 'en', 'ar'],
         ]);
     }

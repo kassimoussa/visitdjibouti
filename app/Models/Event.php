@@ -40,6 +40,7 @@ class Event extends Model
         'is_featured',
         'status',
         'creator_id',
+        'tour_operator_id',
         'featured_image_id',
         'views_count'
     ];
@@ -149,6 +150,14 @@ class Event extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(AdminUser::class, 'creator_id');
+    }
+
+    /**
+     * Get the tour operator managing this event.
+     */
+    public function tourOperator(): BelongsTo
+    {
+        return $this->belongsTo(TourOperator::class, 'tour_operator_id');
     }
 
     /**
@@ -430,7 +439,43 @@ class Event extends Model
         if ($this->max_participants === null) {
             return null; // Unlimited spots
         }
-        
+
         return max(0, $this->max_participants - $this->current_participants);
+    }
+
+    /**
+     * Check if event is managed by a tour operator.
+     */
+    public function isManagedByTourOperator(): bool
+    {
+        return !is_null($this->tour_operator_id);
+    }
+
+    /**
+     * Check if event is managed by admin.
+     */
+    public function isManagedByAdmin(): bool
+    {
+        return is_null($this->tour_operator_id);
+    }
+
+    /**
+     * Get the manager (tour operator or admin) of this event.
+     */
+    public function getManagerAttribute(): ?object
+    {
+        if ($this->isManagedByTourOperator()) {
+            return $this->tourOperator;
+        }
+
+        return $this->creator;
+    }
+
+    /**
+     * Get the manager type of this event.
+     */
+    public function getManagerTypeAttribute(): string
+    {
+        return $this->isManagedByTourOperator() ? 'tour_operator' : 'admin';
     }
 }

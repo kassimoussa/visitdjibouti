@@ -272,4 +272,122 @@ class TourOperator extends Model
     {
         return $this->pois()->exists();
     }
+
+    /**
+     * Get all users for this tour operator.
+     */
+    public function users(): HasMany
+    {
+        return $this->hasMany(TourOperatorUser::class);
+    }
+
+    /**
+     * Get all active users for this tour operator.
+     */
+    public function activeUsers(): HasMany
+    {
+        return $this->users()->active();
+    }
+
+    /**
+     * Get all events managed by this tour operator.
+     */
+    public function managedEvents(): HasMany
+    {
+        return $this->hasMany(Event::class, 'tour_operator_id');
+    }
+
+    /**
+     * Get all published events managed by this tour operator.
+     */
+    public function publishedEvents(): HasMany
+    {
+        return $this->managedEvents()->where('status', 'published');
+    }
+
+    /**
+     * Get all tours offered by this tour operator.
+     */
+    public function tours(): HasMany
+    {
+        return $this->hasMany(Tour::class, 'tour_operator_id');
+    }
+
+    /**
+     * Get all active tours offered by this tour operator.
+     */
+    public function activeTours(): HasMany
+    {
+        return $this->tours()->where('status', 'active');
+    }
+
+    /**
+     * Get all reservations for this tour operator's events and tours.
+     */
+    public function allReservations()
+    {
+        return Reservation::where(function ($query) {
+            // Reservations for events
+            $query->where('reservable_type', Event::class)
+                  ->whereHas('reservable', function ($q) {
+                      $q->where('tour_operator_id', $this->id);
+                  });
+        })->orWhere(function ($query) {
+            // Reservations for tour schedules
+            $query->where('reservable_type', TourSchedule::class)
+                  ->whereHas('reservable.tour', function ($q) {
+                      $q->where('tour_operator_id', $this->id);
+                  });
+        });
+    }
+
+    /**
+     * Check if this tour operator has events.
+     */
+    public function hasEvents(): bool
+    {
+        return $this->managedEvents()->exists();
+    }
+
+    /**
+     * Check if this tour operator has tours.
+     */
+    public function hasTours(): bool
+    {
+        return $this->tours()->exists();
+    }
+
+    /**
+     * Check if this tour operator has users.
+     */
+    public function hasUsers(): bool
+    {
+        return $this->users()->exists();
+    }
+
+    /**
+     * Get statistics for this tour operator.
+     */
+    public function getStatistics(): array
+    {
+        return [
+            'total_events' => $this->managedEvents()->count(),
+            'published_events' => $this->publishedEvents()->count(),
+            'upcoming_events' => $this->publishedEvents()
+                ->where('start_date', '>=', now()->toDateString())
+                ->count(),
+            'total_tours' => $this->tours()->count(),
+            'active_tours' => $this->activeTours()->count(),
+            'total_pois' => $this->pois()->count(),
+            'total_users' => $this->users()->count(),
+            'active_users' => $this->activeUsers()->count(),
+            'total_reservations' => $this->allReservations()->count(),
+            'confirmed_reservations' => $this->allReservations()->confirmed()->count(),
+            'revenue_this_month' => $this->allReservations()
+                ->confirmed()
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->sum('payment_amount'),
+        ];
+    }
 }

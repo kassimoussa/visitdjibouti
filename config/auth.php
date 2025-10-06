@@ -28,20 +28,30 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        
+
         'admin' => [
             'driver' => 'session',
             'provider' => 'admin_users',
         ],
-        
+
+        'operator' => [
+            'driver' => 'session',
+            'provider' => 'tour_operator_users',
+        ],
+
         'api' => [
             'driver' => 'sanctum',
             'provider' => 'app_users',
         ],
-        
+
         'admin-api' => [
             'driver' => 'sanctum',
             'provider' => 'admin_users',
+        ],
+
+        'operator-api' => [
+            'driver' => 'sanctum',
+            'provider' => 'tour_operator_users',
         ],
     ],
 
@@ -60,12 +70,17 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-        
+
         'admin_users' => [
             'driver' => 'eloquent',
             'model' => App\Models\AdminUser::class,
         ],
-        
+
+        'tour_operator_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\TourOperatorUser::class,
+        ],
+
         'app_users' => [
             'driver' => 'eloquent',
             'model' => App\Models\AppUser::class,
@@ -88,14 +103,21 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
-        
+
         'admin_users' => [
             'provider' => 'admin_users',
             'table' => 'admin_password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,
         ],
-        
+
+        'tour_operator_users' => [
+            'provider' => 'tour_operator_users',
+            'table' => 'operator_password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
         'app_users' => [
             'provider' => 'app_users',
             'table' => 'password_reset_tokens',

@@ -308,6 +308,27 @@
                                         @enderror
                                     </div>
 
+                                    <!-- Tour Operator -->
+                                    <div class="mb-3">
+                                        <label for="tour_operator_id" class="form-label">Tour Operator</label>
+                                        <select class="form-select @error('tour_operator_id') is-invalid @enderror"
+                                            id="tour_operator_id" wire:model="tour_operator_id">
+                                            <option value="">Aucun (géré par l'admin)</option>
+                                            @foreach($tourOperators as $operator)
+                                                <option value="{{ $operator->id }}">
+                                                    {{ $operator->getTranslatedName(session('locale', 'fr')) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('tour_operator_id')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Si un tour operator est sélectionné, il gérera les réservations de cet événement
+                                        </div>
+                                    </div>
+
                                     <!-- Organisateur -->
                                     <div class="mb-3">
                                         <label for="organizer" class="form-label">Organisateur</label>

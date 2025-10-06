@@ -340,4 +340,31 @@
             </div>
         </div>
     </div>
+
+    <!-- Section Utilisateurs -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>
+                        Utilisateurs du Tour Operator
+                    </h5>
+                    <button type="button"
+                            class="btn btn-primary btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addUserModal">
+                        <i class="fas fa-plus me-1"></i>
+                        Ajouter un utilisateur
+                    </button>
+                </div>
+                <div class="card-body">
+                    @livewire('admin.tour-operator.user-list', ['tourOperatorId' => $tourOperator->id], key('user-list-'.$tourOperator->id))
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal d'ajout d'utilisateur -->
+    @livewire('admin.tour-operator.user-form-modal', ['tourOperatorId' => $tourOperator->id])
 </div>

@@ -192,3 +192,89 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/nearby-users', [DeviceController::class, 'getNearbyUsers']); // Utilisateurs à proximité (respect vie privée)
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Tour Operator API Routes
+|--------------------------------------------------------------------------
+|
+| Routes API pour les opérateurs touristiques
+|
+*/
+
+// Routes protégées par authentification Sanctum pour les tour operators
+Route::middleware(['auth:operator-api'])->prefix('operator')->name('operator.api.')->group(function () {
+
+    // Gestion des événements
+    Route::prefix('events')->name('events.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\Operator\EventController::class, 'index'])
+            ->name('index'); // Liste des événements de l'opérateur
+        Route::get('/{event}', [\App\Http\Controllers\Api\Operator\EventController::class, 'show'])
+            ->name('show'); // Détails d'un événement
+        Route::patch('/{event}', [\App\Http\Controllers\Api\Operator\EventController::class, 'update'])
+            ->name('update'); // Mise à jour d'un événement
+        Route::get('/{event}/reservations', [\App\Http\Controllers\Api\Operator\EventController::class, 'reservations'])
+            ->name('reservations'); // Réservations d'un événement
+    });
+
+    // Gestion des réservations
+    Route::prefix('reservations')->name('reservations.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\Operator\ReservationController::class, 'index'])
+            ->name('index'); // Toutes les réservations de l'opérateur
+        Route::get('/{reservation}', [\App\Http\Controllers\Api\Operator\ReservationController::class, 'show'])
+            ->name('show'); // Détails d'une réservation
+        Route::patch('/{reservation}/confirm', [\App\Http\Controllers\Api\Operator\ReservationController::class, 'confirm'])
+            ->name('confirm'); // Confirmer une réservation
+        Route::patch('/{reservation}/cancel', [\App\Http\Controllers\Api\Operator\ReservationController::class, 'cancel'])
+            ->name('cancel'); // Annuler une réservation
+    });
+
+    // Gestion des tours
+    Route::prefix('tours')->name('tours.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\Operator\TourController::class, 'index'])
+            ->name('index'); // Liste des tours de l'opérateur
+        Route::get('/{tour}', [\App\Http\Controllers\Api\Operator\TourController::class, 'show'])
+            ->name('show'); // Détails d'un tour
+        Route::patch('/{tour}', [\App\Http\Controllers\Api\Operator\TourController::class, 'update'])
+            ->name('update'); // Mise à jour d'un tour
+
+        // Gestion des calendriers de tours
+        Route::prefix('{tour}/schedules')->name('schedules.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Api\Operator\TourController::class, 'schedules'])
+                ->name('index'); // Calendriers d'un tour
+            Route::post('/', [\App\Http\Controllers\Api\Operator\TourController::class, 'createSchedule'])
+                ->name('create'); // Créer un calendrier
+            Route::patch('/{schedule}', [\App\Http\Controllers\Api\Operator\TourController::class, 'updateSchedule'])
+                ->name('update'); // Mettre à jour un calendrier
+            Route::delete('/{schedule}', [\App\Http\Controllers\Api\Operator\TourController::class, 'deleteSchedule'])
+                ->name('delete'); // Supprimer un calendrier
+        });
+    });
+
+    // Statistiques et rapports
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\Api\Operator\DashboardController::class, 'statistics'])
+            ->name('dashboard'); // Statistiques du dashboard
+        Route::get('/events', [\App\Http\Controllers\Api\Operator\EventController::class, 'reports'])
+            ->name('events'); // Rapports sur les événements
+        Route::get('/tours', [\App\Http\Controllers\Api\Operator\TourController::class, 'reports'])
+            ->name('tours'); // Rapports sur les tours
+        Route::get('/reservations', [\App\Http\Controllers\Api\Operator\ReservationController::class, 'reports'])
+            ->name('reservations'); // Rapports sur les réservations
+    });
+
+    // Profil et opérateur touristique
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\Operator\ProfileController::class, 'show'])
+            ->name('show'); // Profil de l'utilisateur
+        Route::patch('/', [\App\Http\Controllers\Api\Operator\ProfileController::class, 'update'])
+            ->name('update'); // Mise à jour du profil
+        Route::patch('/password', [\App\Http\Controllers\Api\Operator\ProfileController::class, 'updatePassword'])
+            ->name('password'); // Changement de mot de passe
+
+        Route::get('/tour-operator', [\App\Http\Controllers\Api\Operator\ProfileController::class, 'showTourOperator'])
+            ->name('tour-operator.show'); // Profil de l'opérateur touristique
+        Route::patch('/tour-operator', [\App\Http\Controllers\Api\Operator\ProfileController::class, 'updateTourOperator'])
+            ->name('tour-operator.update'); // Mise à jour de l'opérateur touristique
+    });
+});
