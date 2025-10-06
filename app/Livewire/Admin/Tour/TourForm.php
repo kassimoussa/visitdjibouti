@@ -18,8 +18,6 @@ class TourForm extends Component
     // Form fields
     public $tour_operator_id = '';
     public $type = 'poi';
-    public $target_id = '';
-    public $target_type = '';
     public $start_date = '';
     public $end_date = '';
     public $duration_hours = '';
@@ -28,8 +26,6 @@ class TourForm extends Component
     public $price = 0;
     public $currency = 'DJF';
     public $difficulty_level = 'easy';
-    public $includes = [];
-    public $requirements = [];
     public $meeting_point_latitude = '';
     public $meeting_point_longitude = '';
     public $meeting_point_address = '';
@@ -48,7 +44,6 @@ class TourForm extends Component
         'fr' => [
             'title' => '',
             'description' => '',
-            'short_description' => '',
             'itinerary' => '',
             'meeting_point_description' => '',
             'highlights' => '',
@@ -58,7 +53,6 @@ class TourForm extends Component
         'en' => [
             'title' => '',
             'description' => '',
-            'short_description' => '',
             'itinerary' => '',
             'meeting_point_description' => '',
             'highlights' => '',
@@ -68,7 +62,6 @@ class TourForm extends Component
         'ar' => [
             'title' => '',
             'description' => '',
-            'short_description' => '',
             'itinerary' => '',
             'meeting_point_description' => '',
             'highlights' => '',
@@ -77,10 +70,6 @@ class TourForm extends Component
         ]
     ];
 
-    // Dynamic includes and requirements
-    public $newInclude = '';
-    public $newRequirement = '';
-
     // Gallery management
     public $showGallerySelector = false;
     public $mediaSelectorMode = 'multiple';
@@ -88,7 +77,6 @@ class TourForm extends Component
     protected $rules = [
         'tour_operator_id' => 'required|exists:tour_operators,id',
         'type' => 'required|in:poi,event,mixed,cultural,adventure,nature,gastronomic',
-        'target_id' => 'required|integer',
         'start_date' => 'required|date|after_or_equal:today',
         'end_date' => 'nullable|date|after_or_equal:start_date',
         'duration_hours' => 'nullable|integer|min:1',
@@ -120,39 +108,6 @@ class TourForm extends Component
         }
     }
 
-    public function updatedType()
-    {
-        $this->target_id = '';
-        $this->target_type = $this->type === 'poi' ? Poi::class : ($this->type === 'event' ? Event::class : '');
-    }
-
-    public function addInclude()
-    {
-        if (!empty($this->newInclude)) {
-            $this->includes[] = $this->newInclude;
-            $this->newInclude = '';
-        }
-    }
-
-    public function removeInclude($index)
-    {
-        unset($this->includes[$index]);
-        $this->includes = array_values($this->includes);
-    }
-
-    public function addRequirement()
-    {
-        if (!empty($this->newRequirement)) {
-            $this->requirements[] = $this->newRequirement;
-            $this->newRequirement = '';
-        }
-    }
-
-    public function removeRequirement($index)
-    {
-        unset($this->requirements[$index]);
-        $this->requirements = array_values($this->requirements);
-    }
 
     /**
      * Ouvrir le sélecteur de médias pour l'image principale
@@ -210,18 +165,9 @@ class TourForm extends Component
         try {
             DB::beginTransaction();
 
-            // Set target_type based on type selection
-            if ($this->type === 'poi') {
-                $this->target_type = Poi::class;
-            } elseif ($this->type === 'event') {
-                $this->target_type = Event::class;
-            }
-
             $data = [
                 'tour_operator_id' => $this->tour_operator_id,
                 'type' => $this->type,
-                'target_id' => $this->target_id,
-                'target_type' => $this->target_type,
                 'start_date' => $this->start_date ?: null,
                 'end_date' => $this->end_date ?: null,
                 'duration_hours' => $this->duration_hours ?: null,
@@ -230,8 +176,6 @@ class TourForm extends Component
                 'price' => $this->price,
                 'currency' => $this->currency,
                 'difficulty_level' => $this->difficulty_level,
-                'includes' => $this->includes,
-                'requirements' => $this->requirements,
                 'meeting_point_latitude' => $this->meeting_point_latitude ?: null,
                 'meeting_point_longitude' => $this->meeting_point_longitude ?: null,
                 'meeting_point_address' => $this->meeting_point_address ?: null,
@@ -258,7 +202,6 @@ class TourForm extends Component
                     $translationData = [
                         'title' => $translation['title'],
                         'description' => $translation['description'] ?: '',
-                        'short_description' => $translation['short_description'] ?: '',
                         'itinerary' => $translation['itinerary'] ?: '',
                         'meeting_point_description' => $translation['meeting_point_description'] ?: '',
                         'highlights' => !empty($translation['highlights']) ? explode("\n", $translation['highlights']) : null,
@@ -308,8 +251,6 @@ class TourForm extends Component
     {
         $this->tour_operator_id = $tour->tour_operator_id;
         $this->type = $tour->type;
-        $this->target_id = $tour->target_id;
-        $this->target_type = $tour->target_type;
         $this->start_date = $tour->start_date?->format('Y-m-d');
         $this->end_date = $tour->end_date?->format('Y-m-d');
         $this->duration_hours = $tour->duration_hours;
@@ -318,8 +259,6 @@ class TourForm extends Component
         $this->price = $tour->price;
         $this->currency = $tour->currency;
         $this->difficulty_level = $tour->difficulty_level;
-        $this->includes = $tour->includes ?? [];
-        $this->requirements = $tour->requirements ?? [];
         $this->meeting_point_latitude = $tour->meeting_point_latitude;
         $this->meeting_point_longitude = $tour->meeting_point_longitude;
         $this->meeting_point_address = $tour->meeting_point_address;
@@ -338,7 +277,6 @@ class TourForm extends Component
             $this->translations[$translation->locale] = [
                 'title' => $translation->title,
                 'description' => $translation->description,
-                'short_description' => $translation->short_description,
                 'itinerary' => $translation->itinerary,
                 'meeting_point_description' => $translation->meeting_point_description,
                 'highlights' => is_array($translation->highlights) ? implode("\n", $translation->highlights) : '',

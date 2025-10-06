@@ -68,28 +68,6 @@
                                             @error('type') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
-
-                                    <!-- Cible du tour -->
-                                    @if($type === 'poi' || $type === 'event')
-                                    <div class="mt-3">
-                                        <label for="target_id" class="form-label">
-                                            @if($type === 'poi') Point d'Intérêt @else Événement @endif cible <span class="text-danger">*</span>
-                                        </label>
-                                        <select wire:model="target_id" class="form-select @error('target_id') is-invalid @enderror" required>
-                                            <option value="">Sélectionner @if($type === 'poi') un POI @else un événement @endif</option>
-                                            @if($type === 'poi')
-                                                @foreach($pois as $poi)
-                                                    <option value="{{ $poi->id }}">{{ $poi->title }}</option>
-                                                @endforeach
-                                            @else
-                                                @foreach($events as $event)
-                                                    <option value="{{ $event->id }}">{{ $event->title }}</option>
-                                                @endforeach
-                                            @endif
-                                        </select>
-                                        @error('target_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                    </div>
-                                    @endif
                                 </div>
                             </div>
 
@@ -112,12 +90,6 @@
                                                            class="form-control @error('translations.'.$locale.'.title') is-invalid @enderror"
                                                            @if($locale === 'fr') required @endif>
                                                     @error('translations.'.$locale.'.title') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                                </div>
-
-                                                <div class="col-12">
-                                                    <label class="form-label">Description courte</label>
-                                                    <textarea wire:model="translations.{{ $locale }}.short_description"
-                                                              class="form-control" rows="2"></textarea>
                                                 </div>
 
                                                 <div class="col-12">
@@ -291,64 +263,6 @@
                                                    class="form-control">
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Inclusions -->
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h6 class="mb-0">Inclusions</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="input-group mb-2">
-                                        <input wire:model="newInclude" type="text" class="form-control"
-                                               placeholder="Ajouter une inclusion...">
-                                        <button type="button" class="btn btn-outline-primary" wire:click="addInclude">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
-                                    @if(count($includes) > 0)
-                                        <div class="border rounded p-2">
-                                            @foreach($includes as $index => $include)
-                                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                                    <small>{{ $include }}</small>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                                            wire:click="removeInclude({{ $index }})">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <!-- Prérequis -->
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h6 class="mb-0">Prérequis</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="input-group mb-2">
-                                        <input wire:model="newRequirement" type="text" class="form-control"
-                                               placeholder="Ajouter un prérequis...">
-                                        <button type="button" class="btn btn-outline-primary" wire:click="addRequirement">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
-                                    @if(count($requirements) > 0)
-                                        <div class="border rounded p-2">
-                                            @foreach($requirements as $index => $requirement)
-                                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                                    <small>{{ $requirement }}</small>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                                            wire:click="removeRequirement({{ $index }})">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @endif
                                 </div>
                             </div>
 

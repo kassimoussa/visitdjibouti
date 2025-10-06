@@ -344,10 +344,15 @@
 
                                     <!-- Options -->
                                     <div class="mb-3">
-                                        <div class="form-check form-switch">
+                                        <div class="form-check form-switch mb-2">
                                             <input class="form-check-input" type="checkbox" id="is_featured"
                                                 wire:model="is_featured">
                                             <label class="form-check-label" for="is_featured">Mettre en avant sur la page d'accueil</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="allow_reservations"
+                                                wire:model="allow_reservations">
+                                            <label class="form-check-label" for="allow_reservations">Activer les réservations</label>
                                         </div>
                                     </div>
                                 </div>

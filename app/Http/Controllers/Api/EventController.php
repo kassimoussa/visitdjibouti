@@ -429,6 +429,7 @@ class EventController extends Controller
             'price' => $event->price,
             'is_free' => $event->price == 0,
             'is_featured' => $event->is_featured,
+            'allow_reservations' => $event->allow_reservations,
             'max_participants' => $event->max_participants,
             'current_participants' => $event->current_participants,
             'available_spots' => $event->available_spots,

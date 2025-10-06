@@ -23,7 +23,6 @@ class TourController extends Controller
             $query = Tour::active()
                          ->with([
                              'tourOperator.translations',
-                             'target',
                              'translations',
                              'activeSchedules' => function($q) {
                                  $q->orderBy('start_date')->limit(3);
@@ -88,16 +87,6 @@ class TourController extends Controller
             // Filter by featured
             if ($request->filled('featured')) {
                 $query->featured();
-            }
-
-            // Filter by target type
-            if ($request->filled('target_type')) {
-                $targetType = $request->get('target_type');
-                if ($targetType === 'poi') {
-                    $query->where('target_type', 'App\Models\Poi');
-                } elseif ($targetType === 'event') {
-                    $query->where('target_type', 'App\Models\Event');
-                }
             }
 
             // Nearby tours (geolocation)
@@ -178,7 +167,6 @@ class TourController extends Controller
             $query = Tour::active()
                          ->with([
                              'tourOperator.translations',
-                             'target.translations',
                              'translations',
                              'featuredImage',
                              'media',
@@ -519,7 +507,6 @@ class TourController extends Controller
             'id' => $tour->id,
             'slug' => $tour->slug,
             'title' => $translation->title ?? '',
-            'short_description' => $translation->short_description ?? '',
             'type' => $tour->type,
             'type_label' => $tour->type_label,
             'difficulty_level' => $tour->difficulty_level,
@@ -546,12 +533,6 @@ class TourController extends Controller
                 'name' => $tour->tourOperator->getTranslatedName($locale),
                 'slug' => $tour->tourOperator->slug
             ],
-            'target' => $tour->target ? [
-                'id' => $tour->target->id,
-                'type' => class_basename($tour->target_type),
-                'title' => $tour->target->translation($locale)->title ?? $tour->target->translation($locale)->name ?? '',
-                'slug' => $tour->target->slug ?? null
-            ] : null,
             'featured_image' => $tour->featuredImage ? [
                 'id' => $tour->featuredImage->id,
                 'url' => $tour->featuredImage->getImageUrl(),
@@ -579,8 +560,6 @@ class TourController extends Controller
                 'address' => $tour->meeting_point_address,
                 'description' => $translation->meeting_point_description ?? ''
             ],
-            'includes' => $tour->includes ?? [],
-            'requirements' => $tour->requirements ?? [],
             'highlights' => $translation->highlights ?? [],
             'what_to_bring' => $translation->what_to_bring ?? [],
             'age_restrictions' => [

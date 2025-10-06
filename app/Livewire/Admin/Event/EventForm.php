@@ -33,6 +33,7 @@ class EventForm extends Component
     public $current_participants = 0;
     public $organizer = '';
     public $is_featured = false;
+    public $allow_reservations = false;
     public $status = 'draft';
     public $featuredImageId = null;
     public $tour_operator_id = null;
@@ -105,6 +106,7 @@ class EventForm extends Component
             'current_participants' => 'nullable|integer|min:0',
             'organizer' => 'nullable|string|max:255',
             'is_featured' => 'boolean',
+            'allow_reservations' => 'boolean',
             'status' => 'required|in:draft,published,archived',
             'selectedCategories' => 'required|array|min:1',
             'featuredImageId' => 'nullable|exists:media,id',
@@ -242,6 +244,7 @@ class EventForm extends Component
             $this->current_participants = $event->current_participants;
             $this->organizer = $event->organizer;
             $this->is_featured = (bool) $event->is_featured;
+            $this->allow_reservations = (bool) $event->allow_reservations;
             $this->status = $event->status;
             $this->featuredImageId = $event->featured_image_id;
             $this->tour_operator_id = $event->tour_operator_id;
@@ -366,6 +369,7 @@ class EventForm extends Component
                 'current_participants' => $this->current_participants,
                 'organizer' => $this->organizer,
                 'is_featured' => $this->is_featured,
+                'allow_reservations' => $this->allow_reservations,
                 'status' => $this->status,
                 'featured_image_id' => $this->featuredImageId,
                 'tour_operator_id' => $this->tour_operator_id,
@@ -417,6 +421,7 @@ class EventForm extends Component
                 'current_participants' => $this->current_participants,
                 'organizer' => $this->organizer,
                 'is_featured' => $this->is_featured,
+                'allow_reservations' => $this->allow_reservations,
                 'status' => $this->status,
                 'featured_image_id' => $this->featuredImageId,
                 'tour_operator_id' => $this->tour_operator_id,
