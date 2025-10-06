@@ -133,38 +133,6 @@
                         </div>
                     </div>
 
-                    <!-- Permissions -->
-                    <div class="mb-3">
-                        <label class="form-label">Permissions</label>
-                        <div class="row">
-                            @php
-                                $permissionsList = [
-                                    'manage_events' => ['label' => 'Gérer les événements', 'icon' => 'calendar-alt'],
-                                    'manage_tours' => ['label' => 'Gérer les tours guidés', 'icon' => 'route'],
-                                    'view_reservations' => ['label' => 'Voir les réservations', 'icon' => 'eye'],
-                                    'manage_reservations' => ['label' => 'Gérer les réservations', 'icon' => 'ticket-alt'],
-                                    'view_reports' => ['label' => 'Voir les rapports', 'icon' => 'chart-bar'],
-                                    'manage_profile' => ['label' => 'Gérer le profil', 'icon' => 'user-cog'],
-                                ];
-                            @endphp
-
-                            @foreach($permissionsList as $key => $permission)
-                                <div class="col-md-4 mb-2">
-                                    <div class="form-check">
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               wire:model="permissions.{{ $key }}"
-                                               id="permission_{{ $key }}">
-                                        <label class="form-check-label" for="permission_{{ $key }}">
-                                            <i class="fas fa-{{ $permission['icon'] }} me-1"></i>
-                                            {{ $permission['label'] }}
-                                        </label>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
                     <!-- Options -->
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -238,7 +206,6 @@
                                 <th>Utilisateur</th>
                                 <th>Tour Operator</th>
                                 <th>Contact</th>
-                                <th>Permissions</th>
                                 <th>Statut</th>
                                 <th>Dernière connexion</th>
                                 <th width="200">Actions</th>
@@ -283,38 +250,6 @@
                                             <div>{{ $user->email }}</div>
                                             @if($user->phone_number)
                                                 <small class="text-muted">{{ $user->phone_number }}</small>
-                                            @endif
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex flex-wrap gap-1">
-                                            @if($user->permissions)
-                                                @foreach($user->permissions as $permission => $enabled)
-                                                    @if($enabled)
-                                                        <span class="badge bg-light text-dark small">
-                                                            @switch($permission)
-                                                                @case('manage_events')
-                                                                    <i class="fas fa-calendar-alt"></i>
-                                                                    @break
-                                                                @case('manage_tours')
-                                                                    <i class="fas fa-route"></i>
-                                                                    @break
-                                                                @case('view_reservations')
-                                                                    <i class="fas fa-eye"></i>
-                                                                    @break
-                                                                @case('manage_reservations')
-                                                                    <i class="fas fa-ticket-alt"></i>
-                                                                    @break
-                                                                @case('view_reports')
-                                                                    <i class="fas fa-chart-bar"></i>
-                                                                    @break
-                                                                @case('manage_profile')
-                                                                    <i class="fas fa-user-cog"></i>
-                                                                    @break
-                                                            @endswitch
-                                                        </span>
-                                                    @endif
-                                                @endforeach
                                             @endif
                                         </div>
                                     </td>

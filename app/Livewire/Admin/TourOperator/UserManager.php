@@ -27,7 +27,6 @@ class UserManager extends Component
     public $phone_number = '';
     public $position = '';
     public $language_preference = 'fr';
-    public $permissions = [];
     public $is_active = true;
     public $send_invitation = true;
 
@@ -38,22 +37,9 @@ class UserManager extends Component
         'phone_number' => 'nullable|string|max:255',
         'position' => 'nullable|string|max:255',
         'language_preference' => 'required|in:fr,en,ar',
-        'permissions' => 'array',
         'is_active' => 'boolean',
         'send_invitation' => 'boolean',
     ];
-
-    public function mount()
-    {
-        $this->permissions = [
-            'manage_events' => true,
-            'view_reservations' => true,
-            'manage_reservations' => true,
-            'manage_tours' => true,
-            'view_reports' => true,
-            'manage_profile' => true,
-        ];
-    }
 
     public function showCreateForm()
     {
@@ -78,14 +64,6 @@ class UserManager extends Component
         $this->is_active = true;
         $this->send_invitation = true;
         $this->editingUserId = null;
-        $this->permissions = [
-            'manage_events' => true,
-            'view_reservations' => true,
-            'manage_reservations' => true,
-            'manage_tours' => true,
-            'view_reports' => true,
-            'manage_profile' => true,
-        ];
         $this->resetValidation();
     }
 
@@ -103,7 +81,6 @@ class UserManager extends Component
             'phone_number' => $this->phone_number,
             'position' => $this->position,
             'language_preference' => $this->language_preference,
-            'permissions' => $this->permissions,
             'is_active' => $this->is_active,
         ]);
 
@@ -129,7 +106,6 @@ class UserManager extends Component
         $this->phone_number = $user->phone_number;
         $this->position = $user->position;
         $this->language_preference = $user->language_preference;
-        $this->permissions = $user->permissions ?? [];
         $this->is_active = $user->is_active;
         $this->send_invitation = false;
 
@@ -150,7 +126,6 @@ class UserManager extends Component
             'phone_number' => $this->phone_number,
             'position' => $this->position,
             'language_preference' => $this->language_preference,
-            'permissions' => $this->permissions,
             'is_active' => $this->is_active,
         ]);
 

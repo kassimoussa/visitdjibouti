@@ -38,6 +38,30 @@
                                 @enderror
                             </div>
 
+                            <!-- Mot de passe -->
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">Mot de passe <span class="text-danger">*</span></label>
+                                <input type="password"
+                                       class="form-control @error('password') is-invalid @enderror"
+                                       wire:model="password"
+                                       placeholder="Minimum 8 caractères">
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Confirmation mot de passe -->
+                            <div class="col-md-6 mb-3">
+                                <label for="password_confirmation" class="form-label">Confirmer le mot de passe <span class="text-danger">*</span></label>
+                                <input type="password"
+                                       class="form-control @error('password_confirmation') is-invalid @enderror"
+                                       wire:model="password_confirmation"
+                                       placeholder="Confirmer le mot de passe">
+                                @error('password_confirmation')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <!-- Téléphone -->
                             <div class="col-md-6 mb-3">
                                 <label for="phone_number" class="form-label">Téléphone</label>
@@ -77,63 +101,17 @@
                             </div>
                         </div>
 
-                        <!-- Permissions -->
-                        <div class="mb-3">
-                            <label class="form-label">Permissions</label>
-                            <div class="row">
-                                @php
-                                    $permissionsList = [
-                                        'manage_events' => ['label' => 'Gérer les événements', 'icon' => 'calendar-alt'],
-                                        'manage_tours' => ['label' => 'Gérer les tours guidés', 'icon' => 'route'],
-                                        'view_reservations' => ['label' => 'Voir les réservations', 'icon' => 'eye'],
-                                        'manage_reservations' => ['label' => 'Gérer les réservations', 'icon' => 'ticket-alt'],
-                                        'view_reports' => ['label' => 'Voir les rapports', 'icon' => 'chart-bar'],
-                                        'manage_profile' => ['label' => 'Gérer le profil', 'icon' => 'user-cog'],
-                                    ];
-                                @endphp
-
-                                @foreach($permissionsList as $key => $permission)
-                                    <div class="col-md-6 mb-2">
-                                        <div class="form-check">
-                                            <input class="form-check-input"
-                                                   type="checkbox"
-                                                   wire:model="permissions.{{ $key }}"
-                                                   id="permission_{{ $key }}">
-                                            <label class="form-check-label" for="permission_{{ $key }}">
-                                                <i class="fas fa-{{ $permission['icon'] }} me-1"></i>
-                                                {{ $permission['label'] }}
-                                            </label>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-
                         <!-- Options -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input"
-                                           type="checkbox"
-                                           wire:model="is_active"
-                                           id="is_active">
-                                    <label class="form-check-label" for="is_active">
-                                        <i class="fas fa-check-circle me-1"></i>
-                                        Compte actif
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input"
-                                           type="checkbox"
-                                           wire:model="send_invitation"
-                                           id="send_invitation">
-                                    <label class="form-check-label" for="send_invitation">
-                                        <i class="fas fa-envelope me-1"></i>
-                                        Envoyer l'invitation par email
-                                    </label>
-                                </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       wire:model="is_active"
+                                       id="is_active">
+                                <label class="form-check-label" for="is_active">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Compte actif
+                                </label>
                             </div>
                         </div>
                     </div>
