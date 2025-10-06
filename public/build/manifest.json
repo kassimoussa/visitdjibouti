@@ -54,5 +54,10 @@
     "file": "assets/app-ClqvZ1qj.css",
     "src": "resources/sass/app.scss",
     "isEntry": true
+  },
+  "resources/sass/operator.scss": {
+    "file": "assets/operator-ChWBEACM.css",
+    "src": "resources/sass/operator.scss",
+    "isEntry": true
   }
 }

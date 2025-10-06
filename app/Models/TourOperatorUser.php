@@ -23,6 +23,7 @@ class TourOperatorUser extends Authenticatable
     protected $fillable = [
         'tour_operator_id',
         'name',
+        'username',
         'email',
         'password',
         'phone_number',
@@ -62,6 +63,24 @@ class TourOperatorUser extends Authenticatable
     public function getEmailForPasswordReset(): string
     {
         return $this->email;
+    }
+
+    /**
+     * Find the user for authentication by username or email.
+     */
+    public static function findForAuth(string $login): ?self
+    {
+        return static::where('username', $login)
+            ->orWhere('email', $login)
+            ->first();
+    }
+
+    /**
+     * Get the name of the unique identifier for the user.
+     */
+    public function getAuthIdentifierName(): string
+    {
+        return 'username';
     }
 
     /**

@@ -5,21 +5,24 @@ use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
-| Tour Operator Routes (Redirection)
+| Tour Operator Routes
 |--------------------------------------------------------------------------
 |
-| Les tour operators utilisent maintenant l'interface admin unifiée
-| Ces routes redirigent vers l'interface appropriée
+| Interface dédiée aux tour operators pour gérer leurs événements,
+| réservations et tours via une interface web sécurisée.
 |
 */
 
-// Route de connexion - redirige vers l'interface admin unifiée
-Route::get('/operator/login', function() {
-    return redirect()->route('login')->with('info', 'Utilisez cette interface pour vous connecter en tant qu\'administrateur ou tour operator.');
-})->name('operator.login');
+// Routes d'authentification pour tour operators (ouvertes)
+// Redirection vers la page de connexion admin unifiée
+Route::prefix('operator')->name('operator.')->group(function () {
+    Route::get('/login', function() {
+        return redirect()->route('login');
+    })->name('login');
+});
 
-// Dashboard operator - accessible après connexion via interface admin
-Route::middleware('auth:operator')->prefix('operator')->name('operator.')->group(function () {
+// Dashboard operator - accessible après connexion
+Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group(function () {
 
     // Dashboard principal
     Route::get('/dashboard', function() {
