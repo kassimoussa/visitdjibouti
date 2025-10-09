@@ -22,7 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.admin' => \App\Http\Middleware\AdminAuth::class,  // Notre middleware admin
             'operator.auth' => \App\Http\Middleware\OperatorAuth::class,  // Notre middleware operator
-            'operator.permission' => \App\Http\Middleware\OperatorPermission::class,  // Permissions operator
+            'operator.active' => \App\Http\Middleware\EnsureOperatorIsActive::class,  // Vérification compte actif
         ]);
     })
     ->withProviders([

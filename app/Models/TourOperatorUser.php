@@ -31,7 +31,6 @@ class TourOperatorUser extends Authenticatable
         'avatar',
         'is_active',
         'language_preference',
-        'permissions',
     ];
 
     /**
@@ -54,7 +53,6 @@ class TourOperatorUser extends Authenticatable
         'password' => 'hashed',
         'is_active' => 'boolean',
         'last_login_at' => 'datetime',
-        'permissions' => 'array',
     ];
 
     /**
@@ -150,47 +148,39 @@ class TourOperatorUser extends Authenticatable
     }
 
     /**
-     * Check if the operator user has a specific permission.
-     */
-    public function hasPermission(string $permission): bool
-    {
-        if (!is_array($this->permissions)) {
-            return false;
-        }
-
-        return in_array($permission, $this->permissions);
-    }
-
-    /**
      * Check if the operator user can manage events.
+     * All active operator users have full access.
      */
     public function canManageEvents(): bool
     {
-        return $this->hasPermission('manage_events') || $this->hasPermission('all');
+        return $this->is_active;
     }
 
     /**
      * Check if the operator user can manage tours.
+     * All active operator users have full access.
      */
     public function canManageTours(): bool
     {
-        return $this->hasPermission('manage_tours') || $this->hasPermission('all');
+        return $this->is_active;
     }
 
     /**
      * Check if the operator user can view reservations.
+     * All active operator users have full access.
      */
     public function canViewReservations(): bool
     {
-        return $this->hasPermission('view_reservations') || $this->hasPermission('all');
+        return $this->is_active;
     }
 
     /**
      * Check if the operator user can manage profile.
+     * All active operator users have full access.
      */
     public function canManageProfile(): bool
     {
-        return $this->hasPermission('manage_profile') || $this->hasPermission('all');
+        return $this->is_active;
     }
 
     /**

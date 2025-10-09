@@ -29,10 +29,9 @@ Le système Tour Operators permet aux opérateurs touristiques de gérer leurs �
 tour_operator_users
 ├── id
 ├── tour_operator_id (FK)
-├── name, email, password
+├── name, username, email, password
 ├── phone_number, position
 ├── avatar, language_preference
-├── permissions (JSON)
 ├── is_active, last_login_at
 └── timestamps
 
@@ -59,15 +58,13 @@ events
 - `operator-api` : Sanctum pour API mobile
 
 ### Middlewares
-- `OperatorAuth` : Vérification authentification + statut actif
-- `OperatorPermission` : Vérification des permissions granulaires
+- `operator.auth` : Vérification authentification
+- `operator.active` : Vérification que le compte est actif
 
-### Permissions Disponibles
-- `manage_events` : Gestion des événements
-- `manage_tours` : Gestion des tours
-- `view_reservations` : Consultation des réservations
-- `manage_profile` : Gestion du profil
-- `all` : Toutes les permissions
+### Système d'Accès
+- Tous les utilisateurs opérateurs **actifs** ont un accès complet
+- Pas de système de permissions granulaires (simplifié)
+- Contrôle d'accès basé uniquement sur `is_active`
 
 ## 🌐 Routes Web
 
@@ -175,12 +172,12 @@ php artisan db:seed --class=TourOperatorSystemSeeder
 
 Crée :
 - Tour operator "Djibouti Adventures"
-- 2 utilisateurs test avec permissions différentes
+- 2 utilisateurs test avec accès complet
 - Événement "Festival du Lac Assal 2024" assigné
 
 ### Comptes de Test
-- `ahmed@djibouti-adventures.dj` (password: password123) - Toutes permissions
-- `sarah@djibouti-adventures.dj` (password: password123) - Événements uniquement
+- `ahmed@djibouti-adventures.dj` (password: password123)
+- `sarah@djibouti-adventures.dj` (password: password123)
 
 ## 🔧 Commandes de Déploiement
 
@@ -204,7 +201,7 @@ php artisan route:cache
 
 ### Vérifications Automatiques
 - ✅ Vérification propriété des événements/tours
-- ✅ Contrôle des permissions granulaires
+- ✅ Contrôle du statut actif des comptes
 - ✅ Validation des données utilisateur
 - ✅ Protection CSRF sur les formulaires
 - ✅ Rate limiting sur l'API
@@ -239,7 +236,7 @@ php artisan route:cache
 ## 💡 Points Clés de l'Implémentation
 
 1. **Architecture Modulaire** : Séparation claire entre admin, operators et API
-2. **Système de Permissions** : Granularité fine des accès
+2. **Système d'Accès Simplifié** : Tous les utilisateurs actifs ont accès complet
 3. **Multilingue Natif** : Support complet FR/EN/AR
 4. **API Mobile Ready** : Endpoints optimisés pour applications mobiles
 5. **Sécurité Renforcée** : Multiple couches de protection
