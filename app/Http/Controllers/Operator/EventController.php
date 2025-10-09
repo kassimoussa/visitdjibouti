@@ -292,6 +292,23 @@ class EventController extends Controller
     }
 
     /**
+     * Show the form for editing the specified event.
+     */
+    public function edit(Event $event): View
+    {
+        $user = Auth::guard('operator')->user();
+
+        // Verify the event belongs to this operator
+        if ($event->tour_operator_id !== $user->tour_operator_id) {
+            abort(403, 'Vous n\'avez pas accès à cet événement.');
+        }
+
+        $event->load(['translations', 'featuredImage', 'categories']);
+
+        return view('operator.events.edit', compact('event', 'user'));
+    }
+
+    /**
      * Update the specified event.
      */
     public function update(Request $request, Event $event): RedirectResponse

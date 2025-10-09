@@ -1,0 +1,392 @@
+@extends('operator.layouts.app')
+
+@section('title', $tour->title)
+@section('page-title', 'Détails du Tour')
+
+@section('content')
+<div class="fade-in">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <nav aria-label="breadcrumb" class="mb-2">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('operator.tours.index') }}">
+                            <i class="fas fa-route me-1"></i>
+                            Tours
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ Str::limit($tour->title, 40) }}</li>
+                </ol>
+            </nav>
+            <h2 class="mb-1">{{ $tour->title }}</h2>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge status-{{ $tour->status }}">
+                    {{ ucfirst($tour->status) }}
+                </span>
+                @if($tour->is_featured)
+                    <span class="badge bg-warning">
+                        <i class="fas fa-star me-1"></i>
+                        Mis en avant
+                    </span>
+                @endif
+                <small class="text-muted">
+                    <i class="fas fa-clock me-1"></i>
+                    Modifié {{ $tour->updated_at->diffForHumans() }}
+                </small>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('operator.tours.edit', $tour) }}" class="btn btn-warning">
+                <i class="fas fa-edit me-2"></i>
+                Modifier
+            </a>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-ellipsis-v me-2"></i>
+                    Actions
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="fas fa-calendar-plus me-2"></i>
+                            Ajouter un horaire
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="#" target="_blank">
+                            <i class="fas fa-external-link-alt me-2"></i>
+                            Voir sur le site public
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Tour Details -->
+        <div class="col-lg-8">
+            <!-- Tour Image and Basic Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    @if($tour->featuredImage)
+                        <div class="mb-4">
+                            <img src="{{ $tour->featuredImage->getImageUrl() }}"
+                                 alt="{{ $tour->title }}"
+                                 class="img-fluid rounded"
+                                 style="width: 100%; height: 300px; object-fit: cover;">
+                        </div>
+                    @endif
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-clock me-2 text-primary"></i>Durée</h6>
+                            <p class="mb-3">
+                                <strong>{{ $tour->formatted_duration }}</strong>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-map-marker-alt me-2 text-primary"></i>Point de rencontre</h6>
+                            <p class="mb-3">
+                                {{ $tour->meeting_point_address ?? 'Non spécifié' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    @if($tour->short_description)
+                        <div class="mb-4">
+                            <h6><i class="fas fa-info-circle me-2 text-primary"></i>Description Courte</h6>
+                            <p class="text-muted">{{ $tour->short_description }}</p>
+                        </div>
+                    @endif
+
+                    @if($tour->description)
+                        <div class="mb-4">
+                            <h6><i class="fas fa-align-left me-2 text-primary"></i>Description Complète</h6>
+                            <div class="content">
+                                {!! nl2br(e($tour->description)) !!}
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($tour->itinerary)
+                        <div class="mb-4">
+                            <h6><i class="fas fa-route me-2 text-primary"></i>Itinéraire</h6>
+                            <div class="content">
+                                {!! nl2br(e($tour->itinerary)) !!}
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($tour->includes && count($tour->includes) > 0)
+                        <div class="mb-4">
+                            <h6><i class="fas fa-check-circle me-2 text-success"></i>Inclus</h6>
+                            <ul class="list-unstyled">
+                                @foreach($tour->includes as $item)
+                                    <li><i class="fas fa-check text-success me-2"></i>{{ $item }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    @if($tour->requirements && count($tour->requirements) > 0)
+                        <div class="mb-4">
+                            <h6><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Exigences</h6>
+                            <ul class="list-unstyled">
+                                @foreach($tour->requirements as $item)
+                                    <li><i class="fas fa-circle-notch text-warning me-2"></i>{{ $item }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Tour Details Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>
+                        <i class="fas fa-info me-2"></i>
+                        Informations Détaillées
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Type:</strong>
+                            <span class="badge bg-info ms-2">{{ $tour->type_label }}</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Niveau de difficulté:</strong>
+                            <span class="badge bg-secondary ms-2">{{ $tour->difficulty_label }}</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Prix:</strong>
+                            <span class="text-primary fw-bold ms-2">{{ $tour->formatted_price }}</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Participants:</strong>
+                            <span class="ms-2">
+                                Min: {{ $tour->min_participants ?? 'N/A' }} /
+                                Max: {{ $tour->max_participants ?? 'Illimité' }}
+                            </span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Restrictions d'âge:</strong>
+                            <span class="ms-2">{{ $tour->age_restrictions_text }}</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Dépend de la météo:</strong>
+                            <span class="ms-2">
+                                @if($tour->weather_dependent)
+                                    <i class="fas fa-check text-success"></i> Oui
+                                @else
+                                    <i class="fas fa-times text-danger"></i> Non
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+
+                    @if($tour->cancellation_policy)
+                        <div class="mt-3 p-3 bg-light rounded">
+                            <strong><i class="fas fa-file-contract me-2"></i>Politique d'annulation:</strong>
+                            <p class="mb-0 mt-2">{{ $tour->cancellation_policy }}</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Upcoming Schedules -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Horaires à venir
+                    </h5>
+                    <a href="#" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i>
+                        Ajouter un horaire
+                    </a>
+                </div>
+                <div class="card-body">
+                    @if($upcomingSchedules->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Heure</th>
+                                        <th>Places</th>
+                                        <th>Réservations</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($upcomingSchedules as $schedule)
+                                        <tr>
+                                            <td>{{ $schedule->start_date->format('d/m/Y') }}</td>
+                                            <td>
+                                                @if($schedule->start_time)
+                                                    {{ $schedule->start_time->format('H:i') }}
+                                                @else
+                                                    <span class="text-muted">--:--</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    {{ $schedule->available_spots }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">
+                                                    {{ $schedule->booked_spots }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge status-{{ $schedule->status }}">
+                                                    {{ ucfirst($schedule->status) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="#" class="btn btn-outline-primary" title="Voir">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-outline-warning" title="Modifier">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucun horaire à venir</h5>
+                            <p class="text-muted mb-4">Créez des horaires pour permettre les réservations</p>
+                            <a href="#" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>
+                                Créer un horaire
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Stats -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>
+                        <i class="fas fa-chart-line me-2"></i>
+                        Statistiques
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 border-end">
+                            <h3 class="text-primary mb-1">{{ $tour->schedules->count() }}</h3>
+                            <small class="text-muted">Horaires</small>
+                        </div>
+                        <div class="col-6">
+                            <h3 class="text-success mb-1">{{ $reservationStats['total'] ?? 0 }}</h3>
+                            <small class="text-muted">Réservations</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="text-primary">
+                                <strong>{{ $reservationStats['confirmed'] ?? 0 }}</strong>
+                                <br><small>Confirmées</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-warning">
+                                <strong>{{ $reservationStats['pending'] ?? 0 }}</strong>
+                                <br><small>En attente</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-info">
+                                <strong>{{ $tour->views_count ?? 0 }}</strong>
+                                <br><small>Vues</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target Info (POI or Event) -->
+            @if($tour->target)
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5>
+                            <i class="fas fa-link me-2"></i>
+                            Cible du Tour
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Type:</strong> {{ class_basename($tour->target_type) }}</p>
+                        <p><strong>Nom:</strong> {{ $tour->target->title ?? 'N/A' }}</p>
+                        @if($tour->target_type === 'App\\Models\\Poi')
+                            <a href="#" class="btn btn-sm btn-outline-info w-100">
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                Voir le POI
+                            </a>
+                        @elseif($tour->target_type === 'App\\Models\\Event')
+                            <a href="{{ route('operator.events.show', $tour->target) }}" class="btn btn-sm btn-outline-info w-100">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                Voir l'événement
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            <!-- Tour Management -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>
+                        <i class="fas fa-cogs me-2"></i>
+                        Gestion
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        @if($tour->status == 'draft')
+                            <button type="button" class="btn btn-success w-100">
+                                <i class="fas fa-check me-2"></i>
+                                Activer le tour
+                            </button>
+                        @elseif($tour->status == 'active')
+                            <button type="button" class="btn btn-warning w-100">
+                                <i class="fas fa-pause me-2"></i>
+                                Désactiver
+                            </button>
+                        @endif
+
+                        <a href="#" class="btn btn-outline-info w-100">
+                            <i class="fas fa-copy me-2"></i>
+                            Dupliquer
+                        </a>
+
+                        <button type="button" class="btn btn-outline-danger w-100">
+                            <i class="fas fa-trash me-2"></i>
+                            Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

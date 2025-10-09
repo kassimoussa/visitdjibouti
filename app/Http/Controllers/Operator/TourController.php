@@ -85,10 +85,25 @@ class TourController extends Controller
             'featuredImage',
             'media',
             'tourOperator.translations',
-            'target.translations'
+            'target.translations',
+            'schedules'
         ]);
 
-        return view('operator.tours.show', compact('tour'));
+        // Get upcoming schedules
+        $upcomingSchedules = $tour->schedules()
+            ->where('start_date', '>=', now()->toDateString())
+            ->orderBy('start_date')
+            ->limit(10)
+            ->get();
+
+        // Get reservation statistics
+        $reservationStats = [
+            'total' => $tour->reservations()->count(),
+            'confirmed' => $tour->confirmedReservations()->count(),
+            'pending' => $tour->reservations()->where('status', 'pending')->count(),
+        ];
+
+        return view('operator.tours.show', compact('tour', 'upcomingSchedules', 'reservationStats', 'user'));
     }
 
     /**

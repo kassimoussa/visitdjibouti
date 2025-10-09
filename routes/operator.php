@@ -30,6 +30,7 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
     // Routes pour les événements
     Route::prefix('events')->name('events.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Operator\EventController::class, 'index'])->name('index');
+        Route::get('/reports', [\App\Http\Controllers\Operator\EventController::class, 'reports'])->name('reports');
         Route::get('/create', [\App\Http\Controllers\Operator\EventController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\Operator\EventController::class, 'store'])->name('store');
         Route::get('/{event}', [\App\Http\Controllers\Operator\EventController::class, 'show'])->name('show');
