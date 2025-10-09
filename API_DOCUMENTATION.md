@@ -1884,7 +1884,7 @@ curl -X GET "http://your-domain.com/api/tour-operators/nearby?latitude=11.5721&l
 ### 📄 Get Tour Operator Details
 **GET** `/tour-operators/{identifier}`
 
-Get detailed information about a specific tour operator by ID or slug.
+Get detailed information about a specific tour operator by ID or slug, **including their tours**.
 
 **Parameters:**
 - `identifier` - Tour operator ID (numeric) or slug (string)
@@ -1925,7 +1925,7 @@ Get detailed information about a specific tour operator by ID or slug.
         "url": "/storage/media/tour-operators/gallery1.jpg",
         "thumbnail": "/storage/media/tour-operators/gallery1_thumb.jpg",
         "type": "images",
-        "mime_type": "image/jpeg", 
+        "mime_type": "image/jpeg",
         "size": 2048576,
         "alt_text": "Excursion au Lac Assal",
         "title": "Lac Assal - Point le plus bas d'Afrique",
@@ -1949,6 +1949,37 @@ Get detailed information about a specific tour operator by ID or slug.
       }
     ],
     "served_pois_count": 1,
+    "tours": [
+      {
+        "id": 5,
+        "slug": "excursion-lac-assal",
+        "title": "Excursion au Lac Assal",
+        "short_description": "Découvrez le point le plus bas d'Afrique",
+        "type": "poi",
+        "type_label": "Visite de site",
+        "difficulty_level": "easy",
+        "difficulty_label": "Facile",
+        "price": 5000,
+        "formatted_price": "5 000 DJF",
+        "currency": "DJF",
+        "duration_hours": 4,
+        "formatted_duration": "4 heures",
+        "max_participants": 8,
+        "min_participants": 2,
+        "is_featured": true,
+        "featured_image": {
+          "url": "/storage/media/tours/lac-assal.jpg",
+          "thumbnail_url": "/storage/media/tours/lac-assal_thumb.jpg",
+          "alt_text": "Excursion au Lac Assal"
+        },
+        "next_available_date": "2025-01-25",
+        "upcoming_schedules_count": 8,
+        "available_spots": 32,
+        "has_available_schedules": true
+      }
+    ],
+    "tours_count": 1,
+    "total_tours_count": 1,
     "metadata": {
       "is_featured": true,
       "is_active": true,

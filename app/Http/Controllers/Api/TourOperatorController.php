@@ -125,7 +125,15 @@ class TourOperatorController extends Controller
                 'media' => function ($query) {
                     $query->orderByPivot('order');
                 },
-                'pois.translations'
+                'pois.translations',
+                'tours.translations',
+                'tours.featuredImage',
+                'tours.schedules' => function ($query) {
+                    $query->where('status', 'available')
+                          ->where('start_date', '>=', now()->toDateString())
+                          ->orderBy('start_date')
+                          ->limit(5);
+                }
             ]);
 
             $tourOperator = is_numeric($identifier) 
@@ -279,6 +287,40 @@ class TourOperatorController extends Controller
                     ];
                 }),
                 'served_pois_count' => $tourOperator->pois->count(),
+                'tours' => $tourOperator->tours->filter(function ($tour) {
+                    return $tour->status === 'active';
+                })->map(function ($tour) use ($locale) {
+                    $translation = $tour->translation($locale);
+                    return [
+                        'id' => $tour->id,
+                        'slug' => $tour->slug,
+                        'title' => $translation->title ?? '',
+                        'short_description' => $translation->short_description ?? '',
+                        'type' => $tour->type,
+                        'type_label' => $tour->type_label,
+                        'difficulty_level' => $tour->difficulty_level,
+                        'difficulty_label' => $tour->difficulty_label,
+                        'price' => $tour->price,
+                        'formatted_price' => $tour->formatted_price,
+                        'currency' => $tour->currency ?? 'DJF',
+                        'duration_hours' => $tour->duration_hours,
+                        'formatted_duration' => $tour->formatted_duration,
+                        'max_participants' => $tour->max_participants,
+                        'min_participants' => $tour->min_participants,
+                        'is_featured' => $tour->is_featured,
+                        'featured_image' => $tour->featuredImage ? [
+                            'url' => $tour->featuredImage->url,
+                            'thumbnail_url' => $tour->featuredImage->thumbnail_url,
+                            'alt_text' => $tour->featuredImage->alt_text,
+                        ] : null,
+                        'next_available_date' => $tour->next_available_date ? $tour->next_available_date->format('Y-m-d') : null,
+                        'upcoming_schedules_count' => $tour->schedules->count(),
+                        'available_spots' => $tour->available_spots,
+                        'has_available_schedules' => $tour->schedules->count() > 0,
+                    ];
+                })->values(),
+                'tours_count' => $tourOperator->tours->where('status', 'active')->count(),
+                'total_tours_count' => $tourOperator->tours->count(),
             ]);
         } else {
             // Version simplifiée pour les listes
