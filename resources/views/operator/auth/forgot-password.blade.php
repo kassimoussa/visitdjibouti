@@ -40,7 +40,7 @@
                                 Adresse email
                             </label>
                             <input type="email"
-                                   class="operator-form-control @error('email') is-invalid @enderror"
+                                   class="form-control @error('email') is-invalid @enderror"
                                    id="email"
                                    name="email"
                                    value="{{ old('email') }}"

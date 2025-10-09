@@ -394,4 +394,12 @@ class Poi extends Model
     {
         return !empty($this->contacts) && count($this->contacts) > 0;
     }
+
+    /**
+     * Get tours that target this POI (polymorphic relation).
+     */
+    public function tours()
+    {
+        return $this->morphMany(Tour::class, 'target');
+    }
 }

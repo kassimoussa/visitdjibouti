@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -192,7 +193,7 @@ class Event extends Model
      * Get event registrations (legacy - use reservations() instead).
      * @deprecated Use reservations() method instead
      */
-    public function registrations(): HasMany
+    public function registrations(): MorphMany
     {
         // Rediriger vers les réservations pour compatibilité
         return $this->reservations();
@@ -479,5 +480,13 @@ class Event extends Model
     public function getManagerTypeAttribute(): string
     {
         return $this->isManagedByTourOperator() ? 'tour_operator' : 'admin';
+    }
+
+    /**
+     * Get tours that target this event (polymorphic relation).
+     */
+    public function tours()
+    {
+        return $this->morphMany(Tour::class, 'target');
     }
 }

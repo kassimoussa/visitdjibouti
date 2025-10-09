@@ -326,18 +326,29 @@ class TourOperator extends Model
      */
     public function allReservations()
     {
-        return Reservation::where(function ($query) {
-            // Reservations for events
-            $query->where('reservable_type', Event::class)
-                  ->whereHas('reservable', function ($q) {
-                      $q->where('tour_operator_id', $this->id);
-                  });
-        })->orWhere(function ($query) {
-            // Reservations for tour schedules
-            $query->where('reservable_type', TourSchedule::class)
-                  ->whereHas('reservable.tour', function ($q) {
-                      $q->where('tour_operator_id', $this->id);
-                  });
+        return Reservation::whereIn('id', function ($query) {
+            $query->select('r.id')
+                ->from('reservations as r')
+                ->leftJoin('events as e', function ($join) {
+                    $join->on('r.reservable_id', '=', 'e.id')
+                        ->where('r.reservable_type', '=', Event::class);
+                })
+                ->leftJoin('tour_schedules as ts', function ($join) {
+                    $join->on('r.reservable_id', '=', 'ts.id')
+                        ->where('r.reservable_type', '=', TourSchedule::class);
+                })
+                ->leftJoin('tours as t', 'ts.tour_id', '=', 't.id')
+                ->where(function ($q) {
+                    $q->where(function ($subQ) {
+                        $subQ->where('r.reservable_type', Event::class)
+                            ->where('e.tour_operator_id', $this->id);
+                    })
+                    ->orWhere(function ($subQ) {
+                        $subQ->where('r.reservable_type', TourSchedule::class)
+                            ->where('t.tour_operator_id', $this->id);
+                    });
+                })
+                ->whereNull('r.deleted_at');
         });
     }
 

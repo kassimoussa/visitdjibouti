@@ -38,7 +38,7 @@
                                 Adresse email
                             </label>
                             <input type="email"
-                                   class="operator-form-control @error('email') is-invalid @enderror"
+                                   class="form-control @error('email') is-invalid @enderror"
                                    id="email"
                                    name="email"
                                    value="{{ old('email') }}"
@@ -57,7 +57,7 @@
                                 Nouveau mot de passe
                             </label>
                             <input type="password"
-                                   class="operator-form-control @error('password') is-invalid @enderror"
+                                   class="form-control @error('password') is-invalid @enderror"
                                    id="password"
                                    name="password"
                                    required
@@ -80,7 +80,7 @@
                                 Confirmer le mot de passe
                             </label>
                             <input type="password"
-                                   class="operator-form-control"
+                                   class="form-control"
                                    id="password_confirmation"
                                    name="password_confirmation"
                                    required

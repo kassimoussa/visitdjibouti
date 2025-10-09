@@ -4,24 +4,18 @@
 @section('page-title', 'Gestion des Réservations')
 
 @section('content')
-<div class="operator-fade-in">
+<div class="fade-in">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-1">Mes Réservations</h2>
             <p class="text-muted mb-0">Gérez toutes les réservations de vos événements et tours</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('operator.reservations.export') }}" class="operator-btn btn-success">
-                <i class="fas fa-download me-2"></i>
-                Exporter
-            </a>
-        </div>
     </div>
 
     <!-- Filters and Search -->
-    <div class="operator-card mb-4">
-        <div class="operator-card-body">
+    <div class="card mb-4">
+        <div class="card-body">
             <form method="GET" action="{{ route('operator.reservations.index') }}">
                 <div class="row g-3">
                     <div class="col-md-3">
@@ -31,7 +25,7 @@
                                 <i class="fas fa-search"></i>
                             </span>
                             <input type="text"
-                                   class="operator-form-control"
+                                   class="form-control"
                                    name="search"
                                    value="{{ request('search') }}"
                                    placeholder="Nom, email, numéro...">
@@ -39,7 +33,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Statut</label>
-                        <select name="status" class="operator-form-control">
+                        <select name="status" class="form-control">
                             <option value="">Tous</option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>En attente</option>
                             <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmé</option>
@@ -48,7 +42,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Type</label>
-                        <select name="type" class="operator-form-control">
+                        <select name="type" class="form-control">
                             <option value="">Tous</option>
                             <option value="event" {{ request('type') == 'event' ? 'selected' : '' }}>Événements</option>
                             <option value="tour" {{ request('type') == 'tour' ? 'selected' : '' }}>Tours</option>
@@ -56,7 +50,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Date</label>
-                        <select name="date_filter" class="operator-form-control">
+                        <select name="date_filter" class="form-control">
                             <option value="">Toutes</option>
                             <option value="today" {{ request('date_filter') == 'today' ? 'selected' : '' }}>Aujourd'hui</option>
                             <option value="week" {{ request('date_filter') == 'week' ? 'selected' : '' }}>Cette semaine</option>
@@ -65,7 +59,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Tri</label>
-                        <select name="sort" class="operator-form-control">
+                        <select name="sort" class="form-control">
                             <option value="recent" {{ request('sort') == 'recent' ? 'selected' : '' }}>Plus récent</option>
                             <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Plus ancien</option>
                             <option value="amount_desc" {{ request('sort') == 'amount_desc' ? 'selected' : '' }}>Montant ↓</option>
@@ -75,10 +69,10 @@
                     <div class="col-md-1">
                         <label class="form-label">&nbsp;</label>
                         <div class="d-flex gap-2">
-                            <button type="submit" class="operator-btn btn-outline-primary">
+                            <button type="submit" class="btn btn-outline-primary">
                                 <i class="fas fa-filter"></i>
                             </button>
-                            <a href="{{ route('operator.reservations.index') }}" class="operator-btn btn-outline-secondary">
+                            <a href="{{ route('operator.reservations.index') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times"></i>
                             </a>
                         </div>
@@ -91,8 +85,8 @@
     <!-- Statistics Row -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="operator-stats-card small">
-                <div class="operator-stats-icon primary">
+            <div class="stats-card small">
+                <div class="stats-icon primary">
                     <i class="fas fa-ticket-alt"></i>
                 </div>
                 <h4>{{ $statistics['total'] }}</h4>
@@ -101,8 +95,8 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="operator-stats-card small">
-                <div class="operator-stats-icon warning">
+            <div class="stats-card small">
+                <div class="stats-icon warning">
                     <i class="fas fa-clock"></i>
                 </div>
                 <h4>{{ $statistics['pending'] }}</h4>
@@ -111,8 +105,8 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="operator-stats-card small">
-                <div class="operator-stats-icon success">
+            <div class="stats-card small">
+                <div class="stats-icon success">
                     <i class="fas fa-check"></i>
                 </div>
                 <h4>{{ $statistics['confirmed'] }}</h4>
@@ -121,8 +115,8 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="operator-stats-card small">
-                <div class="operator-stats-icon danger">
+            <div class="stats-card small">
+                <div class="stats-icon danger">
                     <i class="fas fa-times"></i>
                 </div>
                 <h4>{{ $statistics['cancelled'] }}</h4>
@@ -133,15 +127,15 @@
     </div>
 
     <!-- Reservations List -->
-    <div class="operator-card">
-        <div class="operator-card-header">
+    <div class="card">
+        <div class="card-header">
             <h5>
                 <i class="fas fa-list me-2"></i>
                 Liste des Réservations
                 <span class="badge bg-secondary ms-2">{{ $reservations->total() }}</span>
             </h5>
             @if($reservations->where('status', 'pending')->count() > 0)
-                <div class="operator-card-actions">
+                <div class="card-actions">
                     <form action="{{ route('operator.reservations.bulk-confirm') }}" method="POST" class="d-inline">
                         @csrf
                         <input type="hidden" name="filter" value="{{ http_build_query(request()->all()) }}">
@@ -153,9 +147,9 @@
                 </div>
             @endif
         </div>
-        <div class="operator-card-body">
+        <div class="card-body">
             @if($reservations->count() > 0)
-                <div class="operator-table">
+                <div class="table-responsive">
                     <table class="table">
                         <thead>
                             <tr>
@@ -246,7 +240,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="operator-badge status-{{ $reservation->status }}">
+                                        <span class="badge status-{{ $reservation->status }}">
                                             {{ ucfirst($reservation->status) }}
                                         </span>
                                         @if($reservation->status === 'pending')
@@ -316,7 +310,7 @@
                         @endif
                     </p>
                     @if(request()->hasAny(['search', 'status', 'type', 'date_filter']))
-                        <a href="{{ route('operator.reservations.index') }}" class="operator-btn btn-outline-primary">
+                        <a href="{{ route('operator.reservations.index') }}" class="btn btn-outline-primary">
                             <i class="fas fa-times me-2"></i>
                             Effacer les filtres
                         </a>

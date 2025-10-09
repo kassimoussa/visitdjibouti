@@ -25,52 +25,7 @@ Route::prefix('operator')->name('operator.')->group(function () {
 Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group(function () {
 
     // Dashboard principal
-    Route::get('/dashboard', function() {
-        $user = Auth::guard('operator')->user();
-        $tourOperator = $user->tourOperator;
-
-        // Statistiques pour le dashboard
-        $statistics = [
-            'total_events' => $user->managedEvents()->count(),
-            'active_events' => $user->managedEvents()->where('status', 'published')->count(),
-            'total_reservations' => $user->managedReservations()->count(),
-            'pending_reservations' => $user->managedReservations()->where('status', 'pending')->count(),
-            'revenue_this_month' => $user->managedReservations()
-                ->where('status', 'confirmed')
-                ->whereMonth('created_at', now()->month)
-                ->sum('payment_amount'),
-            'total_tours' => $user->managedTours()->count(),
-            'active_tours' => $user->managedTours()->where('status', 'published')->count(),
-        ];
-
-        // Événements récents
-        $recentEvents = $user->managedEvents()
-            ->with(['featuredImage', 'category'])
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
-
-        // Réservations récentes
-        $recentReservations = $user->managedReservations()
-            ->with(['reservable'])
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
-
-        // Événements à venir cette semaine
-        $upcomingEvents = $user->managedEvents()
-            ->where('start_date', '>=', now())
-            ->where('start_date', '<=', now()->addWeek())
-            ->where('status', 'published')
-            ->get();
-
-        $pendingReservationsCount = $statistics['pending_reservations'];
-
-        return view('operator.dashboard.index', compact(
-            'user', 'tourOperator', 'statistics', 'recentEvents',
-            'recentReservations', 'upcomingEvents', 'pendingReservationsCount'
-        ));
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Operator\DashboardController::class, 'index'])->name('dashboard');
 
     // Routes pour les événements
     Route::prefix('events')->name('events.')->group(function () {
@@ -80,6 +35,16 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
         Route::get('/{event}', [\App\Http\Controllers\Operator\EventController::class, 'show'])->name('show');
         Route::get('/{event}/edit', [\App\Http\Controllers\Operator\EventController::class, 'edit'])->name('edit');
         Route::put('/{event}', [\App\Http\Controllers\Operator\EventController::class, 'update'])->name('update');
+
+        // Event reservation management
+        Route::get('/{event}/reservations', [\App\Http\Controllers\Operator\EventController::class, 'reservations'])->name('reservations');
+        Route::get('/{event}/reservations/export', [\App\Http\Controllers\Operator\EventController::class, 'exportReservations'])->name('export-reservations');
+
+        // Event status management
+        Route::patch('/{event}/publish', [\App\Http\Controllers\Operator\EventController::class, 'publish'])->name('publish');
+        Route::patch('/{event}/unpublish', [\App\Http\Controllers\Operator\EventController::class, 'unpublish'])->name('unpublish');
+        Route::patch('/{event}/cancel', [\App\Http\Controllers\Operator\EventController::class, 'cancel'])->name('cancel');
+        Route::get('/{event}/duplicate', [\App\Http\Controllers\Operator\EventController::class, 'duplicate'])->name('duplicate');
     });
 
     // Routes pour les réservations
@@ -102,6 +67,7 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
         Route::get('/', [\App\Http\Controllers\Operator\ProfileController::class, 'show'])->name('show');
         Route::get('/edit', [\App\Http\Controllers\Operator\ProfileController::class, 'edit'])->name('edit');
         Route::put('/', [\App\Http\Controllers\Operator\ProfileController::class, 'update'])->name('update');
+        Route::put('/password', [\App\Http\Controllers\Operator\ProfileController::class, 'updatePassword'])->name('password');
     });
 
     // Route pour l'entreprise
@@ -120,11 +86,6 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
 
         return view('operator.tour-operator.show', compact('user', 'tourOperator', 'statistics'));
     })->name('tour-operator.show');
-
-    // Route pour les rapports
-    Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\Operator\ReportController::class, 'dashboard'])->name('dashboard');
-    });
 
     // Déconnexion
     Route::post('/logout', function() {

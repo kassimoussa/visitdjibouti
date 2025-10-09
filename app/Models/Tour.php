@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -83,14 +84,30 @@ class Tour extends Model
         parent::boot();
 
         static::creating(function ($tour) {
-            if (empty($tour->slug) && request()->has('translations')) {
-                $defaultLocale = config('app.fallback_locale', 'fr');
-                $title = request()->input("translations.{$defaultLocale}.title");
-                if ($title) {
-                    $tour->slug = Str::slug($title);
-                }
+            // Générer un slug si vide
+            if (empty($tour->slug)) {
+                $tour->slug = 'tour-' . uniqid();
             }
         });
+    }
+
+    /**
+     * Mettre à jour le slug basé sur le titre de la traduction française
+     */
+    public function updateSlugFromTranslation()
+    {
+        $translation = $this->translations()->where('locale', 'fr')->first();
+        if ($translation && $translation->title) {
+            $slug = Str::slug($translation->title);
+            // Assurer l'unicité du slug
+            $count = 1;
+            $originalSlug = $slug;
+            while (self::where('slug', $slug)->where('id', '!=', $this->id)->exists()) {
+                $slug = $originalSlug . '-' . $count;
+                $count++;
+            }
+            $this->update(['slug' => $slug]);
+        }
     }
 
     /**
@@ -253,7 +270,7 @@ class Tour extends Model
         return $query->where('tour_operator_id', $operatorId);
     }
 
-    public function scopeInPriceRange($query, float $minPrice = null, float $maxPrice = null)
+    public function scopeInPriceRange($query, ?float $minPrice = null, ?float $maxPrice = null)
     {
         if ($minPrice !== null) {
             $query->where('price', '>=', $minPrice);
@@ -264,7 +281,7 @@ class Tour extends Model
         return $query;
     }
 
-    public function scopeByDuration($query, int $maxHours = null, int $maxDays = null)
+    public function scopeByDuration($query, ?int $maxHours = null, ?int $maxDays = null)
     {
         if ($maxHours !== null) {
             $query->where('duration_hours', '<=', $maxHours);

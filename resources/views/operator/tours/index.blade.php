@@ -4,24 +4,18 @@
 @section('page-title', 'Gestion des Tours')
 
 @section('content')
-<div class="operator-fade-in">
+<div class="fade-in">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-1">Mes Tours Guidés</h2>
             <p class="text-muted mb-0">Organisez et gérez vos circuits touristiques</p>
         </div>
-        @if($user->canManageTours())
-            <a href="{{ route('operator.tours.create') }}" class="operator-btn btn-primary">
-                <i class="fas fa-plus me-2"></i>
-                Nouveau Tour
-            </a>
-        @endif
     </div>
 
     <!-- Filters and Search -->
-    <div class="operator-card mb-4">
-        <div class="operator-card-body">
+    <div class="card mb-4">
+        <div class="card-body">
             <form method="GET" action="{{ route('operator.tours.index') }}">
                 <div class="row g-3">
                     <div class="col-md-4">
@@ -31,7 +25,7 @@
                                 <i class="fas fa-search"></i>
                             </span>
                             <input type="text"
-                                   class="operator-form-control"
+                                   class="form-control"
                                    name="search"
                                    value="{{ request('search') }}"
                                    placeholder="Nom du tour, description...">
@@ -39,16 +33,15 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Statut</label>
-                        <select name="status" class="operator-form-control">
+                        <select name="status" class="form-control">
                             <option value="">Tous</option>
-                            <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Brouillon</option>
-                            <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Publié</option>
-                            <option value="suspended" {{ request('status') == 'suspended' ? 'selected' : '' }}>Suspendu</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actif</option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactif</option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Durée</label>
-                        <select name="duration" class="operator-form-control">
+                        <select name="duration" class="form-control">
                             <option value="">Toutes</option>
                             <option value="half_day" {{ request('duration') == 'half_day' ? 'selected' : '' }}>Demi-journée</option>
                             <option value="full_day" {{ request('duration') == 'full_day' ? 'selected' : '' }}>Journée complète</option>
@@ -57,7 +50,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Région</label>
-                        <select name="region" class="operator-form-control">
+                        <select name="region" class="form-control">
                             <option value="">Toutes</option>
                             @foreach(['Djibouti', 'Ali Sabieh', 'Dikhil', 'Tadjourah', 'Obock', 'Arta'] as $region)
                                 <option value="{{ $region }}" {{ request('region') == $region ? 'selected' : '' }}>{{ $region }}</option>
@@ -67,10 +60,10 @@
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
                         <div class="d-flex gap-2">
-                            <button type="submit" class="operator-btn btn-outline-primary">
+                            <button type="submit" class="btn btn-outline-primary">
                                 <i class="fas fa-filter"></i>
                             </button>
-                            <a href="{{ route('operator.tours.index') }}" class="operator-btn btn-outline-secondary">
+                            <a href="{{ route('operator.tours.index') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times"></i>
                             </a>
                         </div>
@@ -83,8 +76,8 @@
     <!-- Statistics Row -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="operator-stats-card small">
-                <div class="operator-stats-icon primary">
+            <div class="stats-card small">
+                <div class="stats-icon primary">
                     <i class="fas fa-route"></i>
                 </div>
                 <h4>{{ $statistics['total'] }}</h4>
@@ -92,52 +85,46 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="operator-stats-card small">
-                <div class="operator-stats-icon success">
-                    <i class="fas fa-eye"></i>
+            <div class="stats-card small">
+                <div class="stats-icon success">
+                    <i class="fas fa-check-circle"></i>
                 </div>
-                <h4>{{ $statistics['published'] }}</h4>
-                <p>Publiés</p>
+                <h4>{{ $statistics['active'] }}</h4>
+                <p>Actifs</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="operator-stats-card small">
-                <div class="operator-stats-icon warning">
+            <div class="stats-card small">
+                <div class="stats-icon warning">
                     <i class="fas fa-calendar-check"></i>
                 </div>
-                <h4>{{ $statistics['active_schedules'] }}</h4>
-                <p>Horaires Actifs</p>
+                <h4>{{ $statistics['with_schedules'] }}</h4>
+                <p>Avec Horaires</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="operator-stats-card small">
-                <div class="operator-stats-icon info">
-                    <i class="fas fa-users"></i>
+            <div class="stats-card small">
+                <div class="stats-icon danger">
+                    <i class="fas fa-times-circle"></i>
                 </div>
-                <h4>{{ $statistics['total_bookings'] }}</h4>
-                <p>Réservations</p>
+                <h4>{{ $statistics['inactive'] }}</h4>
+                <p>Inactifs</p>
             </div>
         </div>
     </div>
 
     <!-- Tours List -->
-    <div class="operator-card">
-        <div class="operator-card-header">
+    <div class="card">
+        <div class="card-header">
             <h5>
                 <i class="fas fa-list me-2"></i>
                 Liste des Tours
                 <span class="badge bg-secondary ms-2">{{ $tours->total() }}</span>
             </h5>
-            <div class="operator-card-actions">
-                <a href="{{ route('operator.tours.export') }}" class="btn btn-sm btn-outline-success">
-                    <i class="fas fa-download me-1"></i>
-                    Exporter
-                </a>
-            </div>
         </div>
-        <div class="operator-card-body">
+        <div class="card-body">
             @if($tours->count() > 0)
-                <div class="operator-table">
+                <div class="table-responsive">
                     <table class="table">
                         <thead>
                             <tr>
@@ -177,26 +164,11 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <span class="badge bg-info">
-                                                @switch($tour->duration_type)
-                                                    @case('half_day')
-                                                        Demi-journée
-                                                        @break
-                                                    @case('full_day')
-                                                        Journée complète
-                                                        @break
-                                                    @case('multi_day')
-                                                        {{ $tour->duration_days }}j
-                                                        @break
-                                                    @default
-                                                        Non spécifié
-                                                @endswitch
-                                            </span>
-                                            <br>
-                                            <strong>{{ number_format($tour->price_adult, 0, ',', ' ') }} DJF</strong>
-                                            @if($tour->price_child)
-                                                <br><small class="text-muted">Enfant: {{ number_format($tour->price_child, 0, ',', ' ') }} DJF</small>
+                                            @if($tour->duration_hours)
+                                                <span class="badge bg-info">{{ $tour->duration_hours }}h</span>
+                                                <br>
                                             @endif
+                                            <strong>{{ number_format($tour->price, 0, ',', ' ') }} DJF</strong>
                                         </div>
                                     </td>
                                     <td>
@@ -207,7 +179,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="operator-badge status-{{ $tour->status }}">
+                                        <span class="badge status-{{ $tour->status }}">
                                             {{ ucfirst($tour->status) }}
                                         </span>
                                     </td>
@@ -222,10 +194,10 @@
                                     </td>
                                     <td>
                                         <div class="text-center">
-                                            <strong>{{ $tour->totalBookings() }}</strong>
+                                            <strong>{{ $tour->reservations()->count() }}</strong>
                                             <br>
-                                            <small class="text-success">
-                                                {{ number_format($tour->totalRevenue(), 0, ',', ' ') }} DJF
+                                            <small class="text-muted">
+                                                réservations
                                             </small>
                                         </div>
                                     </td>
@@ -236,18 +208,6 @@
                                                title="Voir les détails">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            @if($user->canManageTours())
-                                                <a href="{{ route('operator.tours.edit', $tour) }}"
-                                                   class="btn btn-sm btn-outline-warning"
-                                                   title="Modifier">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="{{ route('operator.tours.schedules', $tour) }}"
-                                                   class="btn btn-sm btn-outline-info"
-                                                   title="Gérer les horaires">
-                                                    <i class="fas fa-calendar-alt"></i>
-                                                </a>
-                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -274,12 +234,6 @@
                             Créez votre premier tour guidé pour commencer
                         @endif
                     </p>
-                    @if($user->canManageTours())
-                        <a href="{{ route('operator.tours.create') }}" class="operator-btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>
-                            Créer un tour
-                        </a>
-                    @endif
                 </div>
             @endif
         </div>

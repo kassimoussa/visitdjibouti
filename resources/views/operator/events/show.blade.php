@@ -4,7 +4,7 @@
 @section('page-title', 'Détails de l\'Événement')
 
 @section('content')
-<div class="operator-fade-in">
+<div class="fade-in">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
@@ -21,7 +21,7 @@
             </nav>
             <h2 class="mb-1">{{ $event->title }}</h2>
             <div class="d-flex align-items-center gap-3">
-                <span class="operator-badge status-{{ $event->status }}">
+                <span class="badge status-{{ $event->status }}">
                     {{ ucfirst($event->status) }}
                 </span>
                 @if($event->is_featured)
@@ -38,13 +38,13 @@
         </div>
         <div class="d-flex gap-2">
             @if($user->canManageEvents())
-                <a href="{{ route('operator.events.edit', $event) }}" class="operator-btn btn-warning">
+                <a href="{{ route('operator.events.edit', $event) }}" class="btn btn-warning">
                     <i class="fas fa-edit me-2"></i>
                     Modifier
                 </a>
             @endif
             <div class="dropdown">
-                <button class="operator-btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                     <i class="fas fa-ellipsis-v me-2"></i>
                     Actions
                 </button>
@@ -77,8 +77,8 @@
         <!-- Event Details -->
         <div class="col-lg-8">
             <!-- Event Image and Basic Info -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-body">
+            <div class="card mb-4">
+                <div class="card-body">
                     @if($event->featuredImage)
                         <div class="mb-4">
                             <img src="{{ $event->featuredImage->getImageUrl() }}"
@@ -147,14 +147,14 @@
             </div>
 
             <!-- Pricing Information -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-tags me-2"></i>
                         Tarification
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="text-center p-3 bg-light rounded">
@@ -192,14 +192,14 @@
         <!-- Statistics Sidebar -->
         <div class="col-lg-4">
             <!-- Quick Stats -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-chart-line me-2"></i>
                         Statistiques
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="row text-center">
                         <div class="col-6 border-end">
                             <h3 class="text-primary mb-1">{{ $event->current_participants }}</h3>
@@ -242,8 +242,8 @@
             </div>
 
             <!-- Recent Reservations -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-ticket-alt me-2"></i>
                         Réservations Récentes
@@ -252,7 +252,7 @@
                         Voir tout
                     </a>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     @if($recentReservations->count() > 0)
                         <div class="list-group list-group-flush">
                             @foreach($recentReservations as $reservation)
@@ -265,7 +265,7 @@
                                             <small class="badge bg-secondary">{{ $reservation->number_of_people }} pers.</small>
                                         </div>
                                         <div class="text-end">
-                                            <span class="operator-badge status-{{ $reservation->status }} small">
+                                            <span class="badge status-{{ $reservation->status }} small">
                                                 {{ ucfirst($reservation->status) }}
                                             </span>
                                             <br>
@@ -286,20 +286,20 @@
 
             <!-- Event Management -->
             @if($user->canManageEvents())
-                <div class="operator-card">
-                    <div class="operator-card-header">
+                <div class="card">
+                    <div class="card-header">
                         <h5>
                             <i class="fas fa-cogs me-2"></i>
                             Gestion
                         </h5>
                     </div>
-                    <div class="operator-card-body">
+                    <div class="card-body">
                         <div class="d-grid gap-2">
                             @if($event->status == 'draft')
                                 <form action="{{ route('operator.events.publish', $event) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('PATCH')
-                                    <button type="submit" class="operator-btn btn-success w-100">
+                                    <button type="submit" class="btn btn-success w-100">
                                         <i class="fas fa-eye me-2"></i>
                                         Publier l'événement
                                     </button>
@@ -308,14 +308,14 @@
                                 <form action="{{ route('operator.events.unpublish', $event) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('PATCH')
-                                    <button type="submit" class="operator-btn btn-warning w-100">
+                                    <button type="submit" class="btn btn-warning w-100">
                                         <i class="fas fa-eye-slash me-2"></i>
                                         Dépublier
                                     </button>
                                 </form>
                             @endif
 
-                            <a href="{{ route('operator.events.duplicate', $event) }}" class="operator-btn btn-outline-info w-100">
+                            <a href="{{ route('operator.events.duplicate', $event) }}" class="btn btn-outline-info w-100">
                                 <i class="fas fa-copy me-2"></i>
                                 Dupliquer
                             </a>
@@ -324,7 +324,7 @@
                                 <form action="{{ route('operator.events.cancel', $event) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('PATCH')
-                                    <button type="submit" class="operator-btn btn-outline-danger w-100">
+                                    <button type="submit" class="btn btn-outline-danger w-100">
                                         <i class="fas fa-ban me-2"></i>
                                         Annuler l'événement
                                     </button>

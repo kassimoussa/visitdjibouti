@@ -31,12 +31,5 @@
         </div>
 
         <button type="submit" class="submit-btn">Se connecter</button>
-
-        <div class="text-center mt-4">
-            <small class="text-muted">
-                <i class="fas fa-info-circle me-1"></i>
-                Connexion pour administrateurs et tour operators
-            </small>
-        </div>
     </form>
 @endsection

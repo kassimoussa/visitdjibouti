@@ -26,6 +26,18 @@
                                 @enderror
                             </div>
 
+                            <!-- Username -->
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">Nom d'utilisateur <span class="text-danger">*</span></label>
+                                <input type="text"
+                                       class="form-control @error('username') is-invalid @enderror"
+                                       wire:model="username"
+                                       placeholder="Ex: ali.oudoum">
+                                @error('username')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <!-- Email -->
                             <div class="col-md-6 mb-3">
                                 <label for="email" class="form-label">Email *</label>

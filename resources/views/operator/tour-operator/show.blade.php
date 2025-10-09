@@ -4,33 +4,27 @@
 @section('page-title', 'Mon Entreprise')
 
 @section('content')
-<div class="operator-fade-in">
+<div class="fade-in">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
             <h2 class="mb-1">{{ $tourOperator->getTranslatedName(session('locale', 'fr')) }}</h2>
             <p class="text-muted mb-0">Informations et paramètres de votre entreprise</p>
         </div>
-        @if($user->canManageProfile())
-            <a href="{{ route('operator.tour-operator.edit') }}" class="operator-btn btn-primary">
-                <i class="fas fa-edit me-2"></i>
-                Modifier
-            </a>
-        @endif
     </div>
 
     <div class="row">
         <!-- Company Information -->
         <div class="col-lg-8">
             <!-- Basic Information -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-building me-2"></i>
                         Informations Générales
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="row">
                         <!-- Logo and Name -->
                         <div class="col-12 mb-4">
@@ -57,7 +51,7 @@
                                         </div>
                                     @endif
                                     <div class="d-flex align-items-center gap-3">
-                                        <span class="operator-badge status-{{ $tourOperator->is_active ? 'published' : 'cancelled' }}">
+                                        <span class="badge status-{{ $tourOperator->is_active ? 'published' : 'cancelled' }}">
                                             {{ $tourOperator->is_active ? 'Actif' : 'Inactif' }}
                                         </span>
                                         @if($tourOperator->certification_level)
@@ -137,14 +131,14 @@
             </div>
 
             <!-- Services Offered -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-concierge-bell me-2"></i>
                         Services Proposés
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     @if($tourOperator->services_offered && count($tourOperator->services_offered) > 0)
                         <div class="row">
                             @foreach($tourOperator->services_offered as $service)
@@ -167,14 +161,14 @@
 
             <!-- Languages Spoken -->
             @if($tourOperator->languages_spoken && count($tourOperator->languages_spoken) > 0)
-                <div class="operator-card mb-4">
-                    <div class="operator-card-header">
+                <div class="card mb-4">
+                    <div class="card-header">
                         <h5>
                             <i class="fas fa-language me-2"></i>
                             Langues Parlées
                         </h5>
                     </div>
-                    <div class="operator-card-body">
+                    <div class="card-body">
                         <div class="d-flex flex-wrap gap-2">
                             @foreach($tourOperator->languages_spoken as $language)
                                 <span class="badge bg-info fs-6">{{ ucfirst($language) }}</span>
@@ -186,14 +180,14 @@
 
             <!-- Operating Hours -->
             @if($tourOperator->operating_hours)
-                <div class="operator-card mb-4">
-                    <div class="operator-card-header">
+                <div class="card mb-4">
+                    <div class="card-header">
                         <h5>
                             <i class="fas fa-clock me-2"></i>
                             Heures d'Ouverture
                         </h5>
                     </div>
-                    <div class="operator-card-body">
+                    <div class="card-body">
                         <div class="bg-light p-3 rounded">
                             <pre class="mb-0">{{ $tourOperator->operating_hours }}</pre>
                         </div>
@@ -205,14 +199,14 @@
         <!-- Sidebar -->
         <div class="col-lg-4">
             <!-- Quick Stats -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-chart-line me-2"></i>
                         Statistiques
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="row text-center">
                         <div class="col-6 border-end">
                             <div class="h3 text-primary mb-1">{{ $statistics['total_events'] }}</div>
@@ -244,19 +238,19 @@
 
             <!-- Social Media -->
             @if($tourOperator->website || $tourOperator->facebook || $tourOperator->instagram)
-                <div class="operator-card mb-4">
-                    <div class="operator-card-header">
+                <div class="card mb-4">
+                    <div class="card-header">
                         <h5>
                             <i class="fas fa-share-alt me-2"></i>
                             Présence en Ligne
                         </h5>
                     </div>
-                    <div class="operator-card-body">
+                    <div class="card-body">
                         <div class="d-grid gap-2">
                             @if($tourOperator->website)
                                 <a href="{{ $tourOperator->website }}"
                                    target="_blank"
-                                   class="operator-btn btn-outline-primary w-100">
+                                   class="btn btn-outline-primary w-100">
                                     <i class="fas fa-globe me-2"></i>
                                     Site Web
                                 </a>
@@ -264,7 +258,7 @@
                             @if($tourOperator->facebook)
                                 <a href="{{ $tourOperator->facebook }}"
                                    target="_blank"
-                                   class="operator-btn btn-outline-primary w-100">
+                                   class="btn btn-outline-primary w-100">
                                     <i class="fab fa-facebook me-2"></i>
                                     Facebook
                                 </a>
@@ -272,7 +266,7 @@
                             @if($tourOperator->instagram)
                                 <a href="{{ $tourOperator->instagram }}"
                                    target="_blank"
-                                   class="operator-btn btn-outline-primary w-100">
+                                   class="btn btn-outline-primary w-100">
                                     <i class="fab fa-instagram me-2"></i>
                                     Instagram
                                 </a>
@@ -283,14 +277,14 @@
             @endif
 
             <!-- Team Members -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-users me-2"></i>
                         Équipe
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     @php
                         $teamMembers = $tourOperator->users()->orderBy('name')->get();
                     @endphp
@@ -335,14 +329,14 @@
             </div>
 
             <!-- Account Status -->
-            <div class="operator-card">
-                <div class="operator-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-info-circle me-2"></i>
                         Statut du Compte
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="mb-3">
                         <strong>Statut d'activité</strong>
                         <br>

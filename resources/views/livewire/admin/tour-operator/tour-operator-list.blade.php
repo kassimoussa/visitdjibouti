@@ -60,7 +60,7 @@
                                 <th>Logo</th>
                                 <th>Nom</th>
                                 <th>Contact</th>
-                                <th>Adresse</th>
+                                <th>Site Web</th>
                                 <th>Statut</th>
                                 <th width="120">Actions</th>
                             </tr>
@@ -93,9 +93,6 @@
                                                 </span>
                                             @endif
                                         </div>
-                                        @if($translation->description)
-                                            <small class="text-muted">{{ Str::limit($translation->description, 100) }}</small>
-                                        @endif
                                     </td>
                                     <td>
                                         @if($operator->first_phone)
@@ -104,26 +101,15 @@
                                         @if($operator->first_email)
                                             <div><i class="fas fa-envelope text-primary"></i> {{ $operator->first_email }}</div>
                                         @endif
-                                        @if($operator->website)
-                                            <div>
-                                                <i class="fas fa-globe text-primary"></i> 
-                                                <a href="{{ $operator->website_url }}" target="_blank" class="text-decoration-none">
-                                                    {{ $operator->website }}
-                                                </a>
-                                            </div>
-                                        @endif
                                     </td>
                                     <td>
-                                        @if($translation->address_translated)
-                                            <div>{{ Str::limit($translation->address_translated, 80) }}</div>
-                                        @elseif($operator->address)
-                                            <div class="text-muted">{{ Str::limit($operator->address, 80) }}</div>
-                                        @endif
-                                        @if($operator->latitude && $operator->longitude)
-                                            <small class="text-success">
-                                                <i class="fas fa-map-marker-alt"></i> 
-                                                {{ number_format($operator->latitude, 4) }}, {{ number_format($operator->longitude, 4) }}
-                                            </small>
+                                        @if($operator->website)
+                                            <a href="{{ $operator->website_url }}" target="_blank" class="text-decoration-none">
+                                                <i class="fas fa-globe text-primary"></i>
+                                                {{ $operator->website }}
+                                            </a>
+                                        @else
+                                            <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                     <td>

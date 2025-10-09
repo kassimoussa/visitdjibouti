@@ -17,6 +17,7 @@ class UserFormModal extends Component
 
     // Form fields
     public $name = '';
+    public $username = '';
     public $email = '';
     public $password = '';
     public $password_confirmation = '';
@@ -27,6 +28,7 @@ class UserFormModal extends Component
 
     protected $rules = [
         'name' => 'required|string|max:255',
+        'username' => 'required|string|max:255|unique:tour_operator_users,username',
         'email' => 'required|email|unique:tour_operator_users,email',
         'password' => 'required|string|min:8|confirmed',
         'phone_number' => 'nullable|string|max:255',
@@ -44,6 +46,7 @@ class UserFormModal extends Component
     public function resetForm()
     {
         $this->name = '';
+        $this->username = '';
         $this->email = '';
         $this->password = '';
         $this->password_confirmation = '';
@@ -80,6 +83,7 @@ class UserFormModal extends Component
         $user = TourOperatorUser::create([
             'tour_operator_id' => $this->tourOperatorId,
             'name' => $this->name,
+            'username' => $this->username,
             'email' => $this->email,
             'password' => Hash::make($this->password),
             'phone_number' => $this->phone_number,

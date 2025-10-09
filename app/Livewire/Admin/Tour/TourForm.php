@@ -234,6 +234,11 @@ class TourForm extends Component
                 $tour->media()->detach();
             }
 
+            // Mettre à jour le slug avec le titre de la traduction française
+            if (!$this->isEditing) {
+                $tour->updateSlugFromTranslation();
+            }
+
             DB::commit();
 
             $message = $this->isEditing ? 'Tour mis à jour avec succès' : 'Tour créé avec succès';

@@ -4,7 +4,7 @@
 @section('page-title', 'Détails de la Réservation')
 
 @section('content')
-<div class="operator-fade-in">
+<div class="fade-in">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
@@ -21,7 +21,7 @@
             </nav>
             <h2 class="mb-1">Réservation #{{ $reservation->confirmation_number }}</h2>
             <div class="d-flex align-items-center gap-3">
-                <span class="operator-badge status-{{ $reservation->status }}">
+                <span class="badge status-{{ $reservation->status }}">
                     {{ ucfirst($reservation->status) }}
                 </span>
                 <small class="text-muted">
@@ -41,7 +41,7 @@
                 <form action="{{ route('operator.reservations.confirm', $reservation) }}" method="POST" class="d-inline">
                     @csrf
                     @method('PATCH')
-                    <button type="submit" class="operator-btn btn-success">
+                    <button type="submit" class="btn btn-success">
                         <i class="fas fa-check me-2"></i>
                         Confirmer
                     </button>
@@ -52,7 +52,7 @@
                 <form action="{{ route('operator.reservations.cancel', $reservation) }}" method="POST" class="d-inline">
                     @csrf
                     @method('PATCH')
-                    <button type="submit" class="operator-btn btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')">
+                    <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')">
                         <i class="fas fa-times me-2"></i>
                         Annuler
                     </button>
@@ -60,17 +60,11 @@
             @endif
 
             <div class="dropdown">
-                <button class="operator-btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                     <i class="fas fa-ellipsis-v me-2"></i>
                     Actions
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a class="dropdown-item" href="{{ route('operator.reservations.export-single', $reservation) }}">
-                            <i class="fas fa-download me-2"></i>
-                            Exporter en PDF
-                        </a>
-                    </li>
                     <li>
                         <a class="dropdown-item" href="mailto:{{ $reservation->user_email }}?subject=Réservation {{ $reservation->confirmation_number }}">
                             <i class="fas fa-envelope me-2"></i>
@@ -94,14 +88,14 @@
         <!-- Reservation Details -->
         <div class="col-lg-8">
             <!-- Customer Information -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-user me-2"></i>
                         Informations Client
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <h6 class="mb-3">Contact Principal</h6>
@@ -152,14 +146,14 @@
             </div>
 
             <!-- Event/Tour Information -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-calendar-alt me-2"></i>
                         Détails de l'Activité
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     @if($reservation->reservable)
                         <div class="row">
                             <div class="col-md-8">
@@ -218,14 +212,14 @@
             </div>
 
             <!-- Payment Information -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-credit-card me-2"></i>
                         Informations de Paiement
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
                             <h6>Montant Total</h6>
@@ -267,14 +261,14 @@
         <!-- Sidebar -->
         <div class="col-lg-4">
             <!-- Status Timeline -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-history me-2"></i>
                         Historique
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="timeline">
                         <div class="timeline-item {{ $reservation->status === 'cancelled' ? 'text-danger' : ($reservation->status === 'confirmed' ? 'text-success' : 'text-warning') }}">
                             <div class="timeline-marker">
@@ -302,20 +296,20 @@
             </div>
 
             <!-- Quick Actions -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-bolt me-2"></i>
                         Actions Rapides
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="d-grid gap-2">
                         @if($reservation->status === 'pending')
                             <form action="{{ route('operator.reservations.confirm', $reservation) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="operator-btn btn-success w-100">
+                                <button type="submit" class="btn btn-success w-100">
                                     <i class="fas fa-check me-2"></i>
                                     Confirmer la réservation
                                 </button>
@@ -323,53 +317,47 @@
                         @endif
 
                         @if($reservation->status === 'confirmed')
-                            <button type="button" class="operator-btn btn-outline-info w-100" data-bs-toggle="modal" data-bs-target="#checkInModal">
+                            <button type="button" class="btn btn-outline-info w-100" data-bs-toggle="modal" data-bs-target="#checkInModal">
                                 <i class="fas fa-check-double me-2"></i>
                                 Marquer comme présent
                             </button>
                         @endif
 
                         <a href="mailto:{{ $reservation->user_email }}?subject=Réservation {{ $reservation->confirmation_number }}"
-                           class="operator-btn btn-outline-primary w-100">
+                           class="btn btn-outline-primary w-100">
                             <i class="fas fa-envelope me-2"></i>
                             Envoyer un email
                         </a>
 
                         @if($reservation->phone_number)
-                            <a href="tel:{{ $reservation->phone_number }}" class="operator-btn btn-outline-info w-100">
+                            <a href="tel:{{ $reservation->phone_number }}" class="btn btn-outline-info w-100">
                                 <i class="fas fa-phone me-2"></i>
                                 Appeler le client
                             </a>
                         @endif
-
-                        <a href="{{ route('operator.reservations.export-single', $reservation) }}"
-                           class="operator-btn btn-outline-secondary w-100">
-                            <i class="fas fa-download me-2"></i>
-                            Télécharger PDF
-                        </a>
                     </div>
                 </div>
             </div>
 
             <!-- Notes -->
-            <div class="operator-card">
-                <div class="operator-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-sticky-note me-2"></i>
                         Notes Internes
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <form action="{{ route('operator.reservations.update-notes', $reservation) }}" method="POST">
                         @csrf
                         @method('PATCH')
                         <div class="mb-3">
-                            <textarea class="operator-form-control"
+                            <textarea class="form-control"
                                       name="internal_notes"
                                       rows="4"
                                       placeholder="Ajouter des notes internes...">{{ $reservation->internal_notes }}</textarea>
                         </div>
-                        <button type="submit" class="operator-btn btn-outline-primary btn-sm w-100">
+                        <button type="submit" class="btn btn-outline-primary btn-sm w-100">
                             <i class="fas fa-save me-2"></i>
                             Sauvegarder les notes
                         </button>

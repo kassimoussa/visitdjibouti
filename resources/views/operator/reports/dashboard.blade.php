@@ -4,7 +4,7 @@
 @section('page-title', 'Rapports et Analyses')
 
 @section('content')
-<div class="operator-fade-in">
+<div class="fade-in">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -13,7 +13,7 @@
         </div>
         <div class="d-flex gap-2">
             <div class="dropdown">
-                <button class="operator-btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
                     <i class="fas fa-download me-2"></i>
                     Exporter
                 </button>
@@ -48,27 +48,27 @@
     </div>
 
     <!-- Date Filter -->
-    <div class="operator-card mb-4">
-        <div class="operator-card-body">
-            <form method="GET" action="{{ route('operator.reports.dashboard') }}">
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="#">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
                         <label class="form-label">Date de début</label>
                         <input type="date"
-                               class="operator-form-control"
+                               class="form-control"
                                name="start_date"
                                value="{{ request('start_date', now()->startOfMonth()->format('Y-m-d')) }}">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Date de fin</label>
                         <input type="date"
-                               class="operator-form-control"
+                               class="form-control"
                                name="end_date"
                                value="{{ request('end_date', now()->format('Y-m-d')) }}">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Période prédéfinie</label>
-                        <select class="operator-form-control" name="period" id="periodSelect">
+                        <select class="form-control" name="period" id="periodSelect">
                             <option value="">Personnalisée</option>
                             <option value="today" {{ request('period') == 'today' ? 'selected' : '' }}>Aujourd'hui</option>
                             <option value="yesterday" {{ request('period') == 'yesterday' ? 'selected' : '' }}>Hier</option>
@@ -80,7 +80,7 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <button type="submit" class="operator-btn btn-primary w-100">
+                        <button type="submit" class="btn btn-primary w-100">
                             <i class="fas fa-filter me-2"></i>
                             Appliquer
                         </button>
@@ -93,12 +93,12 @@
     <!-- Key Metrics -->
     <div class="row mb-4">
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="operator-stats-card">
-                <div class="operator-stats-icon success">
+            <div class="stats-card">
+                <div class="stats-icon success">
                     <i class="fas fa-coins"></i>
                 </div>
-                <h3 class="operator-stats-number">{{ number_format($metrics['total_revenue'], 0, ',', ' ') }}</h3>
-                <p class="operator-stats-label">Revenus Total (DJF)</p>
+                <h3 class="stats-number">{{ number_format($metrics['total_revenue'], 0, ',', ' ') }}</h3>
+                <p class="stats-label">Revenus Total (DJF)</p>
                 <small class="{{ $metrics['revenue_trend'] >= 0 ? 'text-success' : 'text-danger' }}">
                     <i class="fas fa-{{ $metrics['revenue_trend'] >= 0 ? 'arrow-up' : 'arrow-down' }} me-1"></i>
                     {{ abs($metrics['revenue_trend']) }}% vs période précédente
@@ -107,12 +107,12 @@
         </div>
 
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="operator-stats-card">
-                <div class="operator-stats-icon primary">
+            <div class="stats-card">
+                <div class="stats-icon primary">
                     <i class="fas fa-ticket-alt"></i>
                 </div>
-                <h3 class="operator-stats-number">{{ $metrics['total_reservations'] }}</h3>
-                <p class="operator-stats-label">Réservations</p>
+                <h3 class="stats-number">{{ $metrics['total_reservations'] }}</h3>
+                <p class="stats-label">Réservations</p>
                 <small class="{{ $metrics['reservations_trend'] >= 0 ? 'text-success' : 'text-danger' }}">
                     <i class="fas fa-{{ $metrics['reservations_trend'] >= 0 ? 'arrow-up' : 'arrow-down' }} me-1"></i>
                     {{ abs($metrics['reservations_trend']) }}% vs période précédente
@@ -121,12 +121,12 @@
         </div>
 
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="operator-stats-card">
-                <div class="operator-stats-icon info">
+            <div class="stats-card">
+                <div class="stats-icon info">
                     <i class="fas fa-users"></i>
                 </div>
-                <h3 class="operator-stats-number">{{ $metrics['total_participants'] }}</h3>
-                <p class="operator-stats-label">Participants</p>
+                <h3 class="stats-number">{{ $metrics['total_participants'] }}</h3>
+                <p class="stats-label">Participants</p>
                 <small class="text-info">
                     <i class="fas fa-chart-line me-1"></i>
                     Moyenne: {{ round($metrics['avg_participants_per_reservation'], 1) }}
@@ -135,12 +135,12 @@
         </div>
 
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="operator-stats-card">
-                <div class="operator-stats-icon warning">
+            <div class="stats-card">
+                <div class="stats-icon warning">
                     <i class="fas fa-percentage"></i>
                 </div>
-                <h3 class="operator-stats-number">{{ $metrics['conversion_rate'] }}%</h3>
-                <p class="operator-stats-label">Taux de Conversion</p>
+                <h3 class="stats-number">{{ $metrics['conversion_rate'] }}%</h3>
+                <p class="stats-label">Taux de Conversion</p>
                 <small class="text-muted">
                     <i class="fas fa-info-circle me-1"></i>
                     Confirmées / Total
@@ -152,13 +152,13 @@
     <div class="row">
         <!-- Revenue Chart -->
         <div class="col-lg-8 mb-4">
-            <div class="operator-card">
-                <div class="operator-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-chart-line me-2"></i>
                         Évolution des Revenus
                     </h5>
-                    <div class="operator-card-actions">
+                    <div class="card-actions">
                         <div class="btn-group btn-group-sm">
                             <input type="radio" class="btn-check" name="chartPeriod" id="daily" value="daily" checked>
                             <label class="btn btn-outline-primary" for="daily">Jour</label>
@@ -171,7 +171,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div id="revenueChart" style="height: 300px;">
                         <!-- Chart will be rendered here -->
                         <div class="d-flex align-items-center justify-content-center" style="height: 300px;">
@@ -188,14 +188,14 @@
 
         <!-- Top Events -->
         <div class="col-lg-4 mb-4">
-            <div class="operator-card">
-                <div class="operator-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-star me-2"></i>
                         Événements Populaires
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     @if($topEvents->count() > 0)
                         <div class="list-group list-group-flush">
                             @foreach($topEvents as $event)
@@ -232,14 +232,14 @@
     <div class="row">
         <!-- Reservations by Status -->
         <div class="col-lg-6 mb-4">
-            <div class="operator-card">
-                <div class="operator-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-chart-pie me-2"></i>
                         Répartition des Réservations
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="row">
                         <div class="col-6">
                             <div class="text-center p-3">
@@ -290,14 +290,14 @@
 
         <!-- Recent Activity -->
         <div class="col-lg-6 mb-4">
-            <div class="operator-card">
-                <div class="operator-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-clock me-2"></i>
                         Activité Récente
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     @if($recentReservations->count() > 0)
                         <div class="timeline">
                             @foreach($recentReservations as $reservation)
@@ -315,7 +315,7 @@
                                                 </small>
                                             </div>
                                             <div class="text-end">
-                                                <span class="operator-badge status-{{ $reservation->status }} small">
+                                                <span class="badge status-{{ $reservation->status }} small">
                                                     {{ ucfirst($reservation->status) }}
                                                 </span>
                                                 <br>
@@ -340,18 +340,18 @@
     <!-- Quick Reports -->
     <div class="row">
         <div class="col-12">
-            <div class="operator-card">
-                <div class="operator-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-file-alt me-2"></i>
                         Rapports Rapides
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <a href="{{ route('operator.reports.export', ['type' => 'reservations', 'status' => 'pending']) }}"
-                               class="operator-btn btn-outline-warning w-100">
+                               class="btn btn-outline-warning w-100">
                                 <i class="fas fa-clock me-2"></i>
                                 Réservations en attente
                                 <br>
@@ -360,7 +360,7 @@
                         </div>
                         <div class="col-md-3 mb-3">
                             <a href="{{ route('operator.reports.export', ['type' => 'revenues', 'period' => 'this_month']) }}"
-                               class="operator-btn btn-outline-success w-100">
+                               class="btn btn-outline-success w-100">
                                 <i class="fas fa-coins me-2"></i>
                                 Revenus du mois
                                 <br>
@@ -369,7 +369,7 @@
                         </div>
                         <div class="col-md-3 mb-3">
                             <a href="{{ route('operator.events.index', ['status' => 'published']) }}"
-                               class="operator-btn btn-outline-primary w-100">
+                               class="btn btn-outline-primary w-100">
                                 <i class="fas fa-calendar-alt me-2"></i>
                                 Événements actifs
                                 <br>
@@ -378,7 +378,7 @@
                         </div>
                         <div class="col-md-3 mb-3">
                             <a href="{{ route('operator.tours.index', ['status' => 'published']) }}"
-                               class="operator-btn btn-outline-info w-100">
+                               class="btn btn-outline-info w-100">
                                 <i class="fas fa-route me-2"></i>
                                 Tours disponibles
                                 <br>

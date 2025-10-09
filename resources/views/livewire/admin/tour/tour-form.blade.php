@@ -197,22 +197,13 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-6">
+                                        <div class="col-12">
                                             <label for="price" class="form-label">Prix</label>
                                             <div class="input-group">
                                                 <input wire:model="price" type="number" step="0.01" min="0"
                                                        class="form-control" value="0">
-                                                <span class="input-group-text">{{ $currency }}</span>
+                                                <span class="input-group-text">DJF</span>
                                             </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label for="currency" class="form-label">Devise</label>
-                                            <select wire:model="currency" class="form-select">
-                                                <option value="DJF">DJF</option>
-                                                <option value="USD">USD</option>
-                                                <option value="EUR">EUR</option>
-                                            </select>
                                         </div>
 
                                         <div class="col-md-6">

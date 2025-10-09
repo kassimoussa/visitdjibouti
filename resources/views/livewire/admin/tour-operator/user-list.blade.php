@@ -24,7 +24,6 @@
                     <tr>
                         <th>Utilisateur</th>
                         <th>Contact</th>
-                        <th>Permissions</th>
                         <th>Statut</th>
                         <th>Dernière connexion</th>
                         <th width="150">Actions</th>
@@ -59,38 +58,6 @@
                                     <div>{{ $user->email }}</div>
                                     @if($user->phone_number)
                                         <small class="text-muted">{{ $user->phone_number }}</small>
-                                    @endif
-                                </div>
-                            </td>
-                            <td>
-                                <div class="d-flex flex-wrap gap-1">
-                                    @if($user->permissions)
-                                        @foreach($user->permissions as $permission => $enabled)
-                                            @if($enabled)
-                                                <span class="badge bg-light text-dark small">
-                                                    @switch($permission)
-                                                        @case('manage_events')
-                                                            <i class="fas fa-calendar-alt"></i>
-                                                            @break
-                                                        @case('manage_tours')
-                                                            <i class="fas fa-route"></i>
-                                                            @break
-                                                        @case('view_reservations')
-                                                            <i class="fas fa-eye"></i>
-                                                            @break
-                                                        @case('manage_reservations')
-                                                            <i class="fas fa-ticket-alt"></i>
-                                                            @break
-                                                        @case('view_reports')
-                                                            <i class="fas fa-chart-bar"></i>
-                                                            @break
-                                                        @case('manage_profile')
-                                                            <i class="fas fa-user-cog"></i>
-                                                            @break
-                                                    @endswitch
-                                                </span>
-                                            @endif
-                                        @endforeach
                                     @endif
                                 </div>
                             </td>

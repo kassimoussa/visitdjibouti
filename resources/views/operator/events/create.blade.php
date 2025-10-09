@@ -4,7 +4,7 @@
 @section('page-title', 'Nouvel Événement')
 
 @section('content')
-<div class="operator-fade-in">
+<div class="fade-in">
     <!-- Header -->
     <div class="mb-4">
         <nav aria-label="breadcrumb" class="mb-2">
@@ -29,19 +29,19 @@
             <!-- Main Form -->
             <div class="col-lg-8">
                 <!-- Basic Information -->
-                <div class="operator-card mb-4">
-                    <div class="operator-card-header">
+                <div class="card mb-4">
+                    <div class="card-header">
                         <h5>
                             <i class="fas fa-info-circle me-2"></i>
                             Informations Générales
                         </h5>
                     </div>
-                    <div class="operator-card-body">
+                    <div class="card-body">
                         <div class="row">
                             <div class="col-12 mb-4">
                                 <label for="title" class="form-label">Titre de l'événement *</label>
                                 <input type="text"
-                                       class="operator-form-control @error('title') is-invalid @enderror"
+                                       class="form-control @error('title') is-invalid @enderror"
                                        id="title"
                                        name="title"
                                        value="{{ old('title') }}"
@@ -54,7 +54,7 @@
 
                             <div class="col-12 mb-4">
                                 <label for="short_description" class="form-label">Description courte</label>
-                                <textarea class="operator-form-control @error('short_description') is-invalid @enderror"
+                                <textarea class="form-control @error('short_description') is-invalid @enderror"
                                           id="short_description"
                                           name="short_description"
                                           rows="2"
@@ -67,7 +67,7 @@
 
                             <div class="col-12 mb-4">
                                 <label for="description" class="form-label">Description complète</label>
-                                <textarea class="operator-form-control @error('description') is-invalid @enderror"
+                                <textarea class="form-control @error('description') is-invalid @enderror"
                                           id="description"
                                           name="description"
                                           rows="6"
@@ -79,7 +79,7 @@
 
                             <div class="col-md-6 mb-4">
                                 <label for="category_id" class="form-label">Catégorie</label>
-                                <select class="operator-form-control @error('category_id') is-invalid @enderror"
+                                <select class="form-control @error('category_id') is-invalid @enderror"
                                         id="category_id"
                                         name="category_id">
                                     <option value="">Sélectionner une catégorie</option>
@@ -96,7 +96,7 @@
 
                             <div class="col-md-6 mb-4">
                                 <label for="region" class="form-label">Région</label>
-                                <select class="operator-form-control @error('region') is-invalid @enderror"
+                                <select class="form-control @error('region') is-invalid @enderror"
                                         id="region"
                                         name="region">
                                     <option value="">Sélectionner une région</option>
@@ -112,7 +112,7 @@
                             <div class="col-12 mb-4">
                                 <label for="location" class="form-label">Lieu de l'événement</label>
                                 <input type="text"
-                                       class="operator-form-control @error('location') is-invalid @enderror"
+                                       class="form-control @error('location') is-invalid @enderror"
                                        id="location"
                                        name="location"
                                        value="{{ old('location') }}"
@@ -126,19 +126,19 @@
                 </div>
 
                 <!-- Date and Time -->
-                <div class="operator-card mb-4">
-                    <div class="operator-card-header">
+                <div class="card mb-4">
+                    <div class="card-header">
                         <h5>
                             <i class="fas fa-calendar-alt me-2"></i>
                             Dates et Horaires
                         </h5>
                     </div>
-                    <div class="operator-card-body">
+                    <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="start_date" class="form-label">Date de début *</label>
                                 <input type="date"
-                                       class="operator-form-control @error('start_date') is-invalid @enderror"
+                                       class="form-control @error('start_date') is-invalid @enderror"
                                        id="start_date"
                                        name="start_date"
                                        value="{{ old('start_date') }}"
@@ -151,7 +151,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="start_time" class="form-label">Heure de début</label>
                                 <input type="time"
-                                       class="operator-form-control @error('start_time') is-invalid @enderror"
+                                       class="form-control @error('start_time') is-invalid @enderror"
                                        id="start_time"
                                        name="start_time"
                                        value="{{ old('start_time') }}">
@@ -163,7 +163,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="end_date" class="form-label">Date de fin</label>
                                 <input type="date"
-                                       class="operator-form-control @error('end_date') is-invalid @enderror"
+                                       class="form-control @error('end_date') is-invalid @enderror"
                                        id="end_date"
                                        name="end_date"
                                        value="{{ old('end_date') }}">
@@ -176,7 +176,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="end_time" class="form-label">Heure de fin</label>
                                 <input type="time"
-                                       class="operator-form-control @error('end_time') is-invalid @enderror"
+                                       class="form-control @error('end_time') is-invalid @enderror"
                                        id="end_time"
                                        name="end_time"
                                        value="{{ old('end_time') }}">
@@ -189,19 +189,19 @@
                 </div>
 
                 <!-- Pricing -->
-                <div class="operator-card mb-4">
-                    <div class="operator-card-header">
+                <div class="card mb-4">
+                    <div class="card-header">
                         <h5>
                             <i class="fas fa-tags me-2"></i>
                             Tarification
                         </h5>
                     </div>
-                    <div class="operator-card-body">
+                    <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label for="price_adult" class="form-label">Prix Adulte (DJF) *</label>
                                 <input type="number"
-                                       class="operator-form-control @error('price_adult') is-invalid @enderror"
+                                       class="form-control @error('price_adult') is-invalid @enderror"
                                        id="price_adult"
                                        name="price_adult"
                                        value="{{ old('price_adult') }}"
@@ -216,7 +216,7 @@
                             <div class="col-md-4 mb-3">
                                 <label for="price_child" class="form-label">Prix Enfant (DJF)</label>
                                 <input type="number"
-                                       class="operator-form-control @error('price_child') is-invalid @enderror"
+                                       class="form-control @error('price_child') is-invalid @enderror"
                                        id="price_child"
                                        name="price_child"
                                        value="{{ old('price_child') }}"
@@ -230,7 +230,7 @@
                             <div class="col-md-4 mb-3">
                                 <label for="price_group" class="form-label">Prix Groupe (DJF)</label>
                                 <input type="number"
-                                       class="operator-form-control @error('price_group') is-invalid @enderror"
+                                       class="form-control @error('price_group') is-invalid @enderror"
                                        id="price_group"
                                        name="price_group"
                                        value="{{ old('price_group') }}"
@@ -249,17 +249,17 @@
             <!-- Sidebar -->
             <div class="col-lg-4">
                 <!-- Publication Settings -->
-                <div class="operator-card mb-4">
-                    <div class="operator-card-header">
+                <div class="card mb-4">
+                    <div class="card-header">
                         <h5>
                             <i class="fas fa-cog me-2"></i>
                             Publication
                         </h5>
                     </div>
-                    <div class="operator-card-body">
+                    <div class="card-body">
                         <div class="mb-3">
                             <label for="status" class="form-label">Statut</label>
-                            <select class="operator-form-control" id="status" name="status">
+                            <select class="form-control" id="status" name="status">
                                 <option value="draft" {{ old('status', 'draft') == 'draft' ? 'selected' : '' }}>Brouillon</option>
                                 <option value="published" {{ old('status') == 'published' ? 'selected' : '' }}>Publié</option>
                             </select>
@@ -277,17 +277,17 @@
                 </div>
 
                 <!-- Image Upload -->
-                <div class="operator-card mb-4">
-                    <div class="operator-card-header">
+                <div class="card mb-4">
+                    <div class="card-header">
                         <h5>
                             <i class="fas fa-image me-2"></i>
                             Image de couverture
                         </h5>
                     </div>
-                    <div class="operator-card-body">
+                    <div class="card-body">
                         <div class="mb-3">
                             <input type="file"
-                                   class="operator-form-control @error('featured_image') is-invalid @enderror"
+                                   class="form-control @error('featured_image') is-invalid @enderror"
                                    id="featured_image"
                                    name="featured_image"
                                    accept="image/*">
@@ -304,18 +304,18 @@
                 </div>
 
                 <!-- Capacity Settings -->
-                <div class="operator-card mb-4">
-                    <div class="operator-card-header">
+                <div class="card mb-4">
+                    <div class="card-header">
                         <h5>
                             <i class="fas fa-users me-2"></i>
                             Capacité
                         </h5>
                     </div>
-                    <div class="operator-card-body">
+                    <div class="card-body">
                         <div class="mb-3">
                             <label for="max_participants" class="form-label">Nombre maximum de participants</label>
                             <input type="number"
-                                   class="operator-form-control @error('max_participants') is-invalid @enderror"
+                                   class="form-control @error('max_participants') is-invalid @enderror"
                                    id="max_participants"
                                    name="max_participants"
                                    value="{{ old('max_participants') }}"
@@ -329,14 +329,14 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="operator-card">
-                    <div class="operator-card-body">
+                <div class="card">
+                    <div class="card-body">
                         <div class="d-grid gap-2">
-                            <button type="submit" class="operator-btn btn-primary">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save me-2"></i>
                                 Créer l'événement
                             </button>
-                            <a href="{{ route('operator.events.index') }}" class="operator-btn btn-outline-secondary">
+                            <a href="{{ route('operator.events.index') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-2"></i>
                                 Annuler
                             </a>

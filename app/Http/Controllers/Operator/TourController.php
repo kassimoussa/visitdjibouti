@@ -65,7 +65,7 @@ class TourController extends Controller
                 ->count(),
         ];
 
-        return view('operator.tours.index', compact('tours', 'statistics'));
+        return view('operator.tours.index', compact('tours', 'statistics', 'user'));
     }
 
     /**

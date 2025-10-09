@@ -4,24 +4,18 @@
 @section('page-title', 'Gestion des Événements')
 
 @section('content')
-<div class="operator-fade-in">
+<div class="fade-in">
     <!-- Header with actions -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-1">Mes Événements</h2>
             <p class="text-muted mb-0">Gérez et organisez vos événements touristiques</p>
         </div>
-        @if($user->canManageEvents())
-            <a href="{{ route('operator.events.create') }}" class="operator-btn btn-primary">
-                <i class="fas fa-plus me-2"></i>
-                Nouvel Événement
-            </a>
-        @endif
     </div>
 
     <!-- Filters and Search -->
-    <div class="operator-card mb-4">
-        <div class="operator-card-body">
+    <div class="card mb-4">
+        <div class="card-body">
             <form method="GET" action="{{ route('operator.events.index') }}">
                 <div class="row g-3">
                     <div class="col-md-4">
@@ -31,7 +25,7 @@
                                 <i class="fas fa-search"></i>
                             </span>
                             <input type="text"
-                                   class="operator-form-control"
+                                   class="form-control"
                                    name="search"
                                    value="{{ request('search') }}"
                                    placeholder="Titre, description...">
@@ -39,7 +33,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Statut</label>
-                        <select name="status" class="operator-form-control">
+                        <select name="status" class="form-control">
                             <option value="">Tous</option>
                             <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Brouillon</option>
                             <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Publié</option>
@@ -48,7 +42,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Catégorie</label>
-                        <select name="category" class="operator-form-control">
+                        <select name="category" class="form-control">
                             <option value="">Toutes</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
@@ -59,7 +53,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Région</label>
-                        <select name="region" class="operator-form-control">
+                        <select name="region" class="form-control">
                             <option value="">Toutes</option>
                             @foreach(['Djibouti', 'Ali Sabieh', 'Dikhil', 'Tadjourah', 'Obock', 'Arta'] as $region)
                                 <option value="{{ $region }}" {{ request('region') == $region ? 'selected' : '' }}>{{ $region }}</option>
@@ -69,10 +63,10 @@
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
                         <div class="d-flex gap-2">
-                            <button type="submit" class="operator-btn btn-outline-primary">
+                            <button type="submit" class="btn btn-outline-primary">
                                 <i class="fas fa-filter"></i>
                             </button>
-                            <a href="{{ route('operator.events.index') }}" class="operator-btn btn-outline-secondary">
+                            <a href="{{ route('operator.events.index') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times"></i>
                             </a>
                         </div>
@@ -85,8 +79,8 @@
     <!-- Statistics Row -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="operator-stats-card small">
-                <div class="operator-stats-icon primary">
+            <div class="stats-card small">
+                <div class="stats-icon primary">
                     <i class="fas fa-calendar-alt"></i>
                 </div>
                 <h4>{{ $statistics['total'] }}</h4>
@@ -94,8 +88,8 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="operator-stats-card small">
-                <div class="operator-stats-icon success">
+            <div class="stats-card small">
+                <div class="stats-icon success">
                     <i class="fas fa-eye"></i>
                 </div>
                 <h4>{{ $statistics['published'] }}</h4>
@@ -103,8 +97,8 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="operator-stats-card small">
-                <div class="operator-stats-icon warning">
+            <div class="stats-card small">
+                <div class="stats-icon warning">
                     <i class="fas fa-edit"></i>
                 </div>
                 <h4>{{ $statistics['draft'] }}</h4>
@@ -112,34 +106,28 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="operator-stats-card small">
-                <div class="operator-stats-icon info">
-                    <i class="fas fa-users"></i>
+            <div class="stats-card small">
+                <div class="stats-icon info">
+                    <i class="fas fa-calendar-check"></i>
                 </div>
-                <h4>{{ $statistics['total_participants'] }}</h4>
-                <p>Participants</p>
+                <h4>{{ $statistics['upcoming'] }}</h4>
+                <p>À venir</p>
             </div>
         </div>
     </div>
 
     <!-- Events List -->
-    <div class="operator-card">
-        <div class="operator-card-header">
+    <div class="card">
+        <div class="card-header">
             <h5>
                 <i class="fas fa-list me-2"></i>
                 Liste des Événements
                 <span class="badge bg-secondary ms-2">{{ $events->total() }}</span>
             </h5>
-            <div class="operator-card-actions">
-                <a href="{{ route('operator.events.export') }}" class="btn btn-sm btn-outline-success">
-                    <i class="fas fa-download me-1"></i>
-                    Exporter
-                </a>
-            </div>
         </div>
-        <div class="operator-card-body">
+        <div class="card-body">
             @if($events->count() > 0)
-                <div class="operator-table">
+                <div class="table-responsive">
                     <table class="table">
                         <thead>
                             <tr>
@@ -198,7 +186,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="operator-badge status-{{ $event->status }}">
+                                        <span class="badge status-{{ $event->status }}">
                                             {{ ucfirst($event->status) }}
                                         </span>
                                     </td>
@@ -215,7 +203,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <strong>{{ number_format($event->total_revenue, 0, ',', ' ') }} DJF</strong>
+                                        <strong>{{ number_format($event->registrations()->where('status', 'confirmed')->sum('payment_amount'), 0, ',', ' ') }} DJF</strong>
                                     </td>
                                     <td>
                                         <div class="btn-group">
@@ -224,13 +212,6 @@
                                                title="Voir les détails">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            @if($user->canManageEvents())
-                                                <a href="{{ route('operator.events.edit', $event) }}"
-                                                   class="btn btn-sm btn-outline-warning"
-                                                   title="Modifier">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -257,12 +238,6 @@
                             Créez votre premier événement pour commencer
                         @endif
                     </p>
-                    @if($user->canManageEvents())
-                        <a href="{{ route('operator.events.create') }}" class="operator-btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>
-                            Créer un événement
-                        </a>
-                    @endif
                 </div>
             @endif
         </div>

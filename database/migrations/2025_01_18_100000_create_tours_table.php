@@ -22,6 +22,10 @@ return new class extends Migration
             $table->string('type'); // poi, event, mixed, cultural, adventure, nature, gastronomic
             $table->morphs('target'); // target_id et target_type (POI ou Event)
 
+            // Dates
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+
             // Durée
             $table->integer('duration_hours')->nullable();
             $table->integer('duration_days')->nullable();

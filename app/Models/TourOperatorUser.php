@@ -122,18 +122,30 @@ class TourOperatorUser extends Authenticatable
      */
     public function managedReservations()
     {
-        return Reservation::where(function ($query) {
-            // Reservations for events
-            $query->where('reservable_type', Event::class)
-                  ->whereHas('reservable', function ($q) {
-                      $q->where('tour_operator_id', $this->tour_operator_id);
-                  });
-        })->orWhere(function ($query) {
-            // Reservations for tour schedules
-            $query->where('reservable_type', TourSchedule::class)
-                  ->whereHas('reservable.tour', function ($q) {
-                      $q->where('tour_operator_id', $this->tour_operator_id);
-                  });
+        // Utiliser une sous-requête SQL pour éviter les problèmes de cache
+        return Reservation::whereIn('id', function ($query) {
+            $query->select('r1.id')
+                ->from('reservations as r1')
+                ->leftJoin('events as e', function ($join) {
+                    $join->on('r1.reservable_id', '=', 'e.id')
+                        ->where('r1.reservable_type', '=', Event::class);
+                })
+                ->leftJoin('tour_schedules as ts', function ($join) {
+                    $join->on('r1.reservable_id', '=', 'ts.id')
+                        ->where('r1.reservable_type', '=', TourSchedule::class);
+                })
+                ->leftJoin('tours as t', 'ts.tour_id', '=', 't.id')
+                ->where(function ($q) {
+                    $q->where(function ($subQ) {
+                        $subQ->where('r1.reservable_type', Event::class)
+                            ->where('e.tour_operator_id', $this->tour_operator_id);
+                    })
+                    ->orWhere(function ($subQ) {
+                        $subQ->where('r1.reservable_type', TourSchedule::class)
+                            ->where('t.tour_operator_id', $this->tour_operator_id);
+                    });
+                })
+                ->whereNull('r1.deleted_at');
         });
     }
 

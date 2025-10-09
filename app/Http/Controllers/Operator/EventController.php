@@ -17,6 +17,7 @@ class EventController extends Controller
     public function index(Request $request): View
     {
         $user = Auth::guard('operator')->user();
+        $categories = \App\Models\Category::with('translations')->get();
 
         $query = $user->managedEvents()
             ->with(['translations', 'featuredImage', 'categories.translations']);
@@ -73,7 +74,7 @@ class EventController extends Controller
                 ->count(),
         ];
 
-        return view('operator.events.index', compact('events', 'statistics'));
+        return view('operator.events.index', compact('events', 'statistics', 'user', 'categories'));
     }
 
     /**
@@ -103,6 +104,13 @@ class EventController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
+        // Get recent reservations for sidebar
+        $recentReservations = $event->reservations()
+            ->with(['appUser'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
         // Get reservation statistics
         $reservationStats = [
             'total' => $event->reservations()->count(),
@@ -112,7 +120,175 @@ class EventController extends Controller
             'revenue' => $event->confirmedReservations()->sum('payment_amount'),
         ];
 
-        return view('operator.events.show', compact('event', 'reservations', 'reservationStats'));
+        return view('operator.events.show', compact('event', 'reservations', 'recentReservations', 'reservationStats', 'user'));
+    }
+
+    /**
+     * Show reservations for a specific event.
+     */
+    public function reservations(Event $event): View
+    {
+        $user = Auth::guard('operator')->user();
+
+        // Verify the event belongs to this operator
+        if ($event->tour_operator_id !== $user->tour_operator_id) {
+            abort(403, 'Vous n\'avez pas accès à cet événement.');
+        }
+
+        $reservations = $event->reservations()
+            ->with(['appUser'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('operator.events.reservations', compact('event', 'reservations', 'user'));
+    }
+
+    /**
+     * Export reservations for a specific event.
+     */
+    public function exportReservations(Event $event)
+    {
+        $user = Auth::guard('operator')->user();
+
+        // Verify the event belongs to this operator
+        if ($event->tour_operator_id !== $user->tour_operator_id) {
+            abort(403, 'Vous n\'avez pas accès à cet événement.');
+        }
+
+        $reservations = $event->reservations()
+            ->with(['appUser'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $filename = 'reservations-' . $event->slug . '-' . now()->format('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function() use ($reservations) {
+            $file = fopen('php://output', 'w');
+
+            // Headers
+            fputcsv($file, ['ID', 'Nom', 'Email', 'Téléphone', 'Nombre de personnes', 'Statut', 'Montant', 'Date de réservation']);
+
+            // Data
+            foreach ($reservations as $reservation) {
+                fputcsv($file, [
+                    $reservation->id,
+                    $reservation->user_name ?? ($reservation->appUser ? $reservation->appUser->name : 'N/A'),
+                    $reservation->user_email ?? ($reservation->appUser ? $reservation->appUser->email : 'N/A'),
+                    $reservation->user_phone ?? 'N/A',
+                    $reservation->number_of_people,
+                    $reservation->status,
+                    $reservation->payment_amount ?? 0,
+                    $reservation->created_at->format('d/m/Y H:i'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Publish an event.
+     */
+    public function publish(Event $event): RedirectResponse
+    {
+        $user = Auth::guard('operator')->user();
+
+        // Verify the event belongs to this operator
+        if ($event->tour_operator_id !== $user->tour_operator_id) {
+            abort(403, 'Vous n\'avez pas accès à cet événement.');
+        }
+
+        $event->update(['status' => 'published']);
+
+        return redirect()
+            ->route('operator.events.show', $event)
+            ->with('success', 'Événement publié avec succès.');
+    }
+
+    /**
+     * Unpublish an event.
+     */
+    public function unpublish(Event $event): RedirectResponse
+    {
+        $user = Auth::guard('operator')->user();
+
+        // Verify the event belongs to this operator
+        if ($event->tour_operator_id !== $user->tour_operator_id) {
+            abort(403, 'Vous n\'avez pas accès à cet événement.');
+        }
+
+        $event->update(['status' => 'draft']);
+
+        return redirect()
+            ->route('operator.events.show', $event)
+            ->with('success', 'Événement dépublié avec succès.');
+    }
+
+    /**
+     * Cancel an event.
+     */
+    public function cancel(Event $event): RedirectResponse
+    {
+        $user = Auth::guard('operator')->user();
+
+        // Verify the event belongs to this operator
+        if ($event->tour_operator_id !== $user->tour_operator_id) {
+            abort(403, 'Vous n\'avez pas accès à cet événement.');
+        }
+
+        $event->update(['status' => 'cancelled']);
+
+        // Optionally: notify users with reservations
+        // TODO: Send cancellation emails to users with confirmed reservations
+
+        return redirect()
+            ->route('operator.events.show', $event)
+            ->with('success', 'Événement annulé avec succès.');
+    }
+
+    /**
+     * Duplicate an event.
+     */
+    public function duplicate(Event $event): RedirectResponse
+    {
+        $user = Auth::guard('operator')->user();
+
+        // Verify the event belongs to this operator
+        if ($event->tour_operator_id !== $user->tour_operator_id) {
+            abort(403, 'Vous n\'avez pas accès à cet événement.');
+        }
+
+        // Create duplicate
+        $newEvent = $event->replicate();
+        $newEvent->slug = $event->slug . '-copy-' . time();
+        $newEvent->status = 'draft';
+        $newEvent->current_participants = 0;
+        $newEvent->views_count = 0;
+        $newEvent->save();
+
+        // Duplicate translations
+        foreach ($event->translations as $translation) {
+            $newTranslation = $translation->replicate();
+            $newTranslation->event_id = $newEvent->id;
+            $newTranslation->save();
+        }
+
+        // Duplicate category relationships
+        $newEvent->categories()->sync($event->categories->pluck('id'));
+
+        // Duplicate media relationships
+        $newEvent->media()->sync($event->media->pluck('id'));
+
+        return redirect()
+            ->route('operator.events.edit', $newEvent)
+            ->with('success', 'Événement dupliqué avec succès. Vous pouvez maintenant le modifier.');
     }
 
     /**

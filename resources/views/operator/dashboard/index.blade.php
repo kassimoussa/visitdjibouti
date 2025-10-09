@@ -4,10 +4,10 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
-<div class="operator-fade-in">
+<div class="fade-in">
     <!-- Welcome Banner -->
-    <div class="operator-card mb-4">
-        <div class="operator-card-body">
+    <div class="card mb-4">
+        <div class="card-body">
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h2 class="mb-2">
@@ -36,12 +36,12 @@
     <div class="row mb-4">
         <!-- Total Events -->
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="operator-stats-card">
-                <div class="operator-stats-icon primary">
+            <div class="stats-card">
+                <div class="stats-icon primary">
                     <i class="fas fa-calendar-alt"></i>
                 </div>
-                <h3 class="operator-stats-number">{{ $statistics['total_events'] ?? 0 }}</h3>
-                <p class="operator-stats-label">Événements Total</p>
+                <h3 class="stats-number">{{ $statistics['total_events'] ?? 0 }}</h3>
+                <p class="stats-label">Événements Total</p>
                 <small class="text-success">
                     <i class="fas fa-arrow-up me-1"></i>
                     {{ $statistics['active_events'] ?? 0 }} actifs
@@ -51,12 +51,12 @@
 
         <!-- Total Reservations -->
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="operator-stats-card">
-                <div class="operator-stats-icon success">
+            <div class="stats-card">
+                <div class="stats-icon success">
                     <i class="fas fa-ticket-alt"></i>
                 </div>
-                <h3 class="operator-stats-number">{{ $statistics['total_reservations'] ?? 0 }}</h3>
-                <p class="operator-stats-label">Réservations Total</p>
+                <h3 class="stats-number">{{ $statistics['total_reservations'] ?? 0 }}</h3>
+                <p class="stats-label">Réservations Total</p>
                 <small class="text-warning">
                     <i class="fas fa-clock me-1"></i>
                     {{ $statistics['pending_reservations'] ?? 0 }} en attente
@@ -66,12 +66,12 @@
 
         <!-- Revenue This Month -->
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="operator-stats-card">
-                <div class="operator-stats-icon info">
+            <div class="stats-card">
+                <div class="stats-icon info">
                     <i class="fas fa-coins"></i>
                 </div>
-                <h3 class="operator-stats-number">{{ number_format($statistics['revenue_this_month'] ?? 0, 0, ',', ' ') }}</h3>
-                <p class="operator-stats-label">Revenus ce mois (DJF)</p>
+                <h3 class="stats-number">{{ number_format($statistics['revenue_this_month'] ?? 0, 0, ',', ' ') }}</h3>
+                <p class="stats-label">Revenus ce mois (DJF)</p>
                 <small class="text-info">
                     <i class="fas fa-chart-line me-1"></i>
                     Performance mensuelle
@@ -81,12 +81,12 @@
 
         <!-- Tours -->
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="operator-stats-card">
-                <div class="operator-stats-icon warning">
+            <div class="stats-card">
+                <div class="stats-icon warning">
                     <i class="fas fa-route"></i>
                 </div>
-                <h3 class="operator-stats-number">{{ $statistics['total_tours'] ?? 0 }}</h3>
-                <p class="operator-stats-label">Tours Guidés</p>
+                <h3 class="stats-number">{{ $statistics['total_tours'] ?? 0 }}</h3>
+                <p class="stats-label">Tours Guidés</p>
                 <small class="text-success">
                     <i class="fas fa-check me-1"></i>
                     {{ $statistics['active_tours'] ?? 0 }} actifs
@@ -98,16 +98,16 @@
     <div class="row">
         <!-- Recent Events -->
         <div class="col-lg-8 mb-4">
-            <div class="operator-card">
-                <div class="operator-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-calendar-alt me-2"></i>
                         Événements Récents
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     @if($recentEvents->count() > 0)
-                        <div class="operator-table">
+                        <div class="table-responsive">
                             <table class="table">
                                 <thead>
                                     <tr>
@@ -142,7 +142,7 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <span class="operator-badge status-{{ $event->status }}">
+                                                <span class="badge status-{{ $event->status }}">
                                                     {{ ucfirst($event->status) }}
                                                 </span>
                                             </td>
@@ -164,7 +164,7 @@
                             </table>
                         </div>
                         <div class="text-center mt-3">
-                            <a href="{{ route('operator.events.index') }}" class="operator-btn btn-outline-primary">
+                            <a href="{{ route('operator.events.index') }}" class="btn btn-outline-primary">
                                 <i class="fas fa-list me-2"></i>
                                 Voir tous les événements
                             </a>
@@ -183,18 +183,18 @@
         <!-- Quick Actions & Notifications -->
         <div class="col-lg-4 mb-4">
             <!-- Quick Actions -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-bolt me-2"></i>
                         Actions Rapides
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="d-grid gap-2">
                         @if($user->canManageEvents())
                             <a href="{{ route('operator.events.index') }}"
-                               class="operator-btn btn-outline-primary">
+                               class="btn btn-outline-primary">
                                 <i class="fas fa-calendar-plus me-2"></i>
                                 Gérer les Événements
                             </a>
@@ -202,7 +202,7 @@
 
                         @if($user->canViewReservations())
                             <a href="{{ route('operator.reservations.index') }}"
-                               class="operator-btn btn-outline-success">
+                               class="btn btn-outline-success">
                                 <i class="fas fa-ticket-alt me-2"></i>
                                 Voir les Réservations
                             </a>
@@ -210,30 +210,24 @@
 
                         @if($user->canManageTours())
                             <a href="{{ route('operator.tours.index') }}"
-                               class="operator-btn btn-outline-info">
+                               class="btn btn-outline-info">
                                 <i class="fas fa-route me-2"></i>
                                 Gérer les Tours
                             </a>
                         @endif
-
-                        <a href="{{ route('operator.reports.dashboard') }}"
-                           class="operator-btn btn-outline-warning">
-                            <i class="fas fa-chart-bar me-2"></i>
-                            Voir les Rapports
-                        </a>
                     </div>
                 </div>
             </div>
 
             <!-- Notifications -->
-            <div class="operator-card">
-                <div class="operator-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-bell me-2"></i>
                         Notifications
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     @if($pendingReservationsCount > 0)
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
@@ -276,15 +270,15 @@
     @if($recentReservations->count() > 0)
         <div class="row">
             <div class="col-12">
-                <div class="operator-card">
-                    <div class="operator-card-header">
+                <div class="card">
+                    <div class="card-header">
                         <h5>
                             <i class="fas fa-ticket-alt me-2"></i>
                             Réservations Récentes
                         </h5>
                     </div>
-                    <div class="operator-card-body">
-                        <div class="operator-table">
+                    <div class="card-body">
+                        <div class="table-responsive">
                             <table class="table">
                                 <thead>
                                     <tr>
@@ -331,7 +325,7 @@
                                                 <span class="badge bg-secondary">{{ $reservation->number_of_people }}</span>
                                             </td>
                                             <td>
-                                                <span class="operator-badge status-{{ $reservation->status }}">
+                                                <span class="badge status-{{ $reservation->status }}">
                                                     {{ ucfirst($reservation->status) }}
                                                 </span>
                                             </td>
@@ -350,7 +344,7 @@
                             </table>
                         </div>
                         <div class="text-center mt-3">
-                            <a href="{{ route('operator.reservations.index') }}" class="operator-btn btn-outline-primary">
+                            <a href="{{ route('operator.reservations.index') }}" class="btn btn-outline-primary">
                                 <i class="fas fa-list me-2"></i>
                                 Voir toutes les réservations
                             </a>

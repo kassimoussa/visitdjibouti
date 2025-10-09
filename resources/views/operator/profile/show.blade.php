@@ -4,7 +4,7 @@
 @section('page-title', 'Mon Profil')
 
 @section('content')
-<div class="operator-fade-in">
+<div class="fade-in">
     <!-- Header -->
     <div class="mb-4">
         <h2 class="mb-1">Mon Profil</h2>
@@ -15,8 +15,8 @@
         <!-- Profile Information -->
         <div class="col-lg-8">
             <!-- Personal Information -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-user me-2"></i>
                         Informations Personnelles
@@ -26,7 +26,7 @@
                         Modifier
                     </a>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <form action="{{ route('operator.profile.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
@@ -51,7 +51,7 @@
                                     </div>
                                     <div>
                                         <input type="file"
-                                               class="operator-form-control @error('avatar') is-invalid @enderror"
+                                               class="form-control @error('avatar') is-invalid @enderror"
                                                name="avatar"
                                                accept="image/*">
                                         @error('avatar')
@@ -66,7 +66,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="name" class="form-label">Nom complet *</label>
                                 <input type="text"
-                                       class="operator-form-control @error('name') is-invalid @enderror"
+                                       class="form-control @error('name') is-invalid @enderror"
                                        id="name"
                                        name="name"
                                        value="{{ old('name', $user->name) }}"
@@ -80,7 +80,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="email" class="form-label">Adresse email *</label>
                                 <input type="email"
-                                       class="operator-form-control @error('email') is-invalid @enderror"
+                                       class="form-control @error('email') is-invalid @enderror"
                                        id="email"
                                        name="email"
                                        value="{{ old('email', $user->email) }}"
@@ -94,7 +94,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="phone_number" class="form-label">Numéro de téléphone</label>
                                 <input type="tel"
-                                       class="operator-form-control @error('phone_number') is-invalid @enderror"
+                                       class="form-control @error('phone_number') is-invalid @enderror"
                                        id="phone_number"
                                        name="phone_number"
                                        value="{{ old('phone_number', $user->phone_number) }}"
@@ -108,7 +108,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="position" class="form-label">Poste/Fonction</label>
                                 <input type="text"
-                                       class="operator-form-control @error('position') is-invalid @enderror"
+                                       class="form-control @error('position') is-invalid @enderror"
                                        id="position"
                                        name="position"
                                        value="{{ old('position', $user->position) }}"
@@ -121,7 +121,7 @@
                             <!-- Language Preference -->
                             <div class="col-md-6 mb-3">
                                 <label for="language_preference" class="form-label">Langue préférée</label>
-                                <select class="operator-form-control @error('language_preference') is-invalid @enderror"
+                                <select class="form-control @error('language_preference') is-invalid @enderror"
                                         id="language_preference"
                                         name="language_preference">
                                     <option value="fr" {{ old('language_preference', $user->language_preference) == 'fr' ? 'selected' : '' }}>Français</option>
@@ -135,11 +135,11 @@
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button type="submit" class="operator-btn btn-primary">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save me-2"></i>
                                 Sauvegarder les modifications
                             </button>
-                            <a href="{{ route('operator.profile.show') }}" class="operator-btn btn-outline-secondary">
+                            <a href="{{ route('operator.profile.show') }}" class="btn btn-outline-secondary">
                                 Annuler
                             </a>
                         </div>
@@ -148,14 +148,14 @@
             </div>
 
             <!-- Change Password -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-lock me-2"></i>
                         Modifier le Mot de Passe
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <form action="{{ route('operator.profile.password') }}" method="POST">
                         @csrf
                         @method('PUT')
@@ -164,7 +164,7 @@
                             <div class="col-md-4 mb-3">
                                 <label for="current_password" class="form-label">Mot de passe actuel *</label>
                                 <input type="password"
-                                       class="operator-form-control @error('current_password') is-invalid @enderror"
+                                       class="form-control @error('current_password') is-invalid @enderror"
                                        id="current_password"
                                        name="current_password"
                                        required>
@@ -176,7 +176,7 @@
                             <div class="col-md-4 mb-3">
                                 <label for="password" class="form-label">Nouveau mot de passe *</label>
                                 <input type="password"
-                                       class="operator-form-control @error('password') is-invalid @enderror"
+                                       class="form-control @error('password') is-invalid @enderror"
                                        id="password"
                                        name="password"
                                        required>
@@ -189,14 +189,14 @@
                             <div class="col-md-4 mb-3">
                                 <label for="password_confirmation" class="form-label">Confirmer le mot de passe *</label>
                                 <input type="password"
-                                       class="operator-form-control"
+                                       class="form-control"
                                        id="password_confirmation"
                                        name="password_confirmation"
                                        required>
                             </div>
                         </div>
 
-                        <button type="submit" class="operator-btn btn-warning">
+                        <button type="submit" class="btn btn-warning">
                             <i class="fas fa-key me-2"></i>
                             Modifier le mot de passe
                         </button>
@@ -208,14 +208,14 @@
         <!-- Sidebar -->
         <div class="col-lg-4">
             <!-- Account Information -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
+            <div class="card mb-4">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-info-circle me-2"></i>
                         Informations du Compte
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="mb-3">
                         <strong>Statut du compte</strong>
                         <br>
@@ -254,54 +254,15 @@
                 </div>
             </div>
 
-            <!-- Permissions -->
-            <div class="operator-card mb-4">
-                <div class="operator-card-header">
-                    <h5>
-                        <i class="fas fa-shield-alt me-2"></i>
-                        Mes Permissions
-                    </h5>
-                </div>
-                <div class="operator-card-body">
-                    <div class="permissions-list">
-                        @php
-                            $permissions = [
-                                'manage_events' => ['label' => 'Gérer les événements', 'icon' => 'calendar-alt'],
-                                'manage_tours' => ['label' => 'Gérer les tours guidés', 'icon' => 'route'],
-                                'view_reservations' => ['label' => 'Voir les réservations', 'icon' => 'ticket-alt'],
-                                'manage_reservations' => ['label' => 'Gérer les réservations', 'icon' => 'cogs'],
-                                'view_reports' => ['label' => 'Voir les rapports', 'icon' => 'chart-bar'],
-                                'manage_profile' => ['label' => 'Gérer le profil', 'icon' => 'user-cog'],
-                                'export_data' => ['label' => 'Exporter les données', 'icon' => 'download']
-                            ];
-                        @endphp
-
-                        @foreach($permissions as $key => $permission)
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div>
-                                    <i class="fas fa-{{ $permission['icon'] }} me-2 text-primary"></i>
-                                    {{ $permission['label'] }}
-                                </div>
-                                @if($user->can($key))
-                                    <i class="fas fa-check text-success"></i>
-                                @else
-                                    <i class="fas fa-times text-danger"></i>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-
             <!-- Activity Summary -->
-            <div class="operator-card">
-                <div class="operator-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h5>
                         <i class="fas fa-chart-pie me-2"></i>
                         Activité Récente
                     </h5>
                 </div>
-                <div class="operator-card-body">
+                <div class="card-body">
                     <div class="row text-center">
                         <div class="col-4">
                             <div class="h4 text-primary mb-1">{{ $user->managedEvents()->count() }}</div>
