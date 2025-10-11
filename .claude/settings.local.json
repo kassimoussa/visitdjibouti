@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(php artisan migrate:*)",
-      "Bash(/mnt/c/laragon/bin/php/php-8.2.20-Win32-vs16-x64/php.exe artisan migrate --path=database/migrations/2025_01_19_000002_remove_permissions_from_tour_operator_users.php)"
+      "Bash(/mnt/c/laragon/bin/php/php-8.2.20-Win32-vs16-x64/php.exe artisan migrate --path=database/migrations/2025_01_19_000002_remove_permissions_from_tour_operator_users.php)",
+      "Bash(curl -X POST http://localhost/api/auth/register -H \"Content-Type: application/json\" -H \"Accept: application/json\" -H \"Accept-Language: fr\" -d '{\n    \"\"\"\"name\"\"\"\": \"\"\"\"Test User Mobile\"\"\"\",\n    \"\"\"\"email\"\"\"\": \"\"\"\"test.mobile@visitdjibouti.dj\"\"\"\",\n    \"\"\"\"password\"\"\"\": \"\"\"\"Password123!\"\"\"\",\n    \"\"\"\"password_confirmation\"\"\"\": \"\"\"\"Password123!\"\"\"\",\n    \"\"\"\"preferred_language\"\"\"\": \"\"\"\"fr\"\"\"\"\n  }')",
+      "Bash(curl -X POST http://localhost/api/auth/register )",
+      "Bash(php artisan route:list:*)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.2.20-Win32-vs16-x64/php.exe artisan route:list --path=api/auth)",
+      "Bash(curl -X POST http://djvi.test:8080/api/auth/register )",
+      "Bash(curl -X POST http://djvi.test:8080/api/auth/login )",
+      "Bash(curl:*)",
+      "Bash(php artisan:*)"
     ],
     "deny": [],
     "ask": [],

@@ -240,13 +240,6 @@
                                 <span>Catégories</span>
                             </a>
                         </li>
-                        <li class="{{ request()->is('news*') ? 'active' : '' }} hidden-menu-item" data-menu="news">
-                            <a href="{{ route('news.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Actualités">
-                                <i class="fas fa-newspaper"></i>
-                                <span>Actualités</span>
-                            </a>
-                        </li>
                         <li class="{{ request()->is('media*') ? 'active' : '' }}">
                             <a href="{{ route('media.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Médias">

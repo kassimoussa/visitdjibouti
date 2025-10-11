@@ -3,10 +3,8 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\EventController;
-use App\Http\Controllers\Admin\ExampleController;
 use App\Http\Controllers\Admin\IconGalleryController;
 use App\Http\Controllers\Admin\MediaController;
-use App\Http\Controllers\Admin\NewsCategoryController;
 use App\Http\Controllers\Admin\PoiController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ReservationController;
@@ -41,18 +39,10 @@ Route::middleware('guest:admin')->group(function () {
         ->name('password.update');
 });
 
-// Routes de test pour Universal Media Selector (sans authentification)
-Route::get('/test/universal-media-selector', [ExampleController::class, 'test'])->name('test.universal-media-selector');
-Route::get('/debug/universal-media-selector', [ExampleController::class, 'debug'])->name('debug.universal-media-selector');
-Route::get('/simple/universal-media-selector', [ExampleController::class, 'simple'])->name('simple.universal-media-selector');
-Route::get('/minimal/universal-media-selector', [ExampleController::class, 'minimal'])->name('minimal.universal-media-selector');
-
 // Routes protégées par authentification
 Route::middleware('auth.admin')->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        return view(view: 'admin.index');
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
 
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
@@ -111,64 +101,6 @@ Route::middleware('auth.admin')->group(function () {
     // Ancienne interface (backup)
     Route::get('/categories-classic', [CategoryController::class, 'index'])->name('categories.classic');
 
-    // Routes pour les actualités
-    Route::get('/news', function () {
-        $categories = \App\Models\NewsCategory::with('translations')
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
-        
-        $news = \App\Models\News::with(['translations', 'category', 'creator', 'featuredImage'])
-            ->when(request('search'), function($query, $search) {
-                $query->whereHas('translations', function($q) use ($search) {
-                    $q->where('title', 'like', "%{$search}%")
-                      ->orWhere('excerpt', 'like', "%{$search}%");
-                });
-            })
-            ->when(request('status'), function($query, $status) {
-                $query->where('status', $status);
-            })
-            ->when(request('category'), function($query, $category) {
-                $query->where('news_category_id', $category);
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-            
-        return view('admin.news.index', compact('categories', 'news'));
-    })->name('news.index');
-
-    Route::get('/news/create', function () {
-        return view(view: 'admin.news.create');
-    })->name('news.create');
-
-    Route::get('/news/{id}/edit', function ($id) {
-        return view(view: 'admin.news.edit', data: ['id' => $id]);
-    })->name('news.edit');
-    
-    Route::get('/news/{news}', function (\App\Models\News $news) {
-        return view('admin.news.show', compact('news'));
-    })->name('news.show');
-    
-    Route::post('/news/bulk-action', function () {
-        // TODO: Implement bulk actions
-        return redirect()->back()->with('info', 'Actions groupées à implémenter');
-    })->name('news.bulk-action');
-    
-    Route::post('/news/{news}/duplicate', function (\App\Models\News $news) {
-        // TODO: Implement news duplication
-        return redirect()->back()->with('info', 'Duplication à implémenter');
-    })->name('news.duplicate');
-    
-    Route::delete('/news/{news}', function (\App\Models\News $news) {
-        // TODO: Implement news deletion
-        return redirect()->back()->with('info', 'Suppression à implémenter');
-    })->name('news.destroy');
-
-    // Routes pour les catégories d'actualités
-    Route::get('/news-categories', [NewsCategoryController::class, 'index'])->name('news-categories.index');
-    Route::get('/news-categories/create', [NewsCategoryController::class, 'create'])->name('news-categories.create');
-    Route::get('/news-categories/{id}/edit', [NewsCategoryController::class, 'edit'])->name('news-categories.edit');
-    
     // Liens externes
     Route::get('/external-links', function () {
         return view('admin.external-links.index');
@@ -181,9 +113,6 @@ Route::middleware('auth.admin')->group(function () {
     Route::get('/media/create', [MediaController::class, 'create'])->name('media.create');
     Route::get('/media/{id}/edit', [MediaController::class, 'edit'])->name('media.edit');
     Route::get('/media/simple-upload', [MediaController::class, 'simpleupload'])->name('media.simple-upload');
-
-    // Route pour les exemples Universal Media Selector
-    Route::get('/examples/universal-media-selector', [ExampleController::class, 'index'])->name('examples.universal-media-selector');
 
     // Routes pour les avis et commentaires
     Route::get('/reviews', function () {
@@ -238,17 +167,4 @@ Route::middleware('auth.admin')->group(function () {
     });
 
 
-});
-
-// Route de test pour le sélecteur d'icônes
-Route::get('/test-icon-selector', function() {
-    return view('test-icon-selector');
-});
-
-Route::get('/test-livewire', function() {
-    return response()->json([
-        'storage_path' => storage_path('app/livewire-tmp'),
-        'storage_exists' => is_dir(storage_path('app/livewire-tmp')),
-        'permissions' => substr(sprintf('%o', fileperms(storage_path('app'))), -4),
-    ]);
 });
