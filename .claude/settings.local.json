@@ -10,7 +10,9 @@
       "Bash(curl -X POST http://djvi.test:8080/api/auth/register )",
       "Bash(curl -X POST http://djvi.test:8080/api/auth/login )",
       "Bash(curl:*)",
-      "Bash(php artisan:*)"
+      "Bash(php artisan:*)",
+      "Bash(find:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": [],

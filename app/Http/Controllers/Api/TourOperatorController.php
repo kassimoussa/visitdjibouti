@@ -364,18 +364,6 @@ class TourOperatorController extends Controller
                 'consultation' => 'Consultation',
                 'photography' => 'Photography',
                 'other' => 'Other'
-            ],
-            'ar' => [
-                'guide' => 'مرشد سياحي',
-                'transport' => 'نقل',
-                'full_package' => 'باقة شاملة',
-                'accommodation' => 'إقامة',
-                'equipment_rental' => 'تأجير المعدات',
-                'cultural_experience' => 'تجربة ثقافية',
-                'adventure_sports' => 'رياضات المغامرة',
-                'consultation' => 'استشارة',
-                'photography' => 'تصوير',
-                'other' => 'أخرى'
             ]
         ];
 

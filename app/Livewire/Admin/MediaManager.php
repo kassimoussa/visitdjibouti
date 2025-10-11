@@ -36,7 +36,7 @@ class MediaManager extends Component
     // Propriétés pour l'édition
     public $editingMedia = null;
     public $currentLocale = 'fr'; // Langue par défaut
-    public $availableLocales = ['fr', 'en', 'ar']; // Langues disponibles
+    public $availableLocales = ['fr', 'en']; // Langues disponibles
     
     // Propriétés pour les traductions
     public $translations = []; // Stockage temporaire des traductions

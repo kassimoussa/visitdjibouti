@@ -57,16 +57,7 @@ class EventForm extends Component
             'requirements' => '',
             'program' => '',
             'additional_info' => '',
-        ],
-        'ar' => [
-            'title' => '',
-            'description' => '',
-            'short_description' => '',
-            'location_details' => '',
-            'requirements' => '',
-            'program' => '',
-            'additional_info' => '',
-        ],
+        ]
     ];
 
     // Langue active pour l'édition
@@ -116,7 +107,7 @@ class EventForm extends Component
         // Ajouter les règles pour chaque langue
         $requiredLocale = config('app.fallback_locale', 'fr'); // La langue par défaut est obligatoire
         
-        foreach (['fr', 'en', 'ar'] as $locale) {
+        foreach (['fr', 'en'] as $locale) {
             $isRequired = ($locale === $requiredLocale) ? 'required' : 'nullable';
             
             $rules["translations.{$locale}.title"] = "{$isRequired}|string|max:255";
@@ -136,7 +127,7 @@ class EventForm extends Component
      */
     public function changeLocale($locale)
     {
-        if (in_array($locale, ['fr', 'en', 'ar'])) {
+        if (in_array($locale, ['fr', 'en'])) {
             $this->activeLocale = $locale;
         }
     }
@@ -500,7 +491,7 @@ class EventForm extends Component
             'parentCategories' => $parentCategories,
             'media' => $media,
             'tourOperators' => $tourOperators,
-            'availableLocales' => ['fr', 'en', 'ar'],
+            'availableLocales' => ['fr', 'en'],
         ]);
     }
 }

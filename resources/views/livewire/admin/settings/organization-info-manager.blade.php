@@ -277,9 +277,6 @@
                                     <li class="nav-item">
                                         <button class="nav-link @if($currentLocale === 'en') active @endif" type="button" wire:click="switchLocale('en')">EN</button>
                                     </li>
-                                    <li class="nav-item">
-                                        <button class="nav-link @if($currentLocale === 'ar') active @endif" type="button" wire:click="switchLocale('ar')">AR</button>
-                                    </li>
                                 </ul>
 
                                 <!-- Contenu des onglets -->
@@ -313,22 +310,6 @@
                                             <textarea class="form-control @error('translations.en.description') is-invalid @enderror"
                                                       wire:model="translations.en.description" rows="4" placeholder="Organization description..."></textarea>
                                             @error('translations.en.description')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                        </div>
-                                    </div>
-
-                                    <!-- Onglet Arabe -->
-                                    <div class="tab-pane fade @if($currentLocale === 'ar') show active @endif">
-                                        <div class="mb-3">
-                                            <label class="form-label">اسم المنظمة</label>
-                                            <input type="text" class="form-control @error('translations.ar.name') is-invalid @enderror"
-                                                   wire:model="translations.ar.name" placeholder="مثال: المكتب الوطني للسياحة في جيبوتي" dir="rtl">
-                                            @error('translations.ar.name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">الوصف</label>
-                                            <textarea class="form-control @error('translations.ar.description') is-invalid @enderror"
-                                                      wire:model="translations.ar.description" rows="4" placeholder="وصف المنظمة..." dir="rtl"></textarea>
-                                            @error('translations.ar.description')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
                                     </div>
                                 </div>
@@ -396,9 +377,6 @@
                                     <li class="nav-item">
                                         <button class="nav-link @if($currentLocale === 'en') active @endif" type="button" wire:click="switchLocale('en')">EN</button>
                                     </li>
-                                    <li class="nav-item">
-                                        <button class="nav-link @if($currentLocale === 'ar') active @endif" type="button" wire:click="switchLocale('ar')">AR</button>
-                                    </li>
                                 </ul>
 
                                 <div class="mb-3">
@@ -416,7 +394,7 @@
                                         <div class="mb-3">
                                             <label class="form-label">Horaires en français</label>
                                             <textarea class="form-control @error('translations.fr.opening_hours_translated') is-invalid @enderror"
-                                                      wire:model="translations.fr.opening_hours_translated" rows="2" 
+                                                      wire:model="translations.fr.opening_hours_translated" rows="2"
                                                       placeholder="Lundi-Vendredi: 8h-17h, Samedi: 8h-12h"></textarea>
                                             @error('translations.fr.opening_hours_translated')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
@@ -427,20 +405,9 @@
                                         <div class="mb-3">
                                             <label class="form-label">Opening hours in English</label>
                                             <textarea class="form-control @error('translations.en.opening_hours_translated') is-invalid @enderror"
-                                                      wire:model="translations.en.opening_hours_translated" rows="2" 
+                                                      wire:model="translations.en.opening_hours_translated" rows="2"
                                                       placeholder="Monday-Friday: 8AM-5PM, Saturday: 8AM-12PM"></textarea>
                                             @error('translations.en.opening_hours_translated')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                        </div>
-                                    </div>
-
-                                    <!-- Onglet Arabe -->
-                                    <div class="tab-pane fade @if($currentLocale === 'ar') show active @endif">
-                                        <div class="mb-3">
-                                            <label class="form-label">ساعات العمل بالعربية</label>
-                                            <textarea class="form-control @error('translations.ar.opening_hours_translated') is-invalid @enderror"
-                                                      wire:model="translations.ar.opening_hours_translated" rows="2" 
-                                                      placeholder="الإثنين-الجمعة: 8ص-5م، السبت: 8ص-12م" dir="rtl"></textarea>
-                                            @error('translations.ar.opening_hours_translated')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
                                     </div>
                                 </div>
@@ -477,9 +444,6 @@
                                     <li class="nav-item">
                                         <button class="nav-link @if($currentLocale === 'en') active @endif" type="button" wire:click="switchLocale('en')">EN</button>
                                     </li>
-                                    <li class="nav-item">
-                                        <button class="nav-link @if($currentLocale === 'ar') active @endif" type="button" wire:click="switchLocale('ar')">AR</button>
-                                    </li>
                                 </ul>
 
                                 <!-- Contenu des onglets pour les noms -->
@@ -501,16 +465,6 @@
                                             <input type="text" class="form-control @error('currentLink.translations.en.name') is-invalid @enderror"
                                                    wire:model="currentLink.translations.en.name" placeholder="Official website">
                                             @error('currentLink.translations.en.name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                        </div>
-                                    </div>
-
-                                    <!-- Onglet Arabe -->
-                                    <div class="tab-pane fade @if($currentLocale === 'ar') show active @endif">
-                                        <div class="mb-3">
-                                            <label class="form-label">اسم الرابط بالعربية</label>
-                                            <input type="text" class="form-control @error('currentLink.translations.ar.name') is-invalid @enderror"
-                                                   wire:model="currentLink.translations.ar.name" placeholder="الموقع الرسمي" dir="rtl">
-                                            @error('currentLink.translations.ar.name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
                                     </div>
                                 </div>

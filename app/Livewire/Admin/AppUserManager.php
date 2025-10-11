@@ -15,7 +15,7 @@ class AppUserManager extends Component
     public $searchFilter = '';
     public $statusFilter = ''; // '', 'active', 'inactive'
     public $providerFilter = ''; // '', 'email', 'google', 'facebook'
-    public $languageFilter = ''; // '', 'fr', 'en', 'ar'
+    public $languageFilter = ''; // '', 'fr', 'en'
     public $registrationDateFrom = '';
     public $registrationDateTo = '';
     public $lastLoginDateFrom = '';

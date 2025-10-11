@@ -50,7 +50,7 @@ class EmbassyManager extends Component
         ],
     ];
 
-    public $availableLocales = ['fr', 'en', 'ar'];
+    public $availableLocales = ['fr', 'en'];
     public $currentLocale = 'fr';
 
     // Filtres et recherche

@@ -38,7 +38,7 @@ class EventDetails extends Component
      */
     public function changeLocale($locale)
     {
-        if (in_array($locale, ['fr', 'en', 'ar'])) {
+        if (in_array($locale, ['fr', 'en'])) {
             $this->currentLocale = $locale;
         }
         // Émettre un événement pour signaler le changement de langue
@@ -180,7 +180,7 @@ class EventDetails extends Component
         $detailedStats = $this->getDetailedStats();
         
         return view('livewire.admin.event.event-details', [
-            'availableLocales' => ['fr', 'en', 'ar'],
+            'availableLocales' => ['fr', 'en'],
             'eventStatus' => $eventStatus,
             'eventStats' => $eventStats,
             'groupedRegistrations' => $groupedRegistrations,

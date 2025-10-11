@@ -109,7 +109,6 @@
                     <option value="">Toutes les langues</option>
                     <option value="fr">Français ({{ $languages['fr'] ?? 0 }})</option>
                     <option value="en">Anglais ({{ $languages['en'] ?? 0 }})</option>
-                    <option value="ar">Arabe ({{ $languages['ar'] ?? 0 }})</option>
                 </select>
             </div>
 

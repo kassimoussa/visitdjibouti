@@ -219,25 +219,14 @@
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link @if($currentLocale === 'en') active @endif" 
-                                            id="en-tab" 
-                                            data-bs-toggle="tab" 
-                                            data-bs-target="#en-content" 
-                                            type="button" 
+                                    <button class="nav-link @if($currentLocale === 'en') active @endif"
+                                            id="en-tab"
+                                            data-bs-toggle="tab"
+                                            data-bs-target="#en-content"
+                                            type="button"
                                             role="tab"
                                             wire:click="switchLocale('en')">
                                         EN
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link @if($currentLocale === 'ar') active @endif" 
-                                            id="ar-tab" 
-                                            data-bs-toggle="tab" 
-                                            data-bs-target="#ar-content" 
-                                            type="button" 
-                                            role="tab"
-                                            wire:click="switchLocale('ar')">
-                                        AR
                                     </button>
                                 </li>
                             </ul>
@@ -349,66 +338,6 @@
                                                        wire:model="translations.en.postal_box"
                                                        placeholder="Ex: PO Box 1234">
                                                 @error('translations.en.postal_box')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Onglet Arabe -->
-                                <div class="tab-pane fade @if($currentLocale === 'ar') show active @endif" 
-                                     id="ar-content" 
-                                     role="tabpanel" 
-                                     aria-labelledby="ar-tab">
-                                    <div class="mb-4">
-                                        <h6 class="text-primary">معلومات باللغة العربية</h6>
-                                        
-                                        <div class="row">
-                                            <div class="col-md-12 mb-3">
-                                                <label class="form-label">اسم السفارة</label>
-                                                <input type="text" 
-                                                       class="form-control @error('translations.ar.name') is-invalid @enderror"
-                                                       wire:model="translations.ar.name"
-                                                       placeholder="مثال: سفارة دولة فلسطين"
-                                                       dir="rtl">
-                                                @error('translations.ar.name')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-12 mb-3">
-                                                <label class="form-label">اسم السفير</label>
-                                                <input type="text" 
-                                                       class="form-control @error('translations.ar.ambassador_name') is-invalid @enderror"
-                                                       wire:model="translations.ar.ambassador_name"
-                                                       placeholder="مثال: كامل عبد الله غزاز، سفير"
-                                                       dir="rtl">
-                                                @error('translations.ar.ambassador_name')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-8 mb-3">
-                                                <label class="form-label">العنوان</label>
-                                                <textarea class="form-control @error('translations.ar.address') is-invalid @enderror"
-                                                          wire:model="translations.ar.address"
-                                                          rows="3"
-                                                          placeholder="العنوان الكامل للسفارة"
-                                                          dir="rtl"></textarea>
-                                                @error('translations.ar.address')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label">صندوق البريد</label>
-                                                <input type="text" 
-                                                       class="form-control @error('translations.ar.postal_box') is-invalid @enderror"
-                                                       wire:model="translations.ar.postal_box"
-                                                       placeholder="مثال: ص.ب 1234"
-                                                       dir="rtl">
-                                                @error('translations.ar.postal_box')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>

@@ -45,7 +45,7 @@ class TourOperatorForm extends Component
     // Galerie d'images
     public $selectedMedia = [];
 
-    public $availableLocales = ['fr', 'en', 'ar'];
+    public $availableLocales = ['fr', 'en'];
     public $activeLocale = 'fr';
 
     protected function rules()

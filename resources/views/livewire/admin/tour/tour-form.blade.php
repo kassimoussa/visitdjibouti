@@ -20,11 +20,6 @@
                                 English
                             </button>
                         </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="ar-tab-btn" data-bs-toggle="tab" data-bs-target="#ar-tab" type="button" role="tab">
-                                العربية
-                            </button>
-                        </li>
                     </ul>
                     <div class="form-text mt-2">
                         <i class="fas fa-info-circle me-1"></i>
@@ -78,7 +73,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="tab-content border-0 p-0">
-                                        @foreach(['fr', 'en', 'ar'] as $locale)
+                                        @foreach(['fr', 'en'] as $locale)
                                         <div class="tab-pane fade @if($locale === 'fr') show active @endif" id="{{ $locale }}-tab" role="tabpanel">
                                             <div class="row g-3">
                                                 <div class="col-12">

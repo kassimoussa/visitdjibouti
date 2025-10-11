@@ -9,7 +9,7 @@ class TourOperatorDetail extends Component
 {
     public TourOperator $tourOperator;
     public $activeLocale = 'fr';
-    public $availableLocales = ['fr', 'en', 'ar'];
+    public $availableLocales = ['fr', 'en'];
     public $showEditModal = false;
 
     public function mount(TourOperator $tourOperator)

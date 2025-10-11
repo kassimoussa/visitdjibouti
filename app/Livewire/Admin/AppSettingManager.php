@@ -111,7 +111,7 @@ class AppSettingManager extends Component
     ];
 
     // Langues disponibles
-    public $availableLocales = ['fr', 'en', 'ar'];
+    public $availableLocales = ['fr', 'en'];
     public $currentLocale = 'fr';
 
     // Types de settings disponibles

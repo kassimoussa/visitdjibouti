@@ -58,15 +58,6 @@ class TourForm extends Component
             'highlights' => '',
             'what_to_bring' => '',
             'cancellation_policy_text' => ''
-        ],
-        'ar' => [
-            'title' => '',
-            'description' => '',
-            'itinerary' => '',
-            'meeting_point_description' => '',
-            'highlights' => '',
-            'what_to_bring' => '',
-            'cancellation_policy_text' => ''
         ]
     ];
 
@@ -95,8 +86,6 @@ class TourForm extends Component
         'translations.fr.description' => 'required|string',
         'translations.en.title' => 'nullable|string|max:255',
         'translations.en.description' => 'nullable|string',
-        'translations.ar.title' => 'nullable|string|max:255',
-        'translations.ar.description' => 'nullable|string',
     ];
 
     public function mount($tour = null)

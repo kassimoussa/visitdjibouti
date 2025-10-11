@@ -105,7 +105,6 @@
                                         wire:model="language_preference">
                                     <option value="fr">Français</option>
                                     <option value="en">English</option>
-                                    <option value="ar">العربية</option>
                                 </select>
                                 @error('language_preference')
                                     <div class="invalid-feedback">{{ $message }}</div>

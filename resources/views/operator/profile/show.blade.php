@@ -126,7 +126,6 @@
                                         name="language_preference">
                                     <option value="fr" {{ old('language_preference', $user->language_preference) == 'fr' ? 'selected' : '' }}>Français</option>
                                     <option value="en" {{ old('language_preference', $user->language_preference) == 'en' ? 'selected' : '' }}>English</option>
-                                    <option value="ar" {{ old('language_preference', $user->language_preference) == 'ar' ? 'selected' : '' }}>العربية</option>
                                 </select>
                                 @error('language_preference')
                                     <div class="invalid-feedback">{{ $message }}</div>

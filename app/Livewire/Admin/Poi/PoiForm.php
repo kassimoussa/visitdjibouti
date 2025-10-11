@@ -109,7 +109,7 @@ class PoiForm extends Component
         // Ajouter les règles pour chaque langue
         $requiredLocale = config('app.fallback_locale', 'fr'); // La langue par défaut est obligatoire
         
-        foreach (['fr', 'en', 'ar'] as $locale) {
+        foreach (['fr', 'en'] as $locale) {
             $isRequired = ($locale === $requiredLocale) ? 'required' : 'nullable';
             
             $rules["translations.{$locale}.name"] = "{$isRequired}|string|max:255";
@@ -129,7 +129,7 @@ class PoiForm extends Component
      */
     public function changeLocale($locale)
     {
-        if (in_array($locale, ['fr', 'en', 'ar'])) {
+        if (in_array($locale, ['fr', 'en'])) {
             $this->activeLocale = $locale;
         }
     }
@@ -1150,7 +1150,7 @@ class PoiForm extends Component
             'regions' => $regions,
             'media' => $media,
             'tourOperators' => $tourOperators,
-            'availableLocales' => ['fr', 'en', 'ar'],
+            'availableLocales' => ['fr', 'en'],
         ]);
     }
 }

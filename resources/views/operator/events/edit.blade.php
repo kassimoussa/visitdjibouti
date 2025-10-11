@@ -54,15 +54,10 @@
                                     🇬🇧 English
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#ar-tab" type="button">
-                                    🇸🇦 العربية
-                                </button>
-                            </li>
                         </ul>
 
                         <div class="tab-content">
-                            @foreach(['fr' => 'Français', 'en' => 'English', 'ar' => 'العربية'] as $locale => $language)
+                            @foreach(['fr' => 'Français', 'en' => 'English'] as $locale => $language)
                                 @php
                                     $translation = $event->translations->where('locale', $locale)->first();
                                 @endphp

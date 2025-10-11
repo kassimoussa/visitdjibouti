@@ -56,7 +56,7 @@ class OrganizationInfoManager extends Component
     ];
     public $linkEditMode = 'create'; // create ou edit
 
-    public $availableLocales = ['fr', 'en', 'ar'];
+    public $availableLocales = ['fr', 'en'];
     public $currentLocale = 'fr';
 
     public $availablePlatforms = [

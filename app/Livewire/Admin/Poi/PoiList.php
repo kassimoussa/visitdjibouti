@@ -231,7 +231,7 @@ class PoiList extends Component
         }
         
         $regions = $this->getRegionsList();
-        $availableLocales = ['fr', 'en', 'ar']; // Langues disponibles dans votre application
+        $availableLocales = ['fr', 'en']; // Langues disponibles dans votre application
         
         $query = Poi::with(['categories', 'featuredImage', 'translations']);
         

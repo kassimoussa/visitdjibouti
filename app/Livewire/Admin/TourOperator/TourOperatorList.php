@@ -15,7 +15,7 @@ class TourOperatorList extends Component
     public $filterFeatured = '';
     public $filterLocale = 'fr';
 
-    public $availableLocales = ['fr', 'en', 'ar'];
+    public $availableLocales = ['fr', 'en'];
 
     protected $paginationTheme = 'bootstrap';
 

@@ -173,7 +173,7 @@ class EventList extends Component
         }
         
         $dateFilters = $this->getDateFilters();
-        $availableLocales = ['fr', 'en', 'ar'];
+        $availableLocales = ['fr', 'en'];
         
         $query = Event::with(['categories', 'featuredImage', 'translations', 'tourOperator']);
         

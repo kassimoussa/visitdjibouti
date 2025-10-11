@@ -28,7 +28,7 @@ class PoiDetails extends Component
      */
     public function changeLocale($locale)
     {
-        if (in_array($locale, ['fr', 'en', 'ar'])) {
+        if (in_array($locale, ['fr', 'en'])) {
             $this->currentLocale = $locale;
         }
         // Émettre un événement pour signaler le changement de langue
@@ -104,7 +104,7 @@ class PoiDetails extends Component
     public function render()
     {
         return view('livewire.admin.poi.poi-details', [
-            'availableLocales' => ['fr', 'en', 'ar'],
+            'availableLocales' => ['fr', 'en'],
         ]);
     }
 }

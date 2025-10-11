@@ -48,7 +48,7 @@ class ModernCategoryManager extends Component
 
     public function initializeTranslations()
     {
-        $locales = ['fr', 'en', 'ar'];
+        $locales = ['fr', 'en'];
         foreach ($locales as $locale) {
             $this->translations[$locale] = [
                 'name' => '',

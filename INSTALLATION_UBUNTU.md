@@ -5,7 +5,8 @@
 
 ## 📋 Prérequis
 
-- Ubuntu 22.04 LTS ou 24.04 LTS (recommandé)
+- Ubuntu 22.04 LTS ou 24.04 LTS (recommandé pour production)
+- **OU** Ubuntu 25.04 (Plucky Puffin) pour développement
 - Accès root ou sudo
 - Connexion Internet
 - Au moins 2GB de RAM
@@ -30,31 +31,57 @@ sudo apt install -y software-properties-common apt-transport-https ca-certificat
 
 ---
 
-## 3️⃣ Installation de PHP 8.2
+## 3️⃣ Installation de PHP 8.2 / 8.3
 
-### Ajouter le repository PHP
+### Option A: Ubuntu 22.04 / 24.04 LTS (avec PPA ondrej)
+
 ```bash
+# Ajouter le repository PHP
 sudo add-apt-repository ppa:ondrej/php -y
 sudo apt update
-```
 
-### Installer PHP 8.2 et les extensions requises
-```bash
+# Installer PHP 8.2 et les extensions requises
 sudo apt install -y php8.2 php8.2-fpm php8.2-cli php8.2-common \
     php8.2-mysql php8.2-xml php8.2-curl php8.2-gd php8.2-mbstring \
     php8.2-zip php8.2-bcmath php8.2-intl php8.2-readline php8.2-tokenizer \
     php8.2-imagick php8.2-soap php8.2-opcache
 ```
 
+### Option B: Ubuntu 25.04 Plucky (dépôts officiels)
+
+⚠️ **Le PPA ondrej/php ne supporte pas encore Ubuntu 25.04**
+
+```bash
+# Supprimer le PPA ondrej s'il a été ajouté par erreur
+sudo add-apt-repository --remove ppa:ondrej/php -y 2>/dev/null || true
+sudo rm -f /etc/apt/sources.list.d/ondrej-ubuntu-php-plucky.list*
+
+# Mise à jour
+sudo apt update
+
+# Installer PHP 8.3 depuis les dépôts Ubuntu officiels
+sudo apt install -y php8.3 php8.3-fpm php8.3-cli php8.3-common \
+    php8.3-mysql php8.3-xml php8.3-curl php8.3-gd php8.3-mbstring \
+    php8.3-zip php8.3-bcmath php8.3-intl php8.3-readline php8.3-tokenizer \
+    php8.3-imagick php8.3-soap php8.3-opcache
+```
+
 ### Vérifier l'installation de PHP
 ```bash
 php -v
-# Doit afficher: PHP 8.2.x
+# Doit afficher: PHP 8.2.x ou PHP 8.3.x
 ```
 
 ### Configuration PHP (optionnel mais recommandé)
+
+**Pour PHP 8.2:**
 ```bash
 sudo nano /etc/php/8.2/fpm/php.ini
+```
+
+**Pour PHP 8.3:**
+```bash
+sudo nano /etc/php/8.3/fpm/php.ini
 ```
 
 Modifier les valeurs suivantes:
@@ -66,8 +93,15 @@ max_execution_time = 300
 ```
 
 Redémarrer PHP-FPM:
+
+**Pour PHP 8.2:**
 ```bash
 sudo systemctl restart php8.2-fpm
+```
+
+**Pour PHP 8.3:**
+```bash
+sudo systemctl restart php8.3-fpm
 ```
 
 ---
@@ -341,7 +375,12 @@ server {
     error_page 404 /index.php;
 
     location ~ \.php$ {
+        # Pour PHP 8.2 (Ubuntu 22.04/24.04):
         fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+
+        # Pour PHP 8.3 (Ubuntu 25.04), utiliser:
+        # fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
+
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
         fastcgi_hide_header X-Powered-By;
@@ -533,9 +572,18 @@ exit;
 ## 1️⃣6️⃣ Vérifications Finales
 
 ### Vérifier que tous les services sont actifs
+
+**Pour PHP 8.2 (Ubuntu 22.04/24.04):**
 ```bash
 sudo systemctl status nginx
 sudo systemctl status php8.2-fpm
+sudo systemctl status mysql
+```
+
+**Pour PHP 8.3 (Ubuntu 25.04):**
+```bash
+sudo systemctl status nginx
+sudo systemctl status php8.3-fpm
 sudo systemctl status mysql
 ```
 
@@ -646,15 +694,15 @@ sudo tail -f /var/log/nginx/error.log
 - gnupg, lsb-release
 - git, unzip
 
-### PHP 8.2 et Extensions
-- php8.2, php8.2-fpm, php8.2-cli
-- php8.2-mysql
-- php8.2-xml, php8.2-curl
-- php8.2-gd, php8.2-mbstring
-- php8.2-zip, php8.2-bcmath
-- php8.2-intl, php8.2-readline
-- php8.2-tokenizer, php8.2-imagick
-- php8.2-soap, php8.2-opcache
+### PHP 8.2 / 8.3 et Extensions
+- php8.2 / php8.3, php-fpm, php-cli
+- php-mysql
+- php-xml, php-curl
+- php-gd, php-mbstring
+- php-zip, php-bcmath
+- php-intl, php-readline
+- php-tokenizer, php-imagick
+- php-soap, php-opcache
 
 ### Base de données
 - mysql-server
@@ -697,7 +745,7 @@ Pour toute question ou problème:
 
 **Installation réalisée le:** {{ date }}
 **Version Laravel:** 11.x
-**Version PHP:** 8.2
+**Version PHP:** 8.2 (Ubuntu 22.04/24.04) ou 8.3 (Ubuntu 25.04)
 **Version MySQL:** 8.0
 **Version Node.js:** 20.x
 
