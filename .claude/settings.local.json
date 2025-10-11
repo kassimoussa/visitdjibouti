@@ -12,7 +12,10 @@
       "Bash(curl:*)",
       "Bash(php artisan:*)",
       "Bash(find:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(composer update:*)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.2.20-Win32-vs16-x64/php.exe /mnt/c/ProgramData/ComposerSetup/bin/composer update --lock)",
+      "Read(//mnt/c/laragon/**)"
     ],
     "deny": [],
     "ask": [],

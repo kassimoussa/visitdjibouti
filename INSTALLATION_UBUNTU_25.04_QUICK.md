@@ -150,7 +150,7 @@ cd /var/www
 sudo git clone votre-repo visitdjibouti
 
 # Permissions
-sudo chown -R $USER:www-data /var/www/visitdjibouti
+sudo chown -R $USER:www-data /var/www/html/visitdjibouti
 cd /var/www/visitdjibouti
 
 # Installer les dépendances
