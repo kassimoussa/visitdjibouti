@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -12,21 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Crée la table 'tours' avec le schéma final souhaité
+        // Tours
         Schema::create('tours', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
             $table->foreignId('tour_operator_id')->constrained('tour_operators')->onDelete('cascade');
             $table->string('type');
-            $table->morphs('target');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->time('start_time')->nullable();
-            $table->time('end_time')->nullable();
+            $table->string('target_type')->nullable();
+            $table->unsignedBigInteger('target_id')->nullable();
+            $table->integer('duration_hours')->nullable();
+            $table->integer('max_participants')->nullable();
+            $table->integer('min_participants')->default(1);
             $table->decimal('price', 10, 2)->default(0);
             $table->string('currency', 3)->default('DJF');
-            $table->integer('max_participants')->nullable();
-            $table->integer('current_participants')->default(0);
             $table->enum('difficulty_level', ['easy', 'moderate', 'difficult', 'expert'])->default('easy');
             $table->json('includes')->nullable();
             $table->json('requirements')->nullable();
@@ -35,19 +34,32 @@ return new class extends Migration
             $table->string('meeting_point_address')->nullable();
             $table->enum('status', ['active', 'suspended', 'archived'])->default('active');
             $table->boolean('is_featured')->default(false);
+            $table->boolean('is_recurring')->default(false);
+            $table->json('recurring_pattern')->nullable();
             $table->boolean('weather_dependent')->default(false);
+            $table->integer('age_restriction_min')->nullable();
+            $table->integer('age_restriction_max')->nullable();
             $table->text('cancellation_policy')->nullable();
             $table->foreignId('featured_image_id')->nullable()->constrained('media')->nullOnDelete();
             $table->integer('views_count')->default(0);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['target_type', 'target_id']);
+            $table->index('tour_operator_id');
+            $table->index('type');
+            $table->index('status');
+            $table->index('is_featured');
+            $table->index('difficulty_level');
+            $table->index('price');
+            $table->index(['meeting_point_latitude', 'meeting_point_longitude']);
         });
 
-        // Crée la table pour les traductions des tours
+        // Tour Translations
         Schema::create('tour_translations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tour_id')->constrained('tours')->onDelete('cascade');
-            $table->string('locale', 5);
+            $table->string('locale', 2);
             $table->string('title');
             $table->text('description');
             $table->text('short_description')->nullable();
@@ -57,35 +69,25 @@ return new class extends Migration
             $table->json('what_to_bring')->nullable();
             $table->text('cancellation_policy_text')->nullable();
             $table->timestamps();
+
             $table->unique(['tour_id', 'locale']);
-        });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        // Inverser les opérations dans l'ordre inverse
-
-        // Recréer la colonne 'max_participants_new' pour la renommer
-        Schema::table('tours', function (Blueprint $table) {
-            $table->renameColumn('max_participants', 'max_participants_new');
+            $table->index('tour_id');
+            $table->index('locale');
         });
 
-        // Rajouter les anciennes colonnes à 'tours'
-        Schema::table('tours', function (Blueprint $table) {
-            $table->integer('duration_hours')->nullable();
-            $table->integer('duration_days')->nullable();
-            $table->integer('max_participants')->nullable();
-            $table->integer('min_participants')->default(1);
-            $table->boolean('is_recurring')->default(false);
-            $table->json('recurring_pattern')->nullable();
-            $table->integer('age_restriction_min')->nullable();
-            $table->integer('age_restriction_max')->nullable();
+        // Media-Tour Pivot
+        Schema::create('media_tour', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('media_id')->constrained('media')->onDelete('cascade');
+            $table->foreignId('tour_id')->constrained('tours')->onDelete('cascade');
+            $table->integer('order')->default(0);
+            $table->timestamps();
+
+            $table->unique(['media_id', 'tour_id']);
+            $table->index(['tour_id', 'order']);
         });
 
-        // Recréer la table 'tour_schedules'
+        // Tour Schedules
         Schema::create('tour_schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tour_id')->constrained('tours')->onDelete('cascade');
@@ -107,18 +109,24 @@ return new class extends Migration
             $table->foreignId('created_by_admin_id')->nullable()->constrained('admin_users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
-        });
 
-        // Supprimer les nouvelles colonnes de 'tours'
-        Schema::table('tours', function (Blueprint $table) {
-            $table->dropColumn([
-                'start_date',
-                'end_date',
-                'start_time',
-                'end_time',
-                'max_participants_new',
-                'current_participants'
-            ]);
+            $table->index('tour_id');
+            $table->index('start_date');
+            $table->index('status');
+            $table->index(['start_date', 'status']);
+            $table->index('guide_name');
+            $table->index(['available_spots', 'booked_spots']);
         });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('tour_schedules');
+        Schema::dropIfExists('media_tour');
+        Schema::dropIfExists('tour_translations');
+        Schema::dropIfExists('tours');
     }
 };

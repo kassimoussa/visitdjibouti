@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // 1. Création de la table principale des médias sans les champs traduisibles
+        // Media
         Schema::create('media', function (Blueprint $table) {
             $table->id();
             $table->string('filename');
@@ -20,28 +20,20 @@ return new class extends Migration
             $table->unsignedBigInteger('size');
             $table->string('path');
             $table->string('thumbnail_path')->nullable();
-            $table->string('type'); // images, documents, videos, others
-            // Les champs traduisibles sont retirés de cette table
-            // $table->string('title')->nullable();
-            // $table->string('alt_text')->nullable();
-            // $table->text('description')->nullable();
+            $table->string('type');
             $table->timestamps();
         });
 
-        // 2. Création de la table de traductions pour les médias
+        // Media Translations
         Schema::create('media_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('media_id')->constrained()->onDelete('cascade');
-            $table->string('locale', 5); // fr, en, ar, etc.
-            
-            // Champs traduisibles qui ont été retirés de la table principale
+            $table->foreignId('media_id')->constrained('media')->onDelete('cascade');
+            $table->string('locale', 5);
             $table->string('title')->nullable();
             $table->string('alt_text')->nullable();
             $table->text('description')->nullable();
-            
             $table->timestamps();
-            
-            // Contrainte d'unicité
+
             $table->unique(['media_id', 'locale']);
         });
     }
@@ -51,7 +43,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // L'ordre est important pour respecter les contraintes de clé étrangère
         Schema::dropIfExists('media_translations');
         Schema::dropIfExists('media');
     }

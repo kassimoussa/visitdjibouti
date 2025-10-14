@@ -11,34 +11,31 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // 1. Création de la table principale des catégories sans les champs traduisibles
+        // Categories
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('slug')->unique();
-            $table->string('icon_class')->nullable();
-            $table->string('color')->nullable();
-
-            // Ajout des colonnes de hiérarchie
             $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('cascade');
+            $table->integer('sort_order')->default(0);
             $table->integer('level')->default(0);
-            $table->integer('order')->default(0);
-
+            $table->string('slug')->unique();
+            $table->string('icon')->nullable();
+            $table->string('color')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            $table->index(['parent_id', 'sort_order']);
+            $table->index(['level', 'sort_order']);
         });
 
-        // 2. Création de la table de traductions pour les catégories
+        // Category Translations
         Schema::create('category_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->string('locale', 5); // fr, en, ar, etc.
-            
-            // Champs traduisibles qui ont été retirés de la table principale
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            $table->string('locale', 5);
             $table->string('name');
             $table->text('description')->nullable();
-            
             $table->timestamps();
-            
-            // Contrainte d'unicité pour éviter les doublons de traduction pour une même catégorie et langue
+
             $table->unique(['category_id', 'locale']);
         });
     }
@@ -48,7 +45,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // L'ordre est important pour respecter les contraintes de clé étrangère
         Schema::dropIfExists('category_translations');
         Schema::dropIfExists('categories');
     }
