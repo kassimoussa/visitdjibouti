@@ -18,33 +18,40 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password')->nullable(); // Nullable pour les connexions sociales
+            $table->string('password')->nullable();
+
+            // Colonnes pour l'authentification sociale
+            $table->string('provider')->nullable();
+            $table->string('provider_id')->nullable();
+
+            // Colonnes de profil supplémentaires
             $table->string('phone')->nullable();
-            
-            // Informations personnelles
-            $table->string('avatar')->nullable();
+            $table->string('gender')->nullable();
             $table->date('date_of_birth')->nullable();
-            $table->enum('gender', ['male', 'female', 'other'])->nullable();
-            
-            // Préférences
-            $table->string('preferred_language', 2)->default('fr'); // fr, en, ar
+            $table->string('preferred_language', 2)->default('fr');
+            $table->string('city')->nullable();
+            $table->string('avatar')->nullable();
             $table->boolean('push_notifications_enabled')->default(true);
             $table->boolean('email_notifications_enabled')->default(true);
-            
-            // Authentification sociale
-            $table->string('provider')->nullable(); // google, facebook, email
-            $table->string('provider_id')->nullable();
-            
-            // Localisation (optionnel)
-            $table->string('city')->nullable();
-            $table->string('country')->default('DJ'); // Djibouti par défaut
-            
-            // Statut et métadonnées
-            $table->boolean('is_active')->default(true);
+
+            // Dernières colonnes de la factory
+            $table->string('country')->nullable();
             $table->timestamp('last_login_at')->nullable();
             $table->ipAddress('last_login_ip')->nullable();
-            
-            // Tokens et sécurité
+
+            $table->boolean('is_active')->default(true);
+
+            // Colonnes pour le support anonyme
+            $table->boolean('is_anonymous')->default(false);
+            $table->string('device_id')->nullable()->unique();
+
+            // Colonnes pour les informations de l'appareil
+            $table->string('device_os')->nullable();
+            $table->string('device_os_version')->nullable();
+            $table->string('device_model')->nullable();
+            $table->string('app_version')->nullable();
+            $table->string('fcm_token')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
             

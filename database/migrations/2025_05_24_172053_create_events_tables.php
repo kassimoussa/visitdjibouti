@@ -41,10 +41,12 @@ return new class extends Migration
             
             // Statuts et options
             $table->boolean('is_featured')->default(false);
+            $table->boolean('allow_reservations')->default(false);
             $table->string('status')->default('draft'); // draft, published, scheduled, cancelled, completed
             
             // Relations
             $table->foreignId('creator_id')->nullable()->constrained('admin_users')->nullOnDelete();
+            $table->foreignId('tour_operator_id')->nullable()->constrained('tour_operators')->nullOnDelete();
             $table->foreignId('featured_image_id')->nullable()->constrained('media')->nullOnDelete();
             
             // Stats
@@ -101,42 +103,9 @@ return new class extends Migration
             $table->unique(['media_id', 'event_id']);
         });
         
-        // 5. Table des inscriptions aux événements
-        Schema::create('event_registrations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-            
-            // Informations de l'utilisateur (pour les non-connectés aussi)
-            $table->string('user_name');
-            $table->string('user_email');
-            $table->string('user_phone')->nullable();
-            
-            // Détails de l'inscription
-            $table->integer('participants_count')->default(1);
-            $table->string('status')->default('pending'); // pending, confirmed, cancelled, attended, no_show
-            $table->string('registration_number')->unique();
-            
-            // Paiement
-            $table->string('payment_status')->default('pending'); // pending, paid, failed, refunded
-            $table->decimal('payment_amount', 10, 2)->nullable();
-            $table->string('payment_reference')->nullable();
-            
-            // Informations supplémentaires
-            $table->text('special_requirements')->nullable();
-            $table->text('notes')->nullable();
-            
-            // Annulation
-            $table->timestamp('cancelled_at')->nullable();
-            $table->text('cancellation_reason')->nullable();
-            
-            $table->timestamps();
-            $table->softDeletes();
-            
-            $table->index(['event_id', 'status']);
-            $table->index(['user_email']);
-            $table->index(['registration_number']);
-        });
+        // 5. La table des inscriptions aux événements (event_registrations) est maintenant obsolète.
+        // Sa logique a été remplacée par la table 'reservations' générique.
+        // Schema::create('event_registrations', function (Blueprint $table) { ... });
         
         // 6. Table des avis sur les événements
         Schema::create('event_reviews', function (Blueprint $table) {

@@ -14,25 +14,13 @@ return new class extends Migration
         Schema::create('tour_operator_users', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tour_operator_id')->constrained('tour_operators')->onDelete('cascade');
-
-            // Informations de base
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('username')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('phone_number')->nullable();
-            $table->string('position')->nullable(); // Poste occupé dans l'entreprise
-
-            // Avatar et préférences
-            $table->string('avatar')->nullable();
-            $table->string('language_preference', 5)->default('fr'); // fr, en, ar
-
-            // Permissions et statut
-            $table->json('permissions')->nullable(); // manage_events, manage_tours, view_reservations, manage_profile, all
+            $table->string('role')->default('editor'); // ex: admin, editor
             $table->boolean('is_active')->default(true);
-
-            // Métadonnées
-            $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
 

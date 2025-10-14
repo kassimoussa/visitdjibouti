@@ -43,7 +43,7 @@ class AppUserFactory extends Factory
             'password' => $provider === 'email' ? Hash::make('password') : null,
             'phone' => fake()->optional(0.7)->numerify('+253 ## ## ## ##'),
             'avatar' => fake()->optional(0.3)->imageUrl(200, 200, 'people'),
-            'date_of_birth' => fake()->optional(0.6)->dateTimeBetween('-60 years', '-16 years')->format('Y-m-d'),
+            'date_of_birth' => ($dob = fake()->optional(0.6)->dateTimeBetween('-60 years', '-16 years')) ? $dob->format('Y-m-d') : null,
             'gender' => $gender,
             'preferred_language' => fake()->randomElement($languages),
             'push_notifications_enabled' => fake()->boolean(80), // 80% chance true

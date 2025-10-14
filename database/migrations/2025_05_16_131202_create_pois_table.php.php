@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->string('region')->nullable();
-            $table->string('contact')->nullable();
+            $table->json('contact')->nullable();
             $table->string('website')->nullable();
             $table->boolean('is_featured')->default(false);
             $table->boolean('allow_reservations')->default(false);

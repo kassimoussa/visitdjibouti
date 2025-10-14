@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\AppSettingController;
 use App\Http\Controllers\Api\TourOperatorController;
 use App\Http\Controllers\Api\TourController;
 use App\Http\Controllers\Api\ReservationController;
+use App\Http\Controllers\Api\TourReservationController;
 use App\Http\Controllers\Api\DeviceController;
 
 /*
@@ -26,8 +27,10 @@ use App\Http\Controllers\Api\DeviceController;
 | Here is where you can register API routes for your application. These
 | routes are loaded by the RouteServiceProvider and all of them will
 | be assigned to the "api" middleware group. Make something great!
-|
-*/
+|*/
+
+// Route dédiée pour les réservations de tours
+Route::post('/tour-reservations', [TourReservationController::class, 'store']);
 
 // Routes publiques d'authentification
 Route::prefix('auth')->group(function () {
