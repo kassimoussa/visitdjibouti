@@ -8,13 +8,13 @@ class IconSelector extends Component
 {
     // L'icône actuellement sélectionnée - changée pour FontAwesome
     public $selectedIcon = 'fas fa-folder';
-    
+
     // La catégorie d'icônes active
     public $activeCategory = 'all';
-    
+
     // Recherche
     public $searchQuery = '';
-    
+
     // Fournisseurs d'icônes disponibles
     public $iconProviders = [
         'fontawesome' => 'FontAwesome',
@@ -22,19 +22,19 @@ class IconSelector extends Component
         'lucide' => 'Lucide',
         'bootstrap' => 'Bootstrap Icons',
         'flags' => 'Drapeaux',
-        'emojis' => 'Emojis'
+        'emojis' => 'Emojis',
     ];
-    
+
     // Fournisseur actif
     public $activeProvider = 'fontawesome';
-    
+
     // Catégories par fournisseur
     public $categories = [
         'fontawesome' => [
             'all' => 'Toutes',
             'solid' => 'Solid',
-            'regular' => 'Regular', 
-            'brands' => 'Marques'
+            'regular' => 'Regular',
+            'brands' => 'Marques',
         ],
         'tabler' => [
             'all' => 'Toutes',
@@ -42,37 +42,36 @@ class IconSelector extends Component
             'business' => 'Business',
             'communication' => 'Communication',
             'media' => 'Média',
-            'navigation' => 'Navigation'
+            'navigation' => 'Navigation',
         ],
         'lucide' => [
             'all' => 'Toutes',
             'general' => 'Général',
             'arrows' => 'Flèches',
             'files' => 'Fichiers',
-            'text' => 'Texte'
+            'text' => 'Texte',
         ],
         'bootstrap' => [
             'all' => 'Toutes',
             'general' => 'Général',
             'communication' => 'Communication',
-            'files' => 'Fichiers'
+            'files' => 'Fichiers',
         ],
         'flags' => [
             'all' => 'Tous pays',
             'africa' => 'Afrique',
             'europe' => 'Europe',
             'asia' => 'Asie',
-            'america' => 'Amérique'
+            'america' => 'Amérique',
         ],
         'emojis' => [
             'all' => 'Tous',
             'travel' => 'Voyage',
             'nature' => 'Nature',
             'activities' => 'Activités',
-            'objects' => 'Objets'
-        ]
+            'objects' => 'Objets',
+        ],
     ];
-
 
     public $fontAwesomeIcons = [
         'solid' => [
@@ -1002,7 +1001,7 @@ class IconSelector extends Component
             'fas fa-wrench',
             'fas fa-x-ray',
             'fas fa-yen-sign',
-            'fas fa-yin-yang'
+            'fas fa-yin-yang',
         ],
         'regular' => [
             'far fa-address-book',
@@ -1155,7 +1154,7 @@ class IconSelector extends Component
             'far fa-window-close',
             'far fa-window-maximize',
             'far fa-window-minimize',
-            'far fa-window-restore'
+            'far fa-window-restore',
         ],
         'brands' => [
             'fab fa-500px',
@@ -1585,8 +1584,8 @@ class IconSelector extends Component
             'fab fa-yoast',
             'fab fa-youtube',
             'fab fa-youtube-square',
-            'fab fa-zhihu'
-        ]
+            'fab fa-zhihu',
+        ],
     ];
 
     // Collections d'icônes par fournisseur
@@ -1596,63 +1595,63 @@ class IconSelector extends Component
             'ti ti-heart', 'ti ti-star', 'ti ti-bookmark', 'ti ti-calendar',
             'ti ti-clock', 'ti ti-map-pin', 'ti ti-globe', 'ti ti-camera',
             'ti ti-photo', 'ti ti-video', 'ti ti-music', 'ti ti-phone',
-            'ti ti-mail', 'ti ti-message', 'ti ti-notification'
+            'ti ti-mail', 'ti ti-message', 'ti ti-notification',
         ],
         'business' => [
             'ti ti-building', 'ti ti-briefcase', 'ti ti-chart-bar', 'ti ti-chart-line',
             'ti ti-currency-dollar', 'ti ti-credit-card', 'ti ti-shopping-cart',
-            'ti ti-package', 'ti ti-truck', 'ti ti-clipboard'
+            'ti ti-package', 'ti ti-truck', 'ti ti-clipboard',
         ],
         'navigation' => [
             'ti ti-arrow-left', 'ti ti-arrow-right', 'ti ti-arrow-up', 'ti ti-arrow-down',
-            'ti ti-chevron-left', 'ti ti-chevron-right', 'ti ti-menu-2', 'ti ti-x'
-        ]
+            'ti ti-chevron-left', 'ti ti-chevron-right', 'ti ti-menu-2', 'ti ti-x',
+        ],
     ];
 
     public $lucideIcons = [
         'general' => [
             'lucide-home', 'lucide-user', 'lucide-users', 'lucide-settings', 'lucide-search',
             'lucide-heart', 'lucide-star', 'lucide-bookmark', 'lucide-calendar',
-            'lucide-clock', 'lucide-map-pin', 'lucide-globe', 'lucide-camera'
+            'lucide-clock', 'lucide-map-pin', 'lucide-globe', 'lucide-camera',
         ],
         'arrows' => [
             'lucide-arrow-left', 'lucide-arrow-right', 'lucide-arrow-up', 'lucide-arrow-down',
-            'lucide-chevron-left', 'lucide-chevron-right', 'lucide-move', 'lucide-external-link'
-        ]
+            'lucide-chevron-left', 'lucide-chevron-right', 'lucide-move', 'lucide-external-link',
+        ],
     ];
 
     public $bootstrapIcons = [
         'general' => [
             'bi-house', 'bi-person', 'bi-people', 'bi-gear', 'bi-search',
             'bi-heart', 'bi-star', 'bi-bookmark', 'bi-calendar',
-            'bi-clock', 'bi-geo-alt', 'bi-globe', 'bi-camera'
-        ]
+            'bi-clock', 'bi-geo-alt', 'bi-globe', 'bi-camera',
+        ],
     ];
 
     public $flagIcons = [
         'africa' => [
             'fi fi-dj' => '🇩🇯 Djibouti',
-            'fi fi-et' => '🇪🇹 Éthiopie', 
+            'fi fi-et' => '🇪🇹 Éthiopie',
             'fi fi-so' => '🇸🇴 Somalie',
             'fi fi-er' => '🇪🇷 Érythrée',
             'fi fi-sd' => '🇸🇩 Soudan',
             'fi fi-eg' => '🇪🇬 Égypte',
             'fi fi-ma' => '🇲🇦 Maroc',
-            'fi fi-tn' => '🇹🇳 Tunisie'
+            'fi fi-tn' => '🇹🇳 Tunisie',
         ],
         'europe' => [
             'fi fi-fr' => '🇫🇷 France',
             'fi fi-gb' => '🇬🇧 Royaume-Uni',
             'fi fi-de' => '🇩🇪 Allemagne',
             'fi fi-it' => '🇮🇹 Italie',
-            'fi fi-es' => '🇪🇸 Espagne'
+            'fi fi-es' => '🇪🇸 Espagne',
         ],
         'asia' => [
             'fi fi-cn' => '🇨🇳 Chine',
             'fi fi-jp' => '🇯🇵 Japon',
             'fi fi-in' => '🇮🇳 Inde',
-            'fi fi-sa' => '🇸🇦 Arabie Saoudite'
-        ]
+            'fi fi-sa' => '🇸🇦 Arabie Saoudite',
+        ],
     ];
 
     public $emojiIcons = [
@@ -1665,7 +1664,7 @@ class IconSelector extends Component
             '🚢' => 'Bateau',
             '🏨' => 'Hôtel',
             '🗺️' => 'Carte',
-            '🧳' => 'Bagages'
+            '🧳' => 'Bagages',
         ],
         'nature' => [
             '🌊' => 'Vague',
@@ -1675,7 +1674,7 @@ class IconSelector extends Component
             '🐪' => 'Chameau',
             '🦩' => 'Flamant',
             '🐠' => 'Poisson',
-            '🌺' => 'Fleur'
+            '🌺' => 'Fleur',
         ],
         'activities' => [
             '🤿' => 'Plongée',
@@ -1684,8 +1683,8 @@ class IconSelector extends Component
             '🎣' => 'Pêche',
             '📸' => 'Photo',
             '🎭' => 'Culture',
-            '🍽️' => 'Restaurant'
-        ]
+            '🍽️' => 'Restaurant',
+        ],
     ];
 
     // Méthode pour changer de fournisseur
@@ -1729,7 +1728,7 @@ class IconSelector extends Component
         }
 
         if ($this->searchQuery) {
-            $icons = array_filter($icons, function($icon) {
+            $icons = array_filter($icons, function ($icon) {
                 return stripos($icon, $this->searchQuery) !== false;
             });
         }
@@ -1749,7 +1748,7 @@ class IconSelector extends Component
         }
 
         if ($this->searchQuery) {
-            $icons = array_filter($icons, function($icon) {
+            $icons = array_filter($icons, function ($icon) {
                 return stripos($icon, $this->searchQuery) !== false;
             });
         }
@@ -1769,7 +1768,7 @@ class IconSelector extends Component
         }
 
         if ($this->searchQuery) {
-            $icons = array_filter($icons, function($icon) {
+            $icons = array_filter($icons, function ($icon) {
                 return stripos($icon, $this->searchQuery) !== false;
             });
         }
@@ -1789,7 +1788,7 @@ class IconSelector extends Component
         }
 
         if ($this->searchQuery) {
-            $icons = array_filter($icons, function($icon, $class) {
+            $icons = array_filter($icons, function ($icon, $class) {
                 return stripos($icon, $this->searchQuery) !== false || stripos($class, $this->searchQuery) !== false;
             }, ARRAY_FILTER_USE_BOTH);
         }
@@ -1809,7 +1808,7 @@ class IconSelector extends Component
         }
 
         if ($this->searchQuery) {
-            $icons = array_filter($icons, function($description, $emoji) {
+            $icons = array_filter($icons, function ($description, $emoji) {
                 return stripos($description, $this->searchQuery) !== false;
             }, ARRAY_FILTER_USE_BOTH);
         }
@@ -1829,7 +1828,7 @@ class IconSelector extends Component
         }
 
         if ($this->searchQuery) {
-            $icons = array_filter($icons, function($icon) {
+            $icons = array_filter($icons, function ($icon) {
                 return stripos($icon, $this->searchQuery) !== false;
             });
         }
@@ -1837,43 +1836,42 @@ class IconSelector extends Component
         return $icons;
     }
 
-
     protected function getListeners()
     {
         return ['iconSelected'];
     }
-    
+
     public function mount($initialIcon = null)
     {
         if ($initialIcon) {
             $this->selectedIcon = $initialIcon;
         }
     }
-    
+
     // Sélectionne une icône et envoie un événement au parent
     public function selectIcon($icon)
     {
         $this->selectedIcon = $icon;
         $this->dispatch('icon-selected', icon: $icon);
     }
-    
+
     // Change la catégorie active
     public function changeCategory($category)
     {
         $this->activeCategory = $category;
     }
-    
+
     // Méthode simplifiée pour obtenir les icônes filtrées
     public function getFilteredIconsProperty()
     {
         return $this->getCurrentIcons();
     }
-    
+
     public function render()
     {
         return view('livewire.admin.components.multi-icon-selector', [
             'filteredIcons' => $this->getFilteredIconsProperty(),
-            'currentCategories' => $this->categories[$this->activeProvider] ?? []
+            'currentCategories' => $this->categories[$this->activeProvider] ?? [],
         ]);
     }
 }

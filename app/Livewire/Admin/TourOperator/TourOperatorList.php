@@ -12,7 +12,9 @@ class TourOperatorList extends Component
 
     // Filtres et recherche
     public $search = '';
+
     public $filterFeatured = '';
+
     public $filterLocale = 'fr';
 
     public $availableLocales = ['fr', 'en'];
@@ -24,8 +26,8 @@ class TourOperatorList extends Component
         $tourOperators = TourOperator::with(['translations', 'logo'])
             ->when($this->search, function ($query) {
                 $query->whereHas('translations', function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('description', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('description', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->filterFeatured !== '', function ($query) {
@@ -45,7 +47,6 @@ class TourOperatorList extends Component
         $this->resetPage();
     }
 
-
     public function updatingFilterFeatured()
     {
         $this->resetPage();
@@ -60,12 +61,12 @@ class TourOperatorList extends Component
     {
         try {
             $tourOperator = TourOperator::findOrFail($tourOperatorId);
-            $tourOperator->update(['is_active' => !$tourOperator->is_active]);
-            
+            $tourOperator->update(['is_active' => ! $tourOperator->is_active]);
+
             $status = $tourOperator->is_active ? 'activé' : 'désactivé';
             session()->flash('message', "Opérateur de tour {$status} avec succès.");
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors du changement de statut: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors du changement de statut: '.$e->getMessage());
         }
     }
 
@@ -73,12 +74,12 @@ class TourOperatorList extends Component
     {
         try {
             $tourOperator = TourOperator::findOrFail($tourOperatorId);
-            $tourOperator->update(['featured' => !$tourOperator->featured]);
-            
+            $tourOperator->update(['featured' => ! $tourOperator->featured]);
+
             $status = $tourOperator->featured ? 'mis en avant' : 'retiré de la mise en avant';
             session()->flash('message', "Opérateur de tour {$status} avec succès.");
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors du changement de statut featured: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors du changement de statut featured: '.$e->getMessage());
         }
     }
 
@@ -87,10 +88,10 @@ class TourOperatorList extends Component
         try {
             $tourOperator = TourOperator::findOrFail($tourOperatorId);
             $tourOperator->delete();
-            
+
             session()->flash('message', 'Opérateur de tour supprimé avec succès.');
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors de la suppression: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la suppression: '.$e->getMessage());
         }
     }
 }

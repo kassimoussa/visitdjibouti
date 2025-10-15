@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
@@ -33,7 +33,7 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:tour_operator_users,email,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:tour_operator_users,email,'.$user->id,
             'phone_number' => 'nullable|string|max:20',
             'position' => 'nullable|string|max:255',
             'language_preference' => 'required|in:fr,en,ar',
@@ -131,7 +131,7 @@ class ProfileController extends Controller
             'translations',
             'logo',
             'media',
-            'pois.translations'
+            'pois.translations',
         ]);
 
         return view('operator.profile.tour-operator', compact('user', 'tourOperator'));

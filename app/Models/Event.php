@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class Event extends Model
 {
@@ -44,7 +43,7 @@ class Event extends Model
         'creator_id',
         'tour_operator_id',
         'featured_image_id',
-        'views_count'
+        'views_count',
     ];
 
     /**
@@ -73,7 +72,7 @@ class Event extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         // Génération automatique du slug basé sur le titre de la traduction par défaut
         static::creating(function ($event) {
             if (empty($event->slug) && request()->has('translations')) {
@@ -93,22 +92,22 @@ class Event extends Model
     {
         return $this->hasMany(EventTranslation::class, 'event_id');
     }
-    
+
     /**
      * Obtenir la traduction dans la langue spécifiée.
      */
     public function translation($locale = null)
     {
         $locale = $locale ?: app()->getLocale();
-        
+
         return $this->translations()
-                    ->where('locale', $locale)
-                    ->first() 
+            ->where('locale', $locale)
+            ->first()
                 ?? $this->translations()
-                      ->where('locale', config('app.fallback_locale'))
-                      ->first();
+                    ->where('locale', config('app.fallback_locale'))
+                    ->first();
     }
-    
+
     /**
      * Accesseurs pour les attributs traduits.
      */
@@ -116,32 +115,32 @@ class Event extends Model
     {
         return $this->translation() ? $this->translation()->title : '';
     }
-    
+
     public function getDescriptionAttribute()
     {
         return $this->translation() ? $this->translation()->description : '';
     }
-    
+
     public function getShortDescriptionAttribute()
     {
         return $this->translation() ? $this->translation()->short_description : '';
     }
-    
+
     public function getLocationDetailsAttribute()
     {
         return $this->translation() ? $this->translation()->location_details : '';
     }
-    
+
     public function getRequirementsAttribute()
     {
         return $this->translation() ? $this->translation()->requirements : '';
     }
-    
+
     public function getProgramAttribute()
     {
         return $this->translation() ? $this->translation()->program : '';
     }
-    
+
     public function getAdditionalInfoAttribute()
     {
         return $this->translation() ? $this->translation()->additional_info : '';
@@ -185,12 +184,13 @@ class Event extends Model
     public function media(): BelongsToMany
     {
         return $this->belongsToMany(Media::class, 'media_event')
-                    ->withPivot('order')
-                    ->orderBy('order');
+            ->withPivot('order')
+            ->orderBy('order');
     }
 
     /**
      * Get event registrations (legacy - use reservations() instead).
+     *
      * @deprecated Use reservations() method instead
      */
     public function registrations(): MorphMany
@@ -209,9 +209,6 @@ class Event extends Model
 
     /**
      * Check if the event has a specific status.
-     *
-     * @param string $status
-     * @return bool
      */
     public function hasStatus(string $status): bool
     {
@@ -221,7 +218,7 @@ class Event extends Model
     /**
      * Get all published events.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopePublished($query)
@@ -232,7 +229,7 @@ class Event extends Model
     /**
      * Get all featured events.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeFeatured($query)
@@ -243,7 +240,7 @@ class Event extends Model
     /**
      * Get upcoming events.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeUpcoming($query)
@@ -254,14 +251,15 @@ class Event extends Model
     /**
      * Get ongoing events.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeOngoing($query)
     {
         $today = now()->toDateString();
+
         return $query->where('start_date', '<=', $today)
-                    ->where('end_date', '>=', $today);
+            ->where('end_date', '>=', $today);
     }
 
     /**
@@ -269,7 +267,7 @@ class Event extends Model
      */
     public function getIsActiveAttribute()
     {
-        return $this->status === 'published' && 
+        return $this->status === 'published' &&
                $this->start_date >= now()->toDateString();
     }
 
@@ -279,6 +277,7 @@ class Event extends Model
     public function getIsOngoingAttribute()
     {
         $now = now()->toDateString();
+
         return $this->start_date <= $now && $this->end_date >= $now;
     }
 
@@ -295,7 +294,7 @@ class Event extends Model
      */
     public function getIsSoldOutAttribute()
     {
-        return $this->max_participants && 
+        return $this->max_participants &&
                $this->current_participants >= $this->max_participants;
     }
 
@@ -304,10 +303,10 @@ class Event extends Model
      */
     public function getAvailableSpotsAttribute()
     {
-        if (!$this->max_participants) {
+        if (! $this->max_participants) {
             return null;
         }
-        
+
         return max(0, $this->max_participants - $this->current_participants);
     }
 
@@ -319,25 +318,23 @@ class Event extends Model
         if ($this->start_date->isSameDay($this->end_date)) {
             return $this->start_date->format('d/m/Y');
         }
-        
-        return $this->start_date->format('d/m/Y') . ' - ' . $this->end_date->format('d/m/Y');
+
+        return $this->start_date->format('d/m/Y').' - '.$this->end_date->format('d/m/Y');
     }
 
     /**
      * Get full location with details.
-     *
-     * @return string
      */
     public function getFullLocationAttribute(): string
     {
         $location = $this->location ?? '';
         $details = $this->location_details ?? '';
-        
+
         if (empty($location)) {
             return $details;
         }
-        
-        return $location . ($details ? ' - ' . $details : '');
+
+        return $location.($details ? ' - '.$details : '');
     }
 
     /**
@@ -398,9 +395,9 @@ class Event extends Model
         return $this->reservations()->upcoming();
     }
 
-
     /**
      * Get confirmed registrations (legacy - use confirmedReservations() instead).
+     *
      * @deprecated Use confirmedReservations() method instead
      */
     public function confirmedRegistrations()
@@ -429,7 +426,7 @@ class Event extends Model
      */
     public function isAvailableForReservation(): bool
     {
-        return $this->status === 'published' 
+        return $this->status === 'published'
             && $this->start_date >= now()->toDateString()
             && ($this->max_participants === null || $this->current_participants < $this->max_participants);
     }
@@ -451,7 +448,7 @@ class Event extends Model
      */
     public function isManagedByTourOperator(): bool
     {
-        return !is_null($this->tour_operator_id);
+        return ! is_null($this->tour_operator_id);
     }
 
     /**

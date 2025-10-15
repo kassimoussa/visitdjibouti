@@ -16,16 +16,16 @@ class CategoryController extends Controller
     {
         try {
             $locale = $request->header('Accept-Language', 'fr');
-            
+
             // Get all categories with their translations and relationships
             $categories = Category::with([
                 'translations',
                 'parent.translations',
-                'children.translations'
+                'children.translations',
             ])
-            ->roots() // Start with root categories
-            ->where('is_active', true)
-            ->get();
+                ->roots() // Start with root categories
+                ->where('is_active', true)
+                ->get();
 
             $formattedCategories = $categories->map(function ($category) use ($locale) {
                 return $this->formatCategoryWithChildren($category, $locale);
@@ -35,15 +35,15 @@ class CategoryController extends Controller
                 'success' => true,
                 'data' => [
                     'categories' => $formattedCategories,
-                    'total' => $categories->count()
-                ]
+                    'total' => $categories->count(),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch categories',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -55,7 +55,7 @@ class CategoryController extends Controller
     {
         try {
             $locale = $request->header('Accept-Language', 'fr');
-            
+
             $categories = Category::with(['translations', 'parent.translations'])
                 ->where('is_active', true)
                 ->orderBy('parent_id')
@@ -70,15 +70,15 @@ class CategoryController extends Controller
                 'success' => true,
                 'data' => [
                     'categories' => $formattedCategories,
-                    'total' => $categories->count()
-                ]
+                    'total' => $categories->count(),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch categories',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -90,18 +90,18 @@ class CategoryController extends Controller
     {
         try {
             $locale = $request->header('Accept-Language', 'fr');
-            
+
             $category = Category::with([
                 'translations',
                 'parent.translations',
                 'children.translations',
-                'pois.translations'
+                'pois.translations',
             ])->find($id);
 
-            if (!$category || !$category->is_active) {
+            if (! $category || ! $category->is_active) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Category not found'
+                    'message' => 'Category not found',
                 ], 404);
             }
 
@@ -111,15 +111,15 @@ class CategoryController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'category' => $formattedCategory
-                ]
+                    'category' => $formattedCategory,
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch category',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -139,7 +139,7 @@ class CategoryController extends Controller
             'level' => $category->level,
             'sort_order' => $category->sort_order,
             'parent_id' => $category->parent_id,
-            'parent_name' => $category->parent ? 
+            'parent_name' => $category->parent ?
                 ($category->parent->translation($locale)->name ?? $category->parent->name) : null,
             'breadcrumb' => $category->getBreadcrumb(' > '),
             'is_root' => $category->isRoot(),
@@ -154,7 +154,7 @@ class CategoryController extends Controller
     private function formatCategoryWithChildren(Category $category, string $locale): array
     {
         $formatted = $this->formatCategory($category, $locale);
-        
+
         if ($category->children()->count() > 0) {
             $formatted['children'] = $category->children->map(function ($child) use ($locale) {
                 return $this->formatCategoryWithChildren($child, $locale);

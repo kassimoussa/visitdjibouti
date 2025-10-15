@@ -3,17 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TourOperatorUser extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, CanResetPassword;
+    use CanResetPassword, HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -138,10 +137,10 @@ class TourOperatorUser extends Authenticatable
                         $subQ->where('r1.reservable_type', Event::class)
                             ->where('e.tour_operator_id', $this->tour_operator_id);
                     })
-                    ->orWhere(function ($subQ) {
-                        $subQ->where('r1.reservable_type', TourSchedule::class)
-                            ->where('t.tour_operator_id', $this->tour_operator_id);
-                    });
+                        ->orWhere(function ($subQ) {
+                            $subQ->where('r1.reservable_type', TourSchedule::class)
+                                ->where('t.tour_operator_id', $this->tour_operator_id);
+                        });
                 })
                 ->whereNull('r1.deleted_at');
         });

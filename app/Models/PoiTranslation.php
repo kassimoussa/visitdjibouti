@@ -24,7 +24,7 @@ class PoiTranslation extends Model
         'address',
         'opening_hours',
         'entry_fee',
-        'tips'
+        'tips',
     ];
 
     /**

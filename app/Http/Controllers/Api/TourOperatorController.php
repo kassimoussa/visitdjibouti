@@ -17,7 +17,7 @@ class TourOperatorController extends Controller
     {
         try {
             $locale = $request->header('Accept-Language', config('app.fallback_locale', 'fr'));
-            
+
             // Validation des paramètres
             $validator = Validator::make($request->all(), [
                 'search' => 'nullable|string|max:255',
@@ -33,7 +33,7 @@ class TourOperatorController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Paramètres de requête invalides',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 400);
             }
 
@@ -42,7 +42,7 @@ class TourOperatorController extends Controller
                 'logo',
                 'media' => function ($query) {
                     $query->orderByPivot('order');
-                }
+                },
             ])->active();
 
             // Filtre par recherche
@@ -50,12 +50,12 @@ class TourOperatorController extends Controller
                 $search = $request->input('search');
                 $query->whereHas('translations', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%")
-                      ->orWhere('address_translated', 'like', "%{$search}%");
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhere('address_translated', 'like', "%{$search}%");
                 })->orWhere('address', 'like', "%{$search}%")
-                  ->orWhere('phones', 'like', "%{$search}%")
-                  ->orWhere('emails', 'like', "%{$search}%")
-                  ->orWhere('website', 'like', "%{$search}%");
+                    ->orWhere('phones', 'like', "%{$search}%")
+                    ->orWhere('emails', 'like', "%{$search}%")
+                    ->orWhere('website', 'like', "%{$search}%");
             }
 
             if ($request->filled('featured')) {
@@ -67,12 +67,12 @@ class TourOperatorController extends Controller
                 $latitude = $request->input('latitude');
                 $longitude = $request->input('longitude');
                 $radius = $request->input('radius', 50);
-                
+
                 $query->nearby($latitude, $longitude, $radius);
             } else {
                 // Tri par défaut si pas de tri géographique
                 $query->orderByDesc('featured')
-                      ->orderByDesc('created_at');
+                    ->orderByDesc('created_at');
             }
 
             $perPage = $request->input('per_page', 15);
@@ -105,7 +105,7 @@ class TourOperatorController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la récupération des opérateurs de tour',
-                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne du serveur'
+                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne du serveur',
             ], 500);
         }
     }
@@ -130,20 +130,20 @@ class TourOperatorController extends Controller
                 'tours.featuredImage',
                 'tours.schedules' => function ($query) {
                     $query->where('status', 'available')
-                          ->where('start_date', '>=', now()->toDateString())
-                          ->orderBy('start_date')
-                          ->limit(5);
-                }
+                        ->where('start_date', '>=', now()->toDateString())
+                        ->orderBy('start_date')
+                        ->limit(5);
+                },
             ]);
 
-            $tourOperator = is_numeric($identifier) 
+            $tourOperator = is_numeric($identifier)
                 ? $query->findOrFail($identifier)
                 : $query->where('slug', $identifier)->firstOrFail();
 
-            if (!$tourOperator->is_active) {
+            if (! $tourOperator->is_active) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Opérateur de tour non disponible'
+                    'message' => 'Opérateur de tour non disponible',
                 ], 404);
             }
 
@@ -158,13 +158,13 @@ class TourOperatorController extends Controller
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Opérateur de tour non trouvé'
+                'message' => 'Opérateur de tour non trouvé',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la récupération de l\'opérateur de tour',
-                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne du serveur'
+                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne du serveur',
             ], 500);
         }
     }
@@ -186,7 +186,7 @@ class TourOperatorController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Paramètres requis manquants',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 400);
             }
 
@@ -206,6 +206,7 @@ class TourOperatorController extends Controller
                 $formatted = $this->formatTourOperatorForApi($tourOperator, $locale);
                 $formatted['distance'] = round($tourOperator->distance, 2);
                 $formatted['distance_unit'] = 'km';
+
                 return $formatted;
             });
 
@@ -224,11 +225,10 @@ class TourOperatorController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la recherche des opérateurs à proximité',
-                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne du serveur'
+                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne du serveur',
             ], 500);
         }
     }
-
 
     /**
      * Formater un opérateur de tour pour l'API
@@ -236,7 +236,7 @@ class TourOperatorController extends Controller
     private function formatTourOperatorForApi(TourOperator $tourOperator, string $locale, bool $detailed = false): array
     {
         $translation = $tourOperator->getTranslation($locale);
-        
+
         $data = [
             'id' => $tourOperator->id,
             'slug' => $tourOperator->slug,
@@ -272,6 +272,7 @@ class TourOperatorController extends Controller
                 }),
                 'served_pois' => $tourOperator->pois->map(function ($poi) use ($locale) {
                     $translation = $poi->translation($locale);
+
                     return [
                         'id' => $poi->id,
                         'slug' => $poi->slug,
@@ -280,10 +281,10 @@ class TourOperatorController extends Controller
                         'pivot' => [
                             'service_type' => $poi->pivot->service_type ?? 'guide',
                             'service_type_label' => $this->getServiceTypeLabel($poi->pivot->service_type ?? 'guide', $locale),
-                            'is_primary' => (bool)($poi->pivot->is_primary ?? false),
-                            'is_active' => (bool)($poi->pivot->is_active ?? true),
+                            'is_primary' => (bool) ($poi->pivot->is_primary ?? false),
+                            'is_active' => (bool) ($poi->pivot->is_active ?? true),
                             'notes' => $poi->pivot->notes ?? null,
-                        ]
+                        ],
                     ];
                 }),
                 'served_pois_count' => $tourOperator->pois->count(),
@@ -291,6 +292,7 @@ class TourOperatorController extends Controller
                     return $tour->status === 'active';
                 })->map(function ($tour) use ($locale) {
                     $translation = $tour->translation($locale);
+
                     return [
                         'id' => $tour->id,
                         'slug' => $tour->slug,
@@ -351,7 +353,7 @@ class TourOperatorController extends Controller
                 'adventure_sports' => 'Sports d\'aventure',
                 'consultation' => 'Consultation',
                 'photography' => 'Photographie',
-                'other' => 'Autre'
+                'other' => 'Autre',
             ],
             'en' => [
                 'guide' => 'Tour Guide',
@@ -363,11 +365,12 @@ class TourOperatorController extends Controller
                 'adventure_sports' => 'Adventure Sports',
                 'consultation' => 'Consultation',
                 'photography' => 'Photography',
-                'other' => 'Other'
-            ]
+                'other' => 'Other',
+            ],
         ];
 
         $localeTypes = $types[$locale] ?? $types['fr'];
+
         return $localeTypes[$type] ?? ucfirst($type);
     }
 }

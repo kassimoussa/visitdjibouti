@@ -15,7 +15,7 @@ class MediaTranslation extends Model
         'locale',
         'title',
         'alt_text',
-        'description'
+        'description',
     ];
 
     /**

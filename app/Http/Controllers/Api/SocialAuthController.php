@@ -6,9 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\AppUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class SocialAuthController extends Controller
 {
@@ -17,29 +16,29 @@ class SocialAuthController extends Controller
      */
     public function redirectToProvider(string $provider): JsonResponse
     {
-        if (!in_array($provider, ['google', 'facebook'])) {
+        if (! in_array($provider, ['google', 'facebook'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Provider not supported'
+                'message' => 'Provider not supported',
             ], 400);
         }
 
         try {
             $redirectUrl = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'redirect_url' => $redirectUrl
-                ]
+                    'redirect_url' => $redirectUrl,
+                ],
             ]);
         } catch (\Exception $e) {
-            Log::error('OAuth redirect error: ' . $e->getMessage());
-            
+            Log::error('OAuth redirect error: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'OAuth redirect failed',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -49,20 +48,20 @@ class SocialAuthController extends Controller
      */
     public function handleProviderCallback(string $provider): JsonResponse
     {
-        if (!in_array($provider, ['google', 'facebook'])) {
+        if (! in_array($provider, ['google', 'facebook'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Provider not supported'
+                'message' => 'Provider not supported',
             ], 400);
         }
 
         try {
             $socialUser = Socialite::driver($provider)->stateless()->user();
-            
+
             // Chercher l'utilisateur existant avec ce provider
             $existingUser = AppUser::where('provider', $provider)
-                                  ->where('provider_id', $socialUser->getId())
-                                  ->first();
+                ->where('provider_id', $socialUser->getId())
+                ->first();
 
             if ($existingUser) {
                 // Utilisateur existant, mettre à jour les informations
@@ -78,7 +77,7 @@ class SocialAuthController extends Controller
             } else {
                 // Vérifier si un utilisateur avec cet email existe déjà
                 $existingEmailUser = AppUser::where('email', $socialUser->getEmail())->first();
-                
+
                 if ($existingEmailUser) {
                     // Lier le compte social à l'utilisateur existant
                     $existingEmailUser->update([
@@ -88,7 +87,7 @@ class SocialAuthController extends Controller
                         'last_login_at' => now(),
                         'last_login_ip' => request()->ip(),
                     ]);
-                    
+
                     $user = $existingEmailUser;
                 } else {
                     // Créer un nouvel utilisateur
@@ -108,7 +107,7 @@ class SocialAuthController extends Controller
             }
 
             // Créer le token
-            $token = $user->createToken('mobile-app-' . $provider)->plainTextToken;
+            $token = $user->createToken('mobile-app-'.$provider)->plainTextToken;
 
             return response()->json([
                 'success' => true,
@@ -117,17 +116,17 @@ class SocialAuthController extends Controller
                     'user' => $user,
                     'token' => $token,
                     'token_type' => 'Bearer',
-                    'provider' => $provider
-                ]
+                    'provider' => $provider,
+                ],
             ]);
 
         } catch (\Exception $e) {
-            Log::error('OAuth callback error: ' . $e->getMessage());
-            
+            Log::error('OAuth callback error: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Social authentication failed',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -138,10 +137,10 @@ class SocialAuthController extends Controller
      */
     public function authenticateWithToken(Request $request, string $provider): JsonResponse
     {
-        if (!in_array($provider, ['google', 'facebook'])) {
+        if (! in_array($provider, ['google', 'facebook'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Provider not supported'
+                'message' => 'Provider not supported',
             ], 400);
         }
 
@@ -152,11 +151,11 @@ class SocialAuthController extends Controller
         try {
             // Utiliser le token d'accès pour obtenir les informations de l'utilisateur
             $socialUser = Socialite::driver($provider)->stateless()->userFromToken($request->access_token);
-            
+
             // Même logique que dans handleProviderCallback
             $existingUser = AppUser::where('provider', $provider)
-                                  ->where('provider_id', $socialUser->getId())
-                                  ->first();
+                ->where('provider_id', $socialUser->getId())
+                ->first();
 
             if ($existingUser) {
                 // Utilisateur existant
@@ -172,7 +171,7 @@ class SocialAuthController extends Controller
             } else {
                 // Vérifier l'email existant
                 $existingEmailUser = AppUser::where('email', $socialUser->getEmail())->first();
-                
+
                 if ($existingEmailUser) {
                     // Lier le compte social
                     $existingEmailUser->update([
@@ -182,7 +181,7 @@ class SocialAuthController extends Controller
                         'last_login_at' => now(),
                         'last_login_ip' => $request->ip(),
                     ]);
-                    
+
                     $user = $existingEmailUser;
                 } else {
                     // Nouveau utilisateur
@@ -202,7 +201,7 @@ class SocialAuthController extends Controller
             }
 
             // Créer le token
-            $token = $user->createToken('mobile-app-' . $provider)->plainTextToken;
+            $token = $user->createToken('mobile-app-'.$provider)->plainTextToken;
 
             return response()->json([
                 'success' => true,
@@ -211,17 +210,17 @@ class SocialAuthController extends Controller
                     'user' => $user,
                     'token' => $token,
                     'token_type' => 'Bearer',
-                    'provider' => $provider
-                ]
+                    'provider' => $provider,
+                ],
             ]);
 
         } catch (\Exception $e) {
-            Log::error('OAuth token authentication error: ' . $e->getMessage());
-            
+            Log::error('OAuth token authentication error: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Social authentication failed',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -231,20 +230,20 @@ class SocialAuthController extends Controller
      */
     public function unlinkSocialAccount(Request $request, string $provider): JsonResponse
     {
-        if (!in_array($provider, ['google', 'facebook'])) {
+        if (! in_array($provider, ['google', 'facebook'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Provider not supported'
+                'message' => 'Provider not supported',
             ], 400);
         }
 
         $user = $request->user();
 
         // Vérifier si l'utilisateur a un mot de passe (pour pouvoir se connecter autrement)
-        if (!$user->password && $user->provider === $provider) {
+        if (! $user->password && $user->provider === $provider) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cannot unlink the only authentication method. Please set a password first.'
+                'message' => 'Cannot unlink the only authentication method. Please set a password first.',
             ], 422);
         }
 
@@ -256,14 +255,14 @@ class SocialAuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => ucfirst($provider) . ' account unlinked successfully'
+                'message' => ucfirst($provider).' account unlinked successfully',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to unlink social account',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -276,17 +275,17 @@ class SocialAuthController extends Controller
         $user = $request->user();
 
         $linkedAccounts = [
-            'email' => !empty($user->password),
-            'google' => $user->provider === 'google' || !empty($user->google_id),
-            'facebook' => $user->provider === 'facebook' || !empty($user->facebook_id),
+            'email' => ! empty($user->password),
+            'google' => $user->provider === 'google' || ! empty($user->google_id),
+            'facebook' => $user->provider === 'facebook' || ! empty($user->facebook_id),
         ];
 
         return response()->json([
             'success' => true,
             'data' => [
                 'linked_accounts' => $linkedAccounts,
-                'primary_provider' => $user->provider ?? 'email'
-            ]
+                'primary_provider' => $user->provider ?? 'email',
+            ],
         ]);
     }
 }

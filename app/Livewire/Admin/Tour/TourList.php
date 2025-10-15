@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Admin\Tour;
 
-use Livewire\Component;
 use App\Models\Tour;
 use App\Models\TourOperator;
+use Livewire\Component;
 use Livewire\WithPagination;
 
 class TourList extends Component
@@ -12,9 +12,13 @@ class TourList extends Component
     use WithPagination;
 
     public $search = '';
+
     public $statusFilter = '';
+
     public $operatorFilter = '';
+
     public $typeFilter = '';
+
     public $difficultyFilter = '';
 
     protected $listeners = ['tourDeleted' => '$refresh'];
@@ -51,7 +55,7 @@ class TourList extends Component
             session()->flash('success', 'Tour supprimé avec succès');
             $this->dispatch('tourDeleted');
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors de la suppression du tour: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la suppression du tour: '.$e->getMessage());
         }
     }
 
@@ -60,25 +64,25 @@ class TourList extends Component
         $query = Tour::with(['tourOperator.translations', 'target', 'translations']);
 
         // Apply filters
-        if (!empty($this->search)) {
+        if (! empty($this->search)) {
             $query->whereHas('translations', function ($q) {
-                $q->where('title', 'LIKE', '%' . $this->search . '%');
+                $q->where('title', 'LIKE', '%'.$this->search.'%');
             });
         }
 
-        if (!empty($this->statusFilter)) {
+        if (! empty($this->statusFilter)) {
             $query->where('status', $this->statusFilter);
         }
 
-        if (!empty($this->operatorFilter)) {
+        if (! empty($this->operatorFilter)) {
             $query->where('tour_operator_id', $this->operatorFilter);
         }
 
-        if (!empty($this->typeFilter)) {
+        if (! empty($this->typeFilter)) {
             $query->where('type', $this->typeFilter);
         }
 
-        if (!empty($this->difficultyFilter)) {
+        if (! empty($this->difficultyFilter)) {
             $query->where('difficulty_level', $this->difficultyFilter);
         }
 

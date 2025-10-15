@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\TourOperator;
-use App\Models\TourOperatorTranslation;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -139,7 +138,7 @@ class TourOperatorSeeder extends Seeder
             $slug = $baseSlug;
             $counter = 1;
             while (TourOperator::where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter;
+                $slug = $baseSlug.'-'.$counter;
                 $counter++;
             }
 

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EventTranslation extends Model
@@ -24,7 +24,7 @@ class EventTranslation extends Model
         'location_details',
         'requirements',
         'program',
-        'additional_info'
+        'additional_info',
     ];
 
     /**
@@ -54,7 +54,7 @@ class EventTranslation extends Model
      */
     public function getIsCompleteAttribute()
     {
-        return !empty($this->title) && !empty($this->description);
+        return ! empty($this->title) && ! empty($this->description);
     }
 
     /**

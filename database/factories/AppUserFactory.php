@@ -29,7 +29,7 @@ class AppUserFactory extends Factory
         $gender = fake()->randomElement(['male', 'female', 'other']);
         $firstName = fake()->firstName($gender === 'other' ? null : $gender);
         $lastName = fake()->lastName();
-        $name = $firstName . ' ' . $lastName;
+        $name = $firstName.' '.$lastName;
 
         $cities = ['Djibouti', 'Ali Sabieh', 'Dikhil', 'Tadjourah', 'Obock', 'Arta'];
         $languages = ['fr', 'en', 'ar'];
@@ -49,7 +49,7 @@ class AppUserFactory extends Factory
             'push_notifications_enabled' => fake()->boolean(80), // 80% chance true
             'email_notifications_enabled' => fake()->boolean(70), // 70% chance true
             'provider' => $provider,
-            'provider_id' => $provider !== 'email' ? $provider . '_' . fake()->unique()->numerify('##########') : null,
+            'provider_id' => $provider !== 'email' ? $provider.'_'.fake()->unique()->numerify('##########') : null,
             'city' => fake()->optional(0.8)->randomElement($cities),
             'country' => 'DJ',
             'is_active' => fake()->boolean(95), // 95% chance true
@@ -72,13 +72,13 @@ class AppUserFactory extends Factory
     /**
      * Indicate that the user is a social login user.
      */
-    public function social(string $provider = null): static
+    public function social(?string $provider = null): static
     {
         $provider = $provider ?? fake()->randomElement(['google', 'facebook']);
-        
+
         return $this->state(fn (array $attributes) => [
             'provider' => $provider,
-            'provider_id' => $provider . '_' . fake()->unique()->numerify('##########'),
+            'provider_id' => $provider.'_'.fake()->unique()->numerify('##########'),
             'password' => null,
             'avatar' => fake()->imageUrl(200, 200, 'people'),
         ]);

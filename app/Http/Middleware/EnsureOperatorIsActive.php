@@ -19,13 +19,14 @@ class EnsureOperatorIsActive
     {
         $user = Auth::guard('operator')->user();
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('operator.login');
         }
 
         // Vérifier que le compte est actif
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             Auth::guard('operator')->logout();
+
             return redirect()->route('operator.login')
                 ->withErrors(['error' => 'Votre compte a été désactivé. Veuillez contacter votre administrateur.']);
         }

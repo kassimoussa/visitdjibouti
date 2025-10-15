@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Arr;
+use Laravel\Sanctum\HasApiTokens;
 
 class AppUser extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'app_users';
 
@@ -73,7 +73,7 @@ class AppUser extends Authenticatable
         'feature_usage',
         // Sécurité
         'is_jailbroken_rooted', 'developer_mode_enabled', 'mock_location_enabled',
-        'device_fingerprint', 'device_info_updated_at'
+        'device_fingerprint', 'device_info_updated_at',
     ];
 
     /**
@@ -159,7 +159,7 @@ class AppUser extends Authenticatable
      */
     public function isSocialUser(): bool
     {
-        return !is_null($this->provider) && in_array($this->provider, ['google', 'facebook']);
+        return ! is_null($this->provider) && in_array($this->provider, ['google', 'facebook']);
     }
 
     /**
@@ -175,7 +175,7 @@ class AppUser extends Authenticatable
      */
     public function getAvatarUrlAttribute(): ?string
     {
-        if (!$this->avatar) {
+        if (! $this->avatar) {
             return null;
         }
 
@@ -185,7 +185,7 @@ class AppUser extends Authenticatable
         }
 
         // Sinon, c'est un fichier local
-        return asset('storage/' . $this->avatar);
+        return asset('storage/'.$this->avatar);
     }
 
     /**
@@ -193,7 +193,7 @@ class AppUser extends Authenticatable
      */
     public function getAgeAttribute(): ?int
     {
-        if (!$this->date_of_birth) {
+        if (! $this->date_of_birth) {
             return null;
         }
 
@@ -277,8 +277,8 @@ class AppUser extends Authenticatable
     public function favoritePois()
     {
         return $this->belongsToMany(Poi::class, 'user_favorites', 'app_user_id', 'favoritable_id')
-                    ->where('user_favorites.favoritable_type', Poi::class)
-                    ->withTimestamps();
+            ->where('user_favorites.favoritable_type', Poi::class)
+            ->withTimestamps();
     }
 
     /**
@@ -287,8 +287,8 @@ class AppUser extends Authenticatable
     public function favoriteEvents()
     {
         return $this->belongsToMany(Event::class, 'user_favorites', 'app_user_id', 'favoritable_id')
-                    ->where('user_favorites.favoritable_type', Event::class)
-                    ->withTimestamps();
+            ->where('user_favorites.favoritable_type', Event::class)
+            ->withTimestamps();
     }
 
     /**
@@ -327,9 +327,9 @@ class AppUser extends Authenticatable
     public function removeFromFavorites($model): bool
     {
         return UserFavorite::where('app_user_id', $this->id)
-                         ->where('favoritable_id', $model->id)
-                         ->where('favoritable_type', get_class($model))
-                         ->delete() > 0;
+            ->where('favoritable_id', $model->id)
+            ->where('favoritable_type', get_class($model))
+            ->delete() > 0;
     }
 
     /**
@@ -361,7 +361,7 @@ class AppUser extends Authenticatable
      */
     public function isComplete(): bool
     {
-        return !$this->is_anonymous;
+        return ! $this->is_anonymous;
     }
 
     /**
@@ -369,8 +369,8 @@ class AppUser extends Authenticatable
      */
     public static function createAnonymous(?string $deviceId = null): self
     {
-        $anonymousId = 'anon_' . uniqid() . '_' . time();
-        
+        $anonymousId = 'anon_'.uniqid().'_'.time();
+
         return self::create([
             'is_anonymous' => true,
             'anonymous_id' => $anonymousId,
@@ -385,7 +385,7 @@ class AppUser extends Authenticatable
      */
     public function convertToComplete(array $userData, string $source = 'manual'): bool
     {
-        if (!$this->is_anonymous) {
+        if (! $this->is_anonymous) {
             return false; // Déjà un utilisateur complet
         }
 
@@ -431,8 +431,8 @@ class AppUser extends Authenticatable
     public static function findByDeviceId(string $deviceId): ?self
     {
         return self::where('device_id', $deviceId)
-                   ->where('is_anonymous', true)
-                   ->first();
+            ->where('is_anonymous', true)
+            ->first();
     }
 
     /**
@@ -461,19 +461,19 @@ class AppUser extends Authenticatable
     public function toArray(): array
     {
         $data = parent::toArray();
-        
+
         // Ajouter des attributs calculés pour l'API
         $data['avatar_url'] = $this->avatar_url;
         $data['age'] = $this->age;
         $data['is_social_user'] = $this->isSocialUser();
         $data['display_name'] = $this->getDisplayName();
         $data['unique_identifier'] = $this->getUniqueIdentifier();
-        
+
         // Masquer certains champs pour les utilisateurs anonymes
         if ($this->is_anonymous) {
             $data = Arr::except($data, ['email', 'phone', 'date_of_birth', 'gender', 'city', 'country']);
         }
-        
+
         return $data;
     }
 }

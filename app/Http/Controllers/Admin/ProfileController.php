@@ -17,6 +17,7 @@ class ProfileController extends Controller
     public function show()
     {
         $admin = Auth::guard('admin')->user();
+
         return view('admin.profile', compact('admin'));
     }
 
@@ -30,11 +31,11 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => [
-                'required', 
-                'string', 
-                'email', 
-                'max:255', 
-                Rule::unique('admin_users')->ignore($admin->id)
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('admin_users')->ignore($admin->id),
             ],
             'phone_number' => ['nullable', 'string', 'max:20'],
         ]);

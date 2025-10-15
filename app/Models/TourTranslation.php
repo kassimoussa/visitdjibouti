@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TourTranslation extends Model
@@ -25,7 +25,7 @@ class TourTranslation extends Model
         'meeting_point_description',
         'highlights',
         'what_to_bring',
-        'cancellation_policy_text'
+        'cancellation_policy_text',
     ];
 
     /**
@@ -35,7 +35,7 @@ class TourTranslation extends Model
      */
     protected $casts = [
         'highlights' => 'array',
-        'what_to_bring' => 'array'
+        'what_to_bring' => 'array',
     ];
 
     /**
@@ -65,7 +65,7 @@ class TourTranslation extends Model
      */
     public function getIsCompleteAttribute()
     {
-        return !empty($this->title) && !empty($this->description);
+        return ! empty($this->title) && ! empty($this->description);
     }
 
     /**
@@ -81,7 +81,7 @@ class TourTranslation extends Model
      */
     public function getHighlightsTextAttribute(): string
     {
-        if (!$this->highlights || !is_array($this->highlights)) {
+        if (! $this->highlights || ! is_array($this->highlights)) {
             return '';
         }
 
@@ -93,7 +93,7 @@ class TourTranslation extends Model
      */
     public function getWhatToBringTextAttribute(): string
     {
-        if (!$this->what_to_bring || !is_array($this->what_to_bring)) {
+        if (! $this->what_to_bring || ! is_array($this->what_to_bring)) {
             return '';
         }
 

@@ -4,11 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AppUser;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class AnonymousAuthController extends Controller
 {
@@ -27,7 +26,7 @@ class AnonymousAuthController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Données invalides',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -38,7 +37,7 @@ class AnonymousAuthController extends Controller
                 if ($existingUser) {
                     // Retourner l'utilisateur existant avec un nouveau token
                     $token = $existingUser->createToken('anonymous-access')->plainTextToken;
-                    
+
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Utilisateur anonyme existant récupéré',
@@ -46,15 +45,15 @@ class AnonymousAuthController extends Controller
                             'user' => $existingUser->toArray(),
                             'token' => $token,
                             'anonymous_id' => $existingUser->anonymous_id,
-                            'is_existing' => true
-                        ]
+                            'is_existing' => true,
+                        ],
                     ]);
                 }
             }
 
             // Créer un nouvel utilisateur anonyme
             $user = AppUser::createAnonymous($deviceId);
-            
+
             // Appliquer la langue préférée si fournie
             if ($request->preferred_language) {
                 $user->update(['preferred_language' => $request->preferred_language]);
@@ -70,15 +69,15 @@ class AnonymousAuthController extends Controller
                     'user' => $user->toArray(),
                     'token' => $token,
                     'anonymous_id' => $user->anonymous_id,
-                    'is_existing' => false
-                ]
+                    'is_existing' => false,
+                ],
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Erreur lors de la création de l\'utilisateur anonyme',
-                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne'
+                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne',
             ], 500);
         }
     }
@@ -97,16 +96,16 @@ class AnonymousAuthController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'anonymous_id requis',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
             $user = AppUser::findByAnonymousId($request->anonymous_id);
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Utilisateur anonyme non trouvé'
+                    'message' => 'Utilisateur anonyme non trouvé',
                 ], 404);
             }
 
@@ -119,15 +118,15 @@ class AnonymousAuthController extends Controller
                 'data' => [
                     'user' => $user->toArray(),
                     'token' => $token,
-                    'anonymous_id' => $user->anonymous_id
-                ]
+                    'anonymous_id' => $user->anonymous_id,
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Erreur lors de la récupération de l\'utilisateur',
-                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne'
+                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne',
             ], 500);
         }
     }
@@ -140,10 +139,10 @@ class AnonymousAuthController extends Controller
         try {
             $user = $request->user();
 
-            if (!$user->isAnonymous()) {
+            if (! $user->isAnonymous()) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'L\'utilisateur n\'est pas anonyme'
+                    'message' => 'L\'utilisateur n\'est pas anonyme',
                 ], 400);
             }
 
@@ -163,7 +162,7 @@ class AnonymousAuthController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Données invalides',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -180,7 +179,7 @@ class AnonymousAuthController extends Controller
             ];
 
             $source = $request->conversion_source ?? 'manual_registration';
-            
+
             if ($user->convertToComplete($userData, $source)) {
                 // Révoquer les anciens tokens et créer un nouveau token pour l'utilisateur complet
                 $user->tokens()->delete();
@@ -191,21 +190,21 @@ class AnonymousAuthController extends Controller
                     'message' => 'Compte converti avec succès',
                     'data' => [
                         'user' => $user->fresh()->toArray(),
-                        'token' => $token
-                    ]
+                        'token' => $token,
+                    ],
                 ]);
             }
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Erreur lors de la conversion du compte'
+                'message' => 'Erreur lors de la conversion du compte',
             ], 500);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Erreur lors de la conversion',
-                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne'
+                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne',
             ], 500);
         }
     }
@@ -218,10 +217,10 @@ class AnonymousAuthController extends Controller
         try {
             $user = $request->user();
 
-            if (!$user->isAnonymous()) {
+            if (! $user->isAnonymous()) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Cette route est uniquement pour les utilisateurs anonymes'
+                    'message' => 'Cette route est uniquement pour les utilisateurs anonymes',
                 ], 400);
             }
 
@@ -234,7 +233,7 @@ class AnonymousAuthController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Données invalides',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -246,7 +245,7 @@ class AnonymousAuthController extends Controller
                 $updateData['push_notifications_enabled'] = $request->push_notifications_enabled;
             }
 
-            if (!empty($updateData)) {
+            if (! empty($updateData)) {
                 $user->update($updateData);
             }
 
@@ -254,15 +253,15 @@ class AnonymousAuthController extends Controller
                 'status' => 'success',
                 'message' => 'Préférences mises à jour',
                 'data' => [
-                    'user' => $user->fresh()->toArray()
-                ]
+                    'user' => $user->fresh()->toArray(),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Erreur lors de la mise à jour des préférences',
-                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne'
+                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne',
             ], 500);
         }
     }
@@ -275,10 +274,10 @@ class AnonymousAuthController extends Controller
         try {
             $user = $request->user();
 
-            if (!$user->isAnonymous()) {
+            if (! $user->isAnonymous()) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Cette route est uniquement pour les utilisateurs anonymes'
+                    'message' => 'Cette route est uniquement pour les utilisateurs anonymes',
                 ], 400);
             }
 
@@ -290,14 +289,14 @@ class AnonymousAuthController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Utilisateur anonyme supprimé avec succès'
+                'message' => 'Utilisateur anonyme supprimé avec succès',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Erreur lors de la suppression',
-                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne'
+                'error' => config('app.debug') ? $e->getMessage() : 'Erreur interne',
             ], 500);
         }
     }

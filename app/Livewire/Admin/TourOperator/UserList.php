@@ -5,8 +5,8 @@ namespace App\Livewire\Admin\TourOperator;
 use App\Models\TourOperatorUser;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class UserList extends Component
 {
@@ -28,7 +28,7 @@ class UserList extends Component
     public function toggleStatus($userId)
     {
         $user = TourOperatorUser::findOrFail($userId);
-        $user->update(['is_active' => !$user->is_active]);
+        $user->update(['is_active' => ! $user->is_active]);
 
         session()->flash('success', 'Statut utilisateur modifié avec succès.');
 

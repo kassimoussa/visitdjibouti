@@ -2,32 +2,39 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\Reservation;
-use App\Models\Poi;
 use App\Models\Event;
+use App\Models\Poi;
+use App\Models\Reservation;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\On;
 
 class ReservationManager extends Component
 {
     use WithPagination;
 
     public $reservableType; // 'poi' ou 'event'
+
     public $reservableId;
+
     public $reservable;
-    
+
     // Filtres
     public $statusFilter = '';
+
     public $searchFilter = '';
+
     public $dateFilter = '';
-    
+
     // Modal
     public $showModal = false;
+
     public $selectedReservation;
+
     public $actionType = '';
+
     public $actionReason = '';
-    
+
     // Stats
     public $stats = [];
 
@@ -37,21 +44,21 @@ class ReservationManager extends Component
     {
         $this->reservableType = $reservableType;
         $this->reservableId = $reservableId;
-        
+
         // Charger l'entité réservable
         if ($reservableType === 'poi') {
             $this->reservable = Poi::findOrFail($reservableId);
         } else {
             $this->reservable = Event::findOrFail($reservableId);
         }
-        
+
         $this->loadStats();
     }
 
     public function loadStats()
     {
         $reservations = $this->reservable->reservations();
-        
+
         $this->stats = [
             'total' => $reservations->count(),
             'pending' => $reservations->where('status', 'pending')->count(),
@@ -65,8 +72,8 @@ class ReservationManager extends Component
     public function getReservationsProperty()
     {
         $query = $this->reservable->reservations()
-                                 ->with(['appUser'])
-                                 ->latest('created_at');
+            ->with(['appUser'])
+            ->latest('created_at');
 
         // Filtres
         if ($this->statusFilter) {
@@ -74,14 +81,14 @@ class ReservationManager extends Component
         }
 
         if ($this->searchFilter) {
-            $query->where(function($q) {
-                $q->where('guest_name', 'like', '%' . $this->searchFilter . '%')
-                  ->orWhere('guest_email', 'like', '%' . $this->searchFilter . '%')
-                  ->orWhere('confirmation_number', 'like', '%' . $this->searchFilter . '%')
-                  ->orWhereHas('appUser', function($userQuery) {
-                      $userQuery->where('name', 'like', '%' . $this->searchFilter . '%')
-                               ->orWhere('email', 'like', '%' . $this->searchFilter . '%');
-                  });
+            $query->where(function ($q) {
+                $q->where('guest_name', 'like', '%'.$this->searchFilter.'%')
+                    ->orWhere('guest_email', 'like', '%'.$this->searchFilter.'%')
+                    ->orWhere('confirmation_number', 'like', '%'.$this->searchFilter.'%')
+                    ->orWhereHas('appUser', function ($userQuery) {
+                        $userQuery->where('name', 'like', '%'.$this->searchFilter.'%')
+                            ->orWhere('email', 'like', '%'.$this->searchFilter.'%');
+                    });
             });
         }
 
@@ -125,7 +132,7 @@ class ReservationManager extends Component
 
     public function confirmAction()
     {
-        if (!$this->selectedReservation) {
+        if (! $this->selectedReservation) {
             return;
         }
 
@@ -135,18 +142,18 @@ class ReservationManager extends Component
                     $this->selectedReservation->confirm();
                     session()->flash('success', 'Réservation confirmée avec succès.');
                     break;
-                    
+
                 case 'cancel':
                     $this->selectedReservation->cancel($this->actionReason);
-                    
+
                     // Décrémenter les participants pour les événements
                     if ($this->reservable instanceof Event) {
                         $this->reservable->decrement('current_participants', $this->selectedReservation->number_of_people);
                     }
-                    
+
                     session()->flash('success', 'Réservation annulée avec succès.');
                     break;
-                    
+
                 case 'complete':
                     $this->selectedReservation->markAsCompleted();
                     session()->flash('success', 'Réservation marquée comme terminée.');
@@ -155,9 +162,9 @@ class ReservationManager extends Component
 
             $this->loadStats();
             $this->closeModal();
-            
+
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur: ' . $e->getMessage());
+            session()->flash('error', 'Erreur: '.$e->getMessage());
         }
     }
 
@@ -177,7 +184,7 @@ class ReservationManager extends Component
 
     public function getStatusBadgeClass($status)
     {
-        return match($status) {
+        return match ($status) {
             'pending' => 'bg-warning',
             'confirmed' => 'bg-success',
             'cancelled' => 'bg-danger',
@@ -189,7 +196,7 @@ class ReservationManager extends Component
 
     public function getStatusLabel($status)
     {
-        return match($status) {
+        return match ($status) {
             'pending' => 'En attente',
             'confirmed' => 'Confirmée',
             'cancelled' => 'Annulée',
@@ -202,7 +209,7 @@ class ReservationManager extends Component
     public function render()
     {
         return view('livewire.admin.reservation-manager', [
-            'reservations' => $this->reservations
+            'reservations' => $this->reservations,
         ]);
     }
 }

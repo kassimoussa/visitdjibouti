@@ -29,7 +29,7 @@ class Poi extends Model
         'allow_reservations',
         'status',
         'creator_id',
-        'featured_image_id'
+        'featured_image_id',
     ];
 
     /**
@@ -51,7 +51,7 @@ class Poi extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         // Génération automatique du slug basé sur le nom de la traduction par défaut
         static::creating(function ($poi) {
             if (empty($poi->slug) && request()->has('translations')) {
@@ -71,22 +71,22 @@ class Poi extends Model
     {
         return $this->hasMany(PoiTranslation::class, 'poi_id');
     }
-    
+
     /**
      * Obtenir la traduction dans la langue spécifiée.
      */
     public function translation($locale = null)
     {
         $locale = $locale ?: app()->getLocale();
-        
+
         return $this->translations()
-                    ->where('locale', $locale)
-                    ->first() 
+            ->where('locale', $locale)
+            ->first()
                 ?? $this->translations()
-                      ->where('locale', config('app.fallback_locale'))
-                      ->first();
+                    ->where('locale', config('app.fallback_locale'))
+                    ->first();
     }
-    
+
     /**
      * Accesseurs pour les attributs traduits.
      */
@@ -94,32 +94,32 @@ class Poi extends Model
     {
         return $this->translation() ? $this->translation()->name : '';
     }
-    
+
     public function getDescriptionAttribute()
     {
         return $this->translation() ? $this->translation()->description : '';
     }
-    
+
     public function getShortDescriptionAttribute()
     {
         return $this->translation() ? $this->translation()->short_description : '';
     }
-    
+
     public function getAddressAttribute()
     {
         return $this->translation() ? $this->translation()->address : '';
     }
-    
+
     public function getOpeningHoursAttribute()
     {
         return $this->translation() ? $this->translation()->opening_hours : '';
     }
-    
+
     public function getEntryFeeAttribute()
     {
         return $this->translation() ? $this->translation()->entry_fee : '';
     }
-    
+
     public function getTipsAttribute()
     {
         return $this->translation() ? $this->translation()->tips : '';
@@ -155,8 +155,8 @@ class Poi extends Model
     public function media(): BelongsToMany
     {
         return $this->belongsToMany(Media::class, 'media_poi')
-                    ->withPivot('order')
-                    ->orderBy('order');
+            ->withPivot('order')
+            ->orderBy('order');
     }
 
     /**
@@ -165,10 +165,10 @@ class Poi extends Model
     public function tourOperators(): BelongsToMany
     {
         return $this->belongsToMany(TourOperator::class, 'poi_tour_operator')
-                    ->withPivot(['service_type', 'is_primary', 'is_active', 'notes'])
-                    ->withTimestamps()
-                    ->where('poi_tour_operator.is_active', true)
-                    ->orderByPivot('is_primary', 'desc');
+            ->withPivot(['service_type', 'is_primary', 'is_active', 'notes'])
+            ->withTimestamps()
+            ->where('poi_tour_operator.is_active', true)
+            ->orderByPivot('is_primary', 'desc');
     }
 
     /**
@@ -177,7 +177,7 @@ class Poi extends Model
     public function activeTourOperators(): BelongsToMany
     {
         return $this->tourOperators()
-                    ->where('tour_operators.is_active', true);
+            ->where('tour_operators.is_active', true);
     }
 
     /**
@@ -186,8 +186,8 @@ class Poi extends Model
     public function primaryTourOperator()
     {
         return $this->tourOperators()
-                    ->wherePivot('is_primary', true)
-                    ->first();
+            ->wherePivot('is_primary', true)
+            ->first();
     }
 
     /**
@@ -200,9 +200,6 @@ class Poi extends Model
 
     /**
      * Check if the POI has a specific status.
-     *
-     * @param string $status
-     * @return bool
      */
     public function hasStatus(string $status): bool
     {
@@ -212,7 +209,7 @@ class Poi extends Model
     /**
      * Get all published POIs.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopePublished($query)
@@ -223,7 +220,7 @@ class Poi extends Model
     /**
      * Get all featured POIs.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeFeatured($query)
@@ -233,16 +230,14 @@ class Poi extends Model
 
     /**
      * Get formatted address with region.
-     *
-     * @return string
      */
     public function getFullAddressAttribute(): string
     {
         if (empty($this->address)) {
             return $this->region ?? '';
         }
-        
-        return $this->address . ($this->region ? ', ' . $this->region : '');
+
+        return $this->address.($this->region ? ', '.$this->region : '');
     }
 
     /**
@@ -251,8 +246,8 @@ class Poi extends Model
     public function favoritedByUsers()
     {
         return $this->belongsToMany(AppUser::class, 'user_favorites', 'favoritable_id', 'app_user_id')
-                    ->where('user_favorites.favoritable_type', static::class)
-                    ->withTimestamps();
+            ->where('user_favorites.favoritable_type', static::class)
+            ->withTimestamps();
     }
 
     /**
@@ -261,8 +256,8 @@ class Poi extends Model
     public function getFavoritesCountAttribute(): int
     {
         return UserFavorite::where('favoritable_id', $this->id)
-                          ->where('favoritable_type', static::class)
-                          ->count();
+            ->where('favoritable_type', static::class)
+            ->count();
     }
 
     /**
@@ -270,8 +265,10 @@ class Poi extends Model
      */
     public function isFavoritedBy($userId): bool
     {
-        if (!$userId) return false;
-        
+        if (! $userId) {
+            return false;
+        }
+
         return UserFavorite::isFavorited($userId, $this->id, static::class);
     }
 
@@ -288,7 +285,7 @@ class Poi extends Model
      */
     public function scopeFavoritedByUser($query, $userId)
     {
-        return $query->whereHas('favoritedByUsers', function($q) use ($userId) {
+        return $query->whereHas('favoritedByUsers', function ($q) use ($userId) {
             $q->where('app_user_id', $userId);
         });
     }
@@ -359,7 +356,7 @@ class Poi extends Model
         }
 
         $primaryContact = collect($this->contacts)->firstWhere('is_primary', true);
-        
+
         return $primaryContact ?: $this->contacts[0] ?? null;
     }
 
@@ -392,7 +389,7 @@ class Poi extends Model
      */
     public function hasContacts(): bool
     {
-        return !empty($this->contacts) && count($this->contacts) > 0;
+        return ! empty($this->contacts) && count($this->contacts) > 0;
     }
 
     /**

@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Poi;
-use App\Models\Event;
 use App\Models\AppUser;
+use App\Models\Category;
+use App\Models\Event;
+use App\Models\Media;
+use App\Models\Poi;
 use App\Models\Reservation;
 use App\Models\Tour;
 use App\Models\TourOperator;
-use App\Models\Category;
-use App\Models\Media;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -114,7 +114,7 @@ class DashboardController extends Controller
                     'icon' => 'ticket-alt',
                     'color' => 'warning',
                     'title' => 'Nouvelle réservation',
-                    'description' => ($reservation->appUser ? $reservation->appUser->name : $reservation->guest_name) . ' - ' . $reservation->number_of_people . ' personne(s)',
+                    'description' => ($reservation->appUser ? $reservation->appUser->name : $reservation->guest_name).' - '.$reservation->number_of_people.' personne(s)',
                     'time' => $reservation->created_at,
                     'url' => route('reservations.index'),
                 ];

@@ -16,29 +16,29 @@ class OrganizationController extends Controller
     {
         try {
             $locale = $request->header('Accept-Language', 'fr');
-            
+
             // Get the first (and likely only) organization info record
             $organization = OrganizationInfo::with(['logo', 'translations'])->first();
-            
-            if (!$organization) {
+
+            if (! $organization) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Organization information not found'
+                    'message' => 'Organization information not found',
                 ], 404);
             }
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'organization' => $this->transformOrganization($organization, $locale)
-                ]
+                    'organization' => $this->transformOrganization($organization, $locale),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch organization information',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -59,10 +59,10 @@ class OrganizationController extends Controller
             'logo' => $organization->logo ? [
                 'id' => $organization->logo->id,
                 'url' => $organization->logo->getImageUrl(),
-                'alt' => $organization->logo->translation($locale)->alt_text ?? 'Logo'
+                'alt' => $organization->logo->translation($locale)->alt_text ?? 'Logo',
             ] : null,
             'created_at' => $organization->created_at->toISOString(),
-            'updated_at' => $organization->updated_at->toISOString()
+            'updated_at' => $organization->updated_at->toISOString(),
         ];
     }
 }

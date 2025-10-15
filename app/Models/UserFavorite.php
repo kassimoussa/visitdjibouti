@@ -88,9 +88,9 @@ class UserFavorite extends Model
     public static function isFavorited($userId, $favoritableId, $favoritableType): bool
     {
         return static::where('app_user_id', $userId)
-                    ->where('favoritable_id', $favoritableId)
-                    ->where('favoritable_type', $favoritableType)
-                    ->exists();
+            ->where('favoritable_id', $favoritableId)
+            ->where('favoritable_type', $favoritableType)
+            ->exists();
     }
 
     /**
@@ -99,12 +99,13 @@ class UserFavorite extends Model
     public static function toggle($userId, $favoritableId, $favoritableType): array
     {
         $favorite = static::where('app_user_id', $userId)
-                          ->where('favoritable_id', $favoritableId)
-                          ->where('favoritable_type', $favoritableType)
-                          ->first();
+            ->where('favoritable_id', $favoritableId)
+            ->where('favoritable_type', $favoritableType)
+            ->first();
 
         if ($favorite) {
             $favorite->delete();
+
             return ['action' => 'removed', 'is_favorited' => false];
         } else {
             static::create([
@@ -112,6 +113,7 @@ class UserFavorite extends Model
                 'favoritable_id' => $favoritableId,
                 'favoritable_type' => $favoritableType,
             ]);
+
             return ['action' => 'added', 'is_favorited' => true];
         }
     }

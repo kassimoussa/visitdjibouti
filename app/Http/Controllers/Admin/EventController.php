@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
-use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
@@ -40,4 +39,3 @@ class EventController extends Controller
         return view('admin.events.show', compact('event'));
     }
 }
-

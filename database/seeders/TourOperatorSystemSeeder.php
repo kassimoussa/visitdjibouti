@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-use App\Models\TourOperator;
-use App\Models\TourOperatorUser;
-use App\Models\TourOperatorTranslation;
 use App\Models\Event;
 use App\Models\EventTranslation;
+use App\Models\TourOperator;
+use App\Models\TourOperatorTranslation;
+use App\Models\TourOperatorUser;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class TourOperatorSystemSeeder extends Seeder
 {

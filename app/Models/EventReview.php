@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -75,7 +75,7 @@ class EventReview extends Model
      */
     public function getStatusBadgeClassAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'approved' => 'success',
             'pending' => 'warning',
             'rejected' => 'danger',
@@ -97,6 +97,7 @@ class EventReview extends Model
                 $stars .= '☆';
             }
         }
+
         return $stars;
     }
 
@@ -113,7 +114,7 @@ class EventReview extends Model
      */
     public function getHasAdminReplyAttribute()
     {
-        return !empty($this->admin_reply);
+        return ! empty($this->admin_reply);
     }
 
     /**

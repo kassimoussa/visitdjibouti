@@ -5,27 +5,38 @@ namespace App\Livewire\Admin;
 use App\Models\Embassy;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\On;
 
 class EmbassyManager extends Component
 {
     use WithPagination;
 
     public $showModal = false;
+
     public $modalMode = 'create'; // create or edit
+
     public $modalTitle = 'Nouvelle ambassade';
+
     public $embassyId = null;
 
     // Propriétés du formulaire principal
     public $type = 'foreign_in_djibouti';
+
     public $country_code = '';
+
     public $phones = '';
+
     public $emails = '';
+
     public $fax = '';
+
     public $website = '';
+
     public $ld = '';
+
     public $latitude = null;
+
     public $longitude = null;
+
     public $is_active = true;
 
     // Traductions
@@ -51,11 +62,14 @@ class EmbassyManager extends Component
     ];
 
     public $availableLocales = ['fr', 'en'];
+
     public $currentLocale = 'fr';
 
     // Filtres et recherche
     public $search = '';
+
     public $filterType = '';
+
     public $filterLocale = 'fr'; // Langue pour l'affichage de la liste
 
     protected function rules()
@@ -101,9 +115,9 @@ class EmbassyManager extends Component
         $embassies = Embassy::with(['translations'])
             ->when($this->search, function ($query) {
                 $query->whereHas('translations', function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('ambassador_name', 'like', '%' . $this->search . '%')
-                      ->orWhere('address', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('ambassador_name', 'like', '%'.$this->search.'%')
+                        ->orWhere('address', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->filterType, function ($query) {
@@ -145,7 +159,7 @@ class EmbassyManager extends Component
     public function openEditModal($embassyId)
     {
         $embassy = Embassy::with('translations')->findOrFail($embassyId);
-        
+
         $this->embassyId = $embassy->id;
         $this->type = $embassy->type;
         $this->country_code = $embassy->country_code;
@@ -177,7 +191,7 @@ class EmbassyManager extends Component
                 'postal_box' => $translation->postal_box ?? '',
             ];
         }
-        
+
         $this->modalMode = 'edit';
         $this->modalTitle = 'Modifier l\'ambassade';
         $this->showModal = true;
@@ -212,7 +226,7 @@ class EmbassyManager extends Component
 
             // Sauvegarder les traductions
             foreach ($this->translations as $locale => $translation) {
-                if (!empty($translation['name'])) {
+                if (! empty($translation['name'])) {
                     $embassy->translations()->updateOrCreate(
                         ['locale' => $locale],
                         $translation
@@ -222,10 +236,9 @@ class EmbassyManager extends Component
 
             $this->closeModal();
         } catch (\Exception $e) {
-            session()->flash('error', 'Une erreur est survenue: ' . $e->getMessage());
+            session()->flash('error', 'Une erreur est survenue: '.$e->getMessage());
         }
     }
-
 
     public function switchLocale($locale)
     {
@@ -236,12 +249,12 @@ class EmbassyManager extends Component
     {
         try {
             $embassy = Embassy::findOrFail($embassyId);
-            $embassy->update(['is_active' => !$embassy->is_active]);
-            
+            $embassy->update(['is_active' => ! $embassy->is_active]);
+
             $status = $embassy->is_active ? 'activée' : 'désactivée';
             session()->flash('message', "Ambassade {$status} avec succès.");
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors du changement de statut: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors du changement de statut: '.$e->getMessage());
         }
     }
 
@@ -250,10 +263,10 @@ class EmbassyManager extends Component
         try {
             $embassy = Embassy::findOrFail($embassyId);
             $embassy->delete();
-            
+
             session()->flash('message', 'Ambassade supprimée avec succès.');
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors de la suppression: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la suppression: '.$e->getMessage());
         }
     }
 

@@ -2,11 +2,11 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\Reservation;
 use App\Models\Poi;
+use App\Models\Reservation;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Facades\DB;
 
 class PoiReservationsOverview extends Component
 {
@@ -14,20 +14,27 @@ class PoiReservationsOverview extends Component
 
     // Filtres
     public $statusFilter = '';
+
     public $poiFilter = '';
+
     public $searchFilter = '';
+
     public $dateFromFilter = '';
+
     public $dateToFilter = '';
-    
+
     // Modal
     public $showModal = false;
+
     public $selectedReservation;
+
     public $actionType = '';
+
     public $actionReason = '';
-    
+
     // Stats globales
     public $globalStats = [];
-    
+
     // POIs avec réservations
     public $poisWithReservations = [];
 
@@ -42,7 +49,7 @@ class PoiReservationsOverview extends Component
     public function loadGlobalStats()
     {
         $reservations = Reservation::forPois();
-        
+
         $this->globalStats = [
             'total' => $reservations->count(),
             'pending' => $reservations->where('status', 'pending')->count(),
@@ -59,7 +66,7 @@ class PoiReservationsOverview extends Component
     public function loadPoisWithReservations()
     {
         $this->poisWithReservations = Poi::select('id', 'slug')
-            ->with(['translations' => function($query) {
+            ->with(['translations' => function ($query) {
                 $query->where('locale', 'fr');
             }])
             ->whereHas('reservations')
@@ -72,8 +79,8 @@ class PoiReservationsOverview extends Component
     public function getReservationsProperty()
     {
         $query = Reservation::forPois()
-                           ->with(['reservable.translations', 'appUser'])
-                           ->latest('created_at');
+            ->with(['reservable.translations', 'appUser'])
+            ->latest('created_at');
 
         // Filtres
         if ($this->statusFilter) {
@@ -85,14 +92,14 @@ class PoiReservationsOverview extends Component
         }
 
         if ($this->searchFilter) {
-            $query->where(function($q) {
-                $q->where('guest_name', 'like', '%' . $this->searchFilter . '%')
-                  ->orWhere('guest_email', 'like', '%' . $this->searchFilter . '%')
-                  ->orWhere('confirmation_number', 'like', '%' . $this->searchFilter . '%')
-                  ->orWhereHas('appUser', function($userQuery) {
-                      $userQuery->where('name', 'like', '%' . $this->searchFilter . '%')
-                               ->orWhere('email', 'like', '%' . $this->searchFilter . '%');
-                  });
+            $query->where(function ($q) {
+                $q->where('guest_name', 'like', '%'.$this->searchFilter.'%')
+                    ->orWhere('guest_email', 'like', '%'.$this->searchFilter.'%')
+                    ->orWhere('confirmation_number', 'like', '%'.$this->searchFilter.'%')
+                    ->orWhereHas('appUser', function ($userQuery) {
+                        $userQuery->where('name', 'like', '%'.$this->searchFilter.'%')
+                            ->orWhere('email', 'like', '%'.$this->searchFilter.'%');
+                    });
             });
         }
 
@@ -152,7 +159,7 @@ class PoiReservationsOverview extends Component
 
     public function confirmAction()
     {
-        if (!$this->selectedReservation) {
+        if (! $this->selectedReservation) {
             return;
         }
 
@@ -162,12 +169,12 @@ class PoiReservationsOverview extends Component
                     $this->selectedReservation->confirm();
                     session()->flash('success', 'Réservation confirmée avec succès.');
                     break;
-                    
+
                 case 'cancel':
                     $this->selectedReservation->cancel($this->actionReason);
                     session()->flash('success', 'Réservation annulée avec succès.');
                     break;
-                    
+
                 case 'complete':
                     $this->selectedReservation->markAsCompleted();
                     session()->flash('success', 'Réservation marquée comme terminée.');
@@ -177,9 +184,9 @@ class PoiReservationsOverview extends Component
             $this->loadGlobalStats();
             $this->loadPoisWithReservations();
             $this->closeModal();
-            
+
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur: ' . $e->getMessage());
+            session()->flash('error', 'Erreur: '.$e->getMessage());
         }
     }
 
@@ -196,9 +203,9 @@ class PoiReservationsOverview extends Component
         return DB::table('reservations')
             ->select('reservable_id', DB::raw('COUNT(*) as reservations_count'))
             ->join('pois', 'reservations.reservable_id', '=', 'pois.id')
-            ->join('poi_translations', function($join) {
+            ->join('poi_translations', function ($join) {
                 $join->on('pois.id', '=', 'poi_translations.poi_id')
-                     ->where('poi_translations.locale', '=', 'fr');
+                    ->where('poi_translations.locale', '=', 'fr');
             })
             ->where('reservations.reservable_type', Poi::class)
             ->where('reservations.status', '!=', 'cancelled')
@@ -206,19 +213,20 @@ class PoiReservationsOverview extends Component
             ->orderByDesc('reservations_count')
             ->limit(5)
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 $poi = Poi::with('translations')->find($item->reservable_id);
+
                 return [
                     'poi' => $poi,
                     'name' => $poi->translation('fr')->name ?? 'Sans nom',
-                    'reservations_count' => $item->reservations_count
+                    'reservations_count' => $item->reservations_count,
                 ];
             });
     }
 
     public function getStatusBadgeClass($status)
     {
-        return match($status) {
+        return match ($status) {
             'pending' => 'bg-warning',
             'confirmed' => 'bg-success',
             'cancelled' => 'bg-danger',
@@ -230,7 +238,7 @@ class PoiReservationsOverview extends Component
 
     public function getStatusLabel($status)
     {
-        return match($status) {
+        return match ($status) {
             'pending' => 'En attente',
             'confirmed' => 'Confirmée',
             'cancelled' => 'Annulée',
@@ -244,7 +252,7 @@ class PoiReservationsOverview extends Component
     {
         return view('livewire.admin.poi-reservations-overview', [
             'reservations' => $this->reservations,
-            'topPois' => $this->topPois
+            'topPois' => $this->topPois,
         ]);
     }
 }

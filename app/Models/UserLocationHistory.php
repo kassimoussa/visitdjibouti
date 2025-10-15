@@ -15,7 +15,7 @@ class UserLocationHistory extends Model
     protected $fillable = [
         'app_user_id',
         'latitude',
-        'longitude', 
+        'longitude',
         'accuracy',
         'altitude',
         'speed',
@@ -74,9 +74,9 @@ class UserLocationHistory extends Model
     public function scopeWithinRadius($query, float $latitude, float $longitude, float $radiusKm = 1.0)
     {
         $radiusMeters = $radiusKm * 1000;
-        
+
         return $query->whereRaw(
-            "(6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(latitude)))) <= ?",
+            '(6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(latitude)))) <= ?',
             [$latitude, $longitude, $latitude, $radiusMeters / 1000]
         );
     }

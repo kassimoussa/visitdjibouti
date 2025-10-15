@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Event;
 use App\Models\Reservation;
-use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class EventController extends Controller
 {
@@ -20,14 +19,14 @@ class EventController extends Controller
     {
         try {
             $query = Event::published()
-                          ->with(['featuredImage', 'categories.translations', 'translations', 'tourOperator.translations']);
+                ->with(['featuredImage', 'categories.translations', 'translations', 'tourOperator.translations']);
 
             // Search by title
             if ($request->filled('search')) {
                 $search = $request->get('search');
                 $query->whereHas('translations', function ($q) use ($search) {
                     $q->where('title', 'LIKE', "%{$search}%")
-                      ->orWhere('description', 'LIKE', "%{$search}%");
+                        ->orWhere('description', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -42,7 +41,7 @@ class EventController extends Controller
             if ($request->filled('date_from')) {
                 $query->where('start_date', '>=', $request->get('date_from'));
             }
-            
+
             if ($request->filled('date_to')) {
                 $query->where('end_date', '<=', $request->get('date_to'));
             }
@@ -62,7 +61,7 @@ class EventController extends Controller
 
             // Filter by location
             if ($request->filled('location')) {
-                $query->where('location', 'LIKE', '%' . $request->get('location') . '%');
+                $query->where('location', 'LIKE', '%'.$request->get('location').'%');
             }
 
             // Filter by tour operator
@@ -88,7 +87,7 @@ class EventController extends Controller
                 $locale = $request->header('Accept-Language', 'fr');
                 $query->leftJoin('event_translations', function ($join) use ($locale) {
                     $join->on('events.id', '=', 'event_translations.event_id')
-                         ->where('event_translations.locale', '=', $locale);
+                        ->where('event_translations.locale', '=', $locale);
                 })->orderBy('event_translations.title', $sortOrder);
             } else {
                 $query->orderBy($sortBy, $sortOrder);
@@ -117,16 +116,16 @@ class EventController extends Controller
                         'to' => $events->lastItem(),
                     ],
                     'filters' => [
-                        'categories' => $this->getAvailableCategories($locale)
-                    ]
-                ]
+                        'categories' => $this->getAvailableCategories($locale),
+                    ],
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch events',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -138,23 +137,23 @@ class EventController extends Controller
     {
         try {
             $query = Event::published()
-                          ->with([
-                              'featuredImage',
-                              'media',
-                              'categories.translations',
-                              'translations',
-                              'tourOperator.translations'
-                          ]);
+                ->with([
+                    'featuredImage',
+                    'media',
+                    'categories.translations',
+                    'translations',
+                    'tourOperator.translations',
+                ]);
 
             // Try to find by ID first, then by slug
-            $event = is_numeric($identifier) 
+            $event = is_numeric($identifier)
                 ? $query->find($identifier)
                 : $query->where('slug', $identifier)->first();
 
-            if (!$event) {
+            if (! $event) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Event not found'
+                    'message' => 'Event not found',
                 ], 404);
             }
 
@@ -162,19 +161,19 @@ class EventController extends Controller
             $event->incrementViews();
 
             $locale = $request->header('Accept-Language', 'fr');
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'event' => $this->transformEventDetailed($event, $locale)
-                ]
+                    'event' => $this->transformEventDetailed($event, $locale),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch event',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -186,10 +185,10 @@ class EventController extends Controller
     {
         try {
             // Check if event exists and is published
-            if (!$event || $event->status !== 'published') {
+            if (! $event || $event->status !== 'published') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Event not found or not available for registration'
+                    'message' => 'Event not found or not available for registration',
                 ], 404);
             }
 
@@ -197,7 +196,7 @@ class EventController extends Controller
             if ($event->has_ended) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Registration closed - event has ended'
+                    'message' => 'Registration closed - event has ended',
                 ], 422);
             }
 
@@ -206,26 +205,26 @@ class EventController extends Controller
             $participants_count = $request->get('participants_count', 1);
 
             // Check if event is sold out
-            if ($event->max_participants && 
+            if ($event->max_participants &&
                 ($event->current_participants + $participants_count) > $event->max_participants) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Event is sold out or not enough spots available'
+                    'message' => 'Event is sold out or not enough spots available',
                 ], 422);
             }
 
             // Validation rules
             $rules = [
                 'participants_count' => 'integer|min:1|max:10',
-                'special_requirements' => 'nullable|string|max:500'
+                'special_requirements' => 'nullable|string|max:500',
             ];
 
             // If user is not authenticated, require contact info
-            if (!$user) {
+            if (! $user) {
                 $rules = array_merge($rules, [
                     'user_name' => 'required|string|max:255',
                     'user_email' => 'required|email|max:255',
-                    'user_phone' => 'nullable|string|max:20'
+                    'user_phone' => 'nullable|string|max:20',
                 ]);
             }
 
@@ -234,15 +233,15 @@ class EventController extends Controller
             // Check if authenticated user already registered
             if ($user) {
                 $existingReservation = Reservation::where('reservable_id', $event->id)
-                                                  ->where('reservable_type', Event::class)
-                                                  ->where('app_user_id', $user->id)
-                                                  ->whereIn('status', ['confirmed', 'pending'])
-                                                  ->first();
-                
+                    ->where('reservable_type', Event::class)
+                    ->where('app_user_id', $user->id)
+                    ->whereIn('status', ['confirmed', 'pending'])
+                    ->first();
+
                 if ($existingReservation) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'You are already registered for this event'
+                        'message' => 'You are already registered for this event',
                     ], 422);
                 }
             }
@@ -270,7 +269,7 @@ class EventController extends Controller
                 $reservationData = array_merge($reservationData, [
                     'guest_name' => $validated['user_name'],
                     'guest_email' => $validated['user_email'],
-                    'guest_phone' => $validated['user_phone'] ?? null
+                    'guest_phone' => $validated['user_phone'] ?? null,
                 ]);
             }
 
@@ -290,17 +289,17 @@ class EventController extends Controller
                 'data' => [
                     'reservation' => $this->transformReservation($reservation),
                     'payment_required' => $event->price > 0,
-                    'total_amount' => $reservation->payment_amount
-                ]
+                    'total_amount' => $reservation->payment_amount,
+                ],
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Registration failed',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -312,29 +311,29 @@ class EventController extends Controller
     {
         try {
             $user = $request->user();
-            
-            if (!$user) {
+
+            if (! $user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Authentication required to cancel registration'
+                    'message' => 'Authentication required to cancel registration',
                 ], 401);
             }
 
             $reservation = Reservation::where('reservable_id', $event->id)
-                                       ->where('reservable_type', Event::class)
-                                       ->where('app_user_id', $user->id)
-                                       ->whereIn('status', ['confirmed', 'pending'])
-                                       ->first();
+                ->where('reservable_type', Event::class)
+                ->where('app_user_id', $user->id)
+                ->whereIn('status', ['confirmed', 'pending'])
+                ->first();
 
-            if (!$reservation) {
+            if (! $reservation) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Registration not found'
+                    'message' => 'Registration not found',
                 ], 404);
             }
 
             $request->validate([
-                'reason' => 'nullable|string|max:255'
+                'reason' => 'nullable|string|max:255',
             ]);
 
             $reservation->cancel($request->get('reason'));
@@ -342,14 +341,14 @@ class EventController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Registration cancelled successfully'
+                'message' => 'Registration cancelled successfully',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to cancel registration',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -361,17 +360,17 @@ class EventController extends Controller
     {
         try {
             $user = $request->user();
-            
-            if (!$user) {
+
+            if (! $user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Authentication required'
+                    'message' => 'Authentication required',
                 ], 401);
             }
 
             $query = Reservation::where('app_user_id', $user->id)
-                                    ->where('reservable_type', Event::class)
-                                    ->with(['reservable.featuredImage', 'reservable.translations']);
+                ->where('reservable_type', Event::class)
+                ->with(['reservable.featuredImage', 'reservable.translations']);
 
             // Filter by status
             if ($request->filled('status')) {
@@ -393,16 +392,16 @@ class EventController extends Controller
                         'current_page' => $reservations->currentPage(),
                         'last_page' => $reservations->lastPage(),
                         'per_page' => $reservations->perPage(),
-                        'total' => $reservations->total()
-                    ]
-                ]
+                        'total' => $reservations->total(),
+                    ],
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch registrations',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -413,7 +412,7 @@ class EventController extends Controller
     private function transformEvent(Event $event, string $locale = 'fr'): array
     {
         $translation = $event->translation($locale);
-        
+
         return [
             'id' => $event->id,
             'slug' => $event->slug,
@@ -450,17 +449,17 @@ class EventController extends Controller
             'featured_image' => $event->featuredImage ? [
                 'id' => $event->featuredImage->id,
                 'url' => $event->featuredImage->getImageUrl(),
-                'alt' => $event->featuredImage->translation($locale)->alt_text ?? ''
+                'alt' => $event->featuredImage->translation($locale)->alt_text ?? '',
             ] : null,
             'categories' => $event->categories->map(function ($category) use ($locale) {
                 return [
                     'id' => $category->id,
                     'name' => $category->translation($locale)->name ?? $category->name,
-                    'slug' => $category->slug
+                    'slug' => $category->slug,
                 ];
             }),
             'created_at' => $event->created_at->toISOString(),
-            'updated_at' => $event->updated_at->toISOString()
+            'updated_at' => $event->updated_at->toISOString(),
         ];
     }
 
@@ -470,9 +469,9 @@ class EventController extends Controller
     private function transformEventDetailed(Event $event, string $locale = 'fr'): array
     {
         $translation = $event->translation($locale);
-        
+
         $basic = $this->transformEvent($event, $locale);
-        
+
         return array_merge($basic, [
             'description' => $translation->description ?? '',
             'location_details' => $translation->location_details ?? '',
@@ -491,9 +490,9 @@ class EventController extends Controller
                     'id' => $media->id,
                     'url' => $media->getImageUrl(),
                     'alt' => $media->translation($locale)->alt_text ?? '',
-                    'order' => $media->pivot->order ?? 0
+                    'order' => $media->pivot->order ?? 0,
                 ];
-            })
+            }),
         ]);
     }
 
@@ -513,7 +512,7 @@ class EventController extends Controller
             'reservation_date' => $reservation->reservation_date?->toDateString(),
             'user_name' => $reservation->user_name,
             'user_email' => $reservation->user_email,
-            'created_at' => $reservation->created_at->toISOString()
+            'created_at' => $reservation->created_at->toISOString(),
         ];
     }
 
@@ -523,9 +522,9 @@ class EventController extends Controller
     private function transformReservationWithEvent(Reservation $reservation, string $locale = 'fr'): array
     {
         $basic = $this->transformReservation($reservation);
-        
+
         return array_merge($basic, [
-            'event' => $this->transformEvent($reservation->reservable, $locale)
+            'event' => $this->transformEvent($reservation->reservable, $locale),
         ]);
     }
 
@@ -540,7 +539,7 @@ class EventController extends Controller
                 return [
                     'id' => $category->id,
                     'name' => $category->translation($locale)->name ?? $category->name,
-                    'slug' => $category->slug
+                    'slug' => $category->slug,
                 ];
             })
             ->toArray();

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AppUserController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\EventController;
@@ -8,8 +9,6 @@ use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PoiController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ReservationController;
-use App\Http\Controllers\Admin\AppUserController;
-use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,7 +43,6 @@ Route::middleware('auth.admin')->group(function () {
     // Dashboard
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
-
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
@@ -57,7 +55,7 @@ Route::middleware('auth.admin')->group(function () {
 
     // Routes pour les points d'intérêt
     Route::get('/pois', [PoiController::class, 'index'])->name('pois.index');
-    Route::get('/pois/create', [PoiController::class, 'create'])->name('pois.create'); 
+    Route::get('/pois/create', [PoiController::class, 'create'])->name('pois.create');
     Route::get('/pois/{id}/edit', [PoiController::class, 'edit'])->name('pois.edit');
     Route::get('/pois/{poi}', [PoiController::class, 'show'])->name('pois.show');
 
@@ -97,7 +95,7 @@ Route::middleware('auth.admin')->group(function () {
     Route::get('/categories', function () {
         return view('admin.categories.modern');
     })->name('categories.index');
-    
+
     // Ancienne interface (backup)
     Route::get('/categories-classic', [CategoryController::class, 'index'])->name('categories.classic');
 
@@ -105,7 +103,6 @@ Route::middleware('auth.admin')->group(function () {
     Route::get('/external-links', function () {
         return view('admin.external-links.index');
     })->name('external-links.index');
-
 
     // Routes pour les médias
     // Routes pour la gestion des médias
@@ -151,20 +148,20 @@ Route::middleware('auth.admin')->group(function () {
         Route::get('/', function () {
             return view('admin.tour-operators.index');
         })->name('index');
-        
+
         Route::get('/create', function () {
             return view('admin.tour-operators.create');
         })->name('create');
-        
+
         Route::get('/{id}/edit', function ($id) {
             return view('admin.tour-operators.edit', ['tourOperatorId' => $id]);
         })->where('id', '[0-9]+')->name('edit');
-        
+
         Route::get('/{id}', function ($id) {
             $tourOperator = \App\Models\TourOperator::findOrFail($id);
+
             return view('admin.tour-operators.show', compact('tourOperator'));
         })->where('id', '[0-9]+')->name('show');
     });
-
 
 });

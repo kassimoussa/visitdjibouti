@@ -8,8 +8,11 @@ use Livewire\Component;
 class TourOperatorDetail extends Component
 {
     public TourOperator $tourOperator;
+
     public $activeLocale = 'fr';
+
     public $availableLocales = ['fr', 'en'];
+
     public $showEditModal = false;
 
     public function mount(TourOperator $tourOperator)
@@ -32,26 +35,26 @@ class TourOperatorDetail extends Component
     public function toggleStatus()
     {
         try {
-            $this->tourOperator->update(['is_active' => !$this->tourOperator->is_active]);
+            $this->tourOperator->update(['is_active' => ! $this->tourOperator->is_active]);
             $this->tourOperator->refresh();
-            
+
             $status = $this->tourOperator->is_active ? 'activé' : 'désactivé';
             session()->flash('message', "Opérateur de tour {$status} avec succès.");
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors du changement de statut: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors du changement de statut: '.$e->getMessage());
         }
     }
 
     public function toggleFeatured()
     {
         try {
-            $this->tourOperator->update(['featured' => !$this->tourOperator->featured]);
+            $this->tourOperator->update(['featured' => ! $this->tourOperator->featured]);
             $this->tourOperator->refresh();
-            
+
             $status = $this->tourOperator->featured ? 'mis en avant' : 'retiré de la mise en avant';
             session()->flash('message', "Opérateur de tour {$status} avec succès.");
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors du changement de statut featured: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors du changement de statut featured: '.$e->getMessage());
         }
     }
 
@@ -75,11 +78,12 @@ class TourOperatorDetail extends Component
         try {
             $name = $this->tourOperator->getTranslatedName($this->activeLocale);
             $this->tourOperator->delete();
-            
+
             session()->flash('message', "Opérateur de tour '{$name}' supprimé avec succès.");
+
             return redirect()->route('tour-operators.index');
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors de la suppression: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la suppression: '.$e->getMessage());
         }
     }
 

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -38,7 +38,7 @@ class Tour extends Model
         'weather_dependent',
         'cancellation_policy',
         'featured_image_id',
-        'views_count'
+        'views_count',
     ];
 
     protected $casts = [
@@ -56,7 +56,6 @@ class Tour extends Model
         'requirements' => 'array',
     ];
 
-    
     /**
      * Boot the model.
      */
@@ -67,7 +66,7 @@ class Tour extends Model
         static::creating(function ($tour) {
             // Générer un slug si vide
             if (empty($tour->slug)) {
-                $tour->slug = 'tour-' . uniqid();
+                $tour->slug = 'tour-'.uniqid();
             }
         });
     }
@@ -84,7 +83,7 @@ class Tour extends Model
             $count = 1;
             $originalSlug = $slug;
             while (self::where('slug', $slug)->where('id', '!=', $this->id)->exists()) {
-                $slug = $originalSlug . '-' . $count;
+                $slug = $originalSlug.'-'.$count;
                 $count++;
             }
             $this->update(['slug' => $slug]);
@@ -107,11 +106,11 @@ class Tour extends Model
         $locale = $locale ?: app()->getLocale();
 
         return $this->translations()
-                    ->where('locale', $locale)
-                    ->first()
+            ->where('locale', $locale)
+            ->first()
                 ?? $this->translations()
-                      ->where('locale', config('app.fallback_locale'))
-                      ->first();
+                    ->where('locale', config('app.fallback_locale'))
+                    ->first();
     }
 
     /**
@@ -156,24 +155,6 @@ class Tour extends Model
     public function target(): MorphTo
     {
         return $this->morphTo();
-    } 
-
-    /**
-     * Get active schedules.
-     */
-    public function activeSchedules(): HasMany
-    {
-        return $this->schedules()->where('status', 'available')
-                    ->where('start_date', '>=', now()->toDateString());
-    }
-
-    /**
-     * Get upcoming schedules.
-     */
-    public function upcomingSchedules(): HasMany
-    {
-        return $this->schedules()->where('start_date', '>=', now()->toDateString())
-                    ->orderBy('start_date');
     }
 
     /**
@@ -190,8 +171,8 @@ class Tour extends Model
     public function media(): BelongsToMany
     {
         return $this->belongsToMany(Media::class, 'media_tour')
-                    ->withPivot('order')
-                    ->orderBy('order');
+            ->withPivot('order')
+            ->orderBy('order');
     }
 
     /**
@@ -246,6 +227,7 @@ class Tour extends Model
         if ($maxPrice !== null) {
             $query->where('price', '<=', $maxPrice);
         }
+
         return $query;
     }
 
@@ -257,15 +239,16 @@ class Tour extends Model
         if ($maxDays !== null) {
             $query->where('duration_days', '<=', $maxDays);
         }
+
         return $query;
     }
 
     public function scopeNearby($query, $latitude, $longitude, $radius = 50)
     {
-        return $query->selectRaw("
+        return $query->selectRaw('
                 *,
                 (6371 * acos(cos(radians(?)) * cos(radians(meeting_point_latitude)) * cos(radians(meeting_point_longitude) - radians(?)) + sin(radians(?)) * sin(radians(meeting_point_latitude)))) AS distance
-            ", [$latitude, $longitude, $latitude])
+            ', [$latitude, $longitude, $latitude])
             ->whereNotNull('meeting_point_latitude')
             ->whereNotNull('meeting_point_longitude')
             ->having('distance', '<=', $radius)
@@ -283,12 +266,12 @@ class Tour extends Model
         if ($this->start_date && $this->end_date) {
             $days = $this->start_date->diffInDays($this->end_date) + 1; // +1 pour inclure le jour de fin
             if ($days > 0) {
-                $parts[] = $days . ' jour' . ($days > 1 ? 's' : '');
+                $parts[] = $days.' jour'.($days > 1 ? 's' : '');
             }
         }
 
         if ($this->duration_hours > 0) {
-            $parts[] = $this->duration_hours . ' heure' . ($this->duration_hours > 1 ? 's' : '');
+            $parts[] = $this->duration_hours.' heure'.($this->duration_hours > 1 ? 's' : '');
         }
 
         return implode(' ', $parts) ?: 'Durée non spécifiée';
@@ -299,20 +282,21 @@ class Tour extends Model
         if ($this->start_date && $this->end_date) {
             return $this->start_date->diffInDays($this->end_date) + 1;
         }
+
         return 0;
     }
 
     public function getFormattedDateRangeAttribute(): string
     {
-        if (!$this->start_date) {
+        if (! $this->start_date) {
             return 'Dates non définies';
         }
 
-        if (!$this->end_date || $this->start_date->eq($this->end_date)) {
+        if (! $this->end_date || $this->start_date->eq($this->end_date)) {
             return $this->start_date->format('d/m/Y');
         }
 
-        return $this->start_date->format('d/m/Y') . ' - ' . $this->end_date->format('d/m/Y');
+        return $this->start_date->format('d/m/Y').' - '.$this->end_date->format('d/m/Y');
     }
 
     public function getFormattedPriceAttribute(): string
@@ -321,7 +305,7 @@ class Tour extends Model
             return 'Gratuit';
         }
 
-        return number_format($this->price, 0, ',', ' ') . ' ' . ($this->currency ?? 'DJF');
+        return number_format($this->price, 0, ',', ' ').' '.($this->currency ?? 'DJF');
     }
 
     public function getIsFreeAttribute(): bool
@@ -336,7 +320,7 @@ class Tour extends Model
 
     public function getAgeRestrictionsTextAttribute(): string
     {
-        if (!$this->has_age_restrictions) {
+        if (! $this->has_age_restrictions) {
             return 'Tous âges';
         }
 
@@ -351,25 +335,9 @@ class Tour extends Model
         return implode(', ', $parts);
     }
 
-    public function getNextAvailableDateAttribute()
-    {
-        $nextSchedule = $this->activeSchedules()->orderBy('start_date')->first();
-        return $nextSchedule ? $nextSchedule->start_date : null;
-    }
-
-    public function getTotalSpotsAttribute(): int
-    {
-        return $this->schedules()->sum('available_spots');
-    }
-
-    public function getBookedSpotsAttribute(): int
-    {
-        return $this->schedules()->sum('booked_spots');
-    }
-
     public function getAvailableSpotsAttribute(): int
     {
-        return max(0, $this->total_spots - $this->booked_spots);
+        return max(0, $this->max_participants - $this->current_participants);
     }
 
     /**
@@ -382,28 +350,7 @@ class Tour extends Model
 
     public function isAvailableForBooking(): bool
     {
-        return $this->status === 'active' &&
-               $this->activeSchedules()->exists();
-    }
-
-    public function hasAvailableSpots(): bool
-    {
-        return $this->activeSchedules()
-                    ->whereRaw('available_spots > booked_spots')
-                    ->exists();
-    }
-
-    public function canBeBookedBy($user = null): bool
-    {
-        if (!$this->isAvailableForBooking()) {
-            return false;
-        }
-
-        if (!$this->hasAvailableSpots()) {
-            return false;
-        }
-
-        return true;
+        return $this->status === 'active' && $this->available_spots > 0;
     }
 
     /**
@@ -411,7 +358,7 @@ class Tour extends Model
      */
     public function getDifficultyLabelAttribute(): string
     {
-        return match($this->difficulty_level) {
+        return match ($this->difficulty_level) {
             'easy' => 'Facile',
             'moderate' => 'Modéré',
             'difficult' => 'Difficile',
@@ -425,7 +372,7 @@ class Tour extends Model
      */
     public function getTypeLabelAttribute(): string
     {
-        return match($this->type) {
+        return match ($this->type) {
             'poi' => 'Visite de site',
             'event' => 'Accompagnement événement',
             'mixed' => 'Circuit mixte',

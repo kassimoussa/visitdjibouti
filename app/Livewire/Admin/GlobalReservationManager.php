@@ -2,12 +2,11 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\Reservation;
-use App\Models\Poi;
 use App\Models\Event;
+use App\Models\Poi;
+use App\Models\Reservation;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Facades\DB;
 
 class GlobalReservationManager extends Component
 {
@@ -15,21 +14,29 @@ class GlobalReservationManager extends Component
 
     // Filtres
     public $typeFilter = ''; // '', 'poi', 'event'
+
     public $statusFilter = '';
+
     public $searchFilter = '';
+
     public $dateFromFilter = '';
+
     public $dateToFilter = '';
+
     public $resourceFilter = ''; // ID spécifique d'un POI ou Event
-    
+
     // Modal
     public $showModal = false;
+
     public $selectedReservation;
+
     public $actionType = '';
+
     public $actionReason = '';
-    
+
     // Stats globales
     public $globalStats = [];
-    
+
     // Resources avec réservations (POIs et Events)
     public $resourcesWithReservations = [];
 
@@ -46,25 +53,25 @@ class GlobalReservationManager extends Component
         $allReservations = Reservation::query();
         $poiReservations = Reservation::forPois();
         $eventReservations = Reservation::forEvents();
-        
+
         $this->globalStats = [
             // Totaux généraux
             'total' => $allReservations->count(),
             'total_poi' => $poiReservations->count(),
             'total_event' => $eventReservations->count(),
-            
+
             // Par statut
             'pending' => $allReservations->where('status', 'pending')->count(),
             'confirmed' => $allReservations->where('status', 'confirmed')->count(),
             'cancelled' => $allReservations->where('status', 'cancelled')->count(),
             'completed' => $allReservations->where('status', 'completed')->count(),
-            
+
             // Par période
             'today' => $allReservations->whereDate('reservation_date', today())->count(),
             'this_week' => $allReservations->whereBetween('reservation_date', [now()->startOfWeek(), now()->endOfWeek()])->count(),
             'this_month' => $allReservations->whereYear('reservation_date', now()->year)
-                                          ->whereMonth('reservation_date', now()->month)->count(),
-            
+                ->whereMonth('reservation_date', now()->month)->count(),
+
             // Personnes
             'total_people' => $allReservations->where('status', '!=', 'cancelled')->sum('number_of_people'),
         ];
@@ -74,7 +81,7 @@ class GlobalReservationManager extends Component
     {
         // POIs avec réservations
         $poisWithReservations = Poi::select('id', 'slug')
-            ->with(['translations' => function($query) {
+            ->with(['translations' => function ($query) {
                 $query->where('locale', 'fr');
             }])
             ->whereHas('reservations')
@@ -82,19 +89,19 @@ class GlobalReservationManager extends Component
             ->orderByDesc('reservations_count')
             ->limit(20)
             ->get()
-            ->map(function($poi) {
+            ->map(function ($poi) {
                 return [
                     'type' => 'poi',
                     'id' => $poi->id,
                     'name' => $poi->translation('fr')->name ?? 'Sans nom',
                     'slug' => $poi->slug,
-                    'reservations_count' => $poi->reservations_count
+                    'reservations_count' => $poi->reservations_count,
                 ];
             });
 
         // Events avec réservations
         $eventsWithReservations = Event::select('id', 'slug')
-            ->with(['translations' => function($query) {
+            ->with(['translations' => function ($query) {
                 $query->where('locale', 'fr');
             }])
             ->whereHas('reservations')
@@ -102,13 +109,13 @@ class GlobalReservationManager extends Component
             ->orderByDesc('reservations_count')
             ->limit(20)
             ->get()
-            ->map(function($event) {
+            ->map(function ($event) {
                 return [
                     'type' => 'event',
                     'id' => $event->id,
                     'name' => $event->translation('fr')->title ?? 'Sans nom',
                     'slug' => $event->slug,
-                    'reservations_count' => $event->reservations_count
+                    'reservations_count' => $event->reservations_count,
                 ];
             });
 
@@ -124,7 +131,7 @@ class GlobalReservationManager extends Component
     public function getReservationsProperty()
     {
         $query = Reservation::with(['reservable.translations', 'appUser'])
-                           ->latest('created_at');
+            ->latest('created_at');
 
         // Filtres
         if ($this->typeFilter) {
@@ -144,14 +151,14 @@ class GlobalReservationManager extends Component
         }
 
         if ($this->searchFilter) {
-            $query->where(function($q) {
-                $q->where('guest_name', 'like', '%' . $this->searchFilter . '%')
-                  ->orWhere('guest_email', 'like', '%' . $this->searchFilter . '%')
-                  ->orWhere('confirmation_number', 'like', '%' . $this->searchFilter . '%')
-                  ->orWhereHas('appUser', function($userQuery) {
-                      $userQuery->where('name', 'like', '%' . $this->searchFilter . '%')
-                               ->orWhere('email', 'like', '%' . $this->searchFilter . '%');
-                  });
+            $query->where(function ($q) {
+                $q->where('guest_name', 'like', '%'.$this->searchFilter.'%')
+                    ->orWhere('guest_email', 'like', '%'.$this->searchFilter.'%')
+                    ->orWhere('confirmation_number', 'like', '%'.$this->searchFilter.'%')
+                    ->orWhereHas('appUser', function ($userQuery) {
+                        $userQuery->where('name', 'like', '%'.$this->searchFilter.'%')
+                            ->orWhere('email', 'like', '%'.$this->searchFilter.'%');
+                    });
             });
         }
 
@@ -168,7 +175,7 @@ class GlobalReservationManager extends Component
 
     public function getFilteredResourcesProperty()
     {
-        if (!$this->typeFilter) {
+        if (! $this->typeFilter) {
             return $this->resourcesWithReservations;
         }
 
@@ -231,7 +238,7 @@ class GlobalReservationManager extends Component
 
     public function confirmAction()
     {
-        if (!$this->selectedReservation) {
+        if (! $this->selectedReservation) {
             return;
         }
 
@@ -241,12 +248,12 @@ class GlobalReservationManager extends Component
                     $this->selectedReservation->confirm();
                     session()->flash('success', 'Réservation confirmée avec succès.');
                     break;
-                    
+
                 case 'cancel':
                     $this->selectedReservation->cancel($this->actionReason);
                     session()->flash('success', 'Réservation annulée avec succès.');
                     break;
-                    
+
                 case 'complete':
                     $this->selectedReservation->markAsCompleted();
                     session()->flash('success', 'Réservation marquée comme terminée.');
@@ -256,9 +263,9 @@ class GlobalReservationManager extends Component
             $this->loadGlobalStats();
             $this->loadResourcesWithReservations();
             $this->closeModal();
-            
+
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur: ' . $e->getMessage());
+            session()->flash('error', 'Erreur: '.$e->getMessage());
         }
     }
 
@@ -279,7 +286,7 @@ class GlobalReservationManager extends Component
 
     public function getStatusBadgeClass($status)
     {
-        return match($status) {
+        return match ($status) {
             'pending' => 'bg-warning',
             'confirmed' => 'bg-success',
             'cancelled' => 'bg-danger',
@@ -291,7 +298,7 @@ class GlobalReservationManager extends Component
 
     public function getStatusLabel($status)
     {
-        return match($status) {
+        return match ($status) {
             'pending' => 'En attente',
             'confirmed' => 'Confirmée',
             'cancelled' => 'Annulée',
@@ -308,6 +315,7 @@ class GlobalReservationManager extends Component
         } elseif (str_contains($reservableType, 'Event')) {
             return ['class' => 'bg-success', 'label' => 'Event'];
         }
+
         return ['class' => 'bg-secondary', 'label' => 'Unknown'];
     }
 
@@ -316,7 +324,7 @@ class GlobalReservationManager extends Component
         return view('livewire.admin.global-reservation-manager', [
             'reservations' => $this->reservations,
             'filteredResources' => $this->filteredResources,
-            'topResources' => $this->topResources
+            'topResources' => $this->topResources,
         ]);
     }
 }

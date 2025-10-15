@@ -2,13 +2,13 @@
 
 namespace App\Livewire\Admin\Tour;
 
-use App\Models\Tour;
-use App\Models\TourOperator;
-use App\Models\Poi;
 use App\Models\Event;
 use App\Models\Media;
-use Livewire\Component;
+use App\Models\Poi;
+use App\Models\Tour;
+use App\Models\TourOperator;
 use Illuminate\Support\Str;
+use Livewire\Component;
 use Livewire\WithFileUploads;
 
 class TourForm extends Component
@@ -17,31 +17,54 @@ class TourForm extends Component
 
     // Properties for the Tour model
     public $tourId;
+
     public $tour_operator_id;
+
     public $target_id;
+
     public $target_type;
+
     public $start_date;
+
     public $end_date;
+
     public $price = 0;
+
     public $currency = 'DJF';
+
     public $max_participants;
+
     public $difficulty_level = 'easy';
+
     public $status = 'active';
+
     public $is_featured = false;
+
     public $weather_dependent = false;
+
     public $meeting_point_address = '';
+
     public $cancellation_policy = '';
+
     public $slug;
 
     // View-related properties
     public $isEditMode = false;
+
     public $tourOperators = [];
+
     public $pois = [];
+
     public $events = [];
+
     public $translations = [];
+
     public $allMedia = [];
+
     public $selectedMedia = [];
+
     public $featuredImageId;
+
     public $mediaSelectorMode = 'single';
 
     protected function rules()
@@ -51,14 +74,14 @@ class TourForm extends Component
             'target_id' => 'nullable|integer',
             'target_type' => 'nullable|string',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date', 
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'price' => 'required|numeric|min:0',
             'max_participants' => 'nullable|integer|min:1',
             'difficulty_level' => 'required|in:easy,moderate,difficult,expert',
             'status' => 'required|in:active,suspended,archived',
             'is_featured' => 'boolean',
             'weather_dependent' => 'boolean',
-            'meeting_point_address' => 'nullable|string|max:255', 
+            'meeting_point_address' => 'nullable|string|max:255',
             'featuredImageId' => 'nullable|exists:media,id',
             'translations.fr.title' => 'required|string|max:255',
             'translations.fr.description' => 'required|string',
@@ -82,7 +105,7 @@ class TourForm extends Component
         ];
     }
 
-    public function mount(Tour $tour = null)
+    public function mount(?Tour $tour = null)
     {
         $this->tourOperators = TourOperator::all();
         $this->pois = Poi::all();
@@ -94,25 +117,25 @@ class TourForm extends Component
         foreach ($locales as $locale) {
             $this->translations[$locale] = [
                 'title' => '',
-                'description' => ''
+                'description' => '',
             ];
         }
 
         if ($tour && $tour->exists) {
             $this->isEditMode = true;
             $this->tourId = $tour->id;
-            
+
             // Fill properties from the model
             $this->fill($tour->only([
                 'tour_operator_id', 'target_id', 'target_type', 'start_date', 'end_date',
                 'price', 'currency', 'max_participants',
                 'difficulty_level', 'status', 'is_featured', 'weather_dependent',
-                'meeting_point_address', 'cancellation_policy', 'slug'
+                'meeting_point_address', 'cancellation_policy', 'slug',
             ]));
 
             // Cast boolean values
-            $this->is_featured = (bool)$tour->is_featured;
-            $this->weather_dependent = (bool)$tour->weather_dependent;
+            $this->is_featured = (bool) $tour->is_featured;
+            $this->weather_dependent = (bool) $tour->weather_dependent;
 
             // Format dates and times
             $this->start_date = $tour->start_date ? $tour->start_date->format('Y-m-d') : null;
@@ -122,7 +145,7 @@ class TourForm extends Component
                 if (isset($this->translations[$translation->locale])) {
                     $this->translations[$translation->locale] = [
                         'title' => $translation->title ?? '',
-                        'description' => $translation->description ?? ''
+                        'description' => $translation->description ?? '',
                     ];
                 }
             }
@@ -140,7 +163,7 @@ class TourForm extends Component
     {
         if ($this->mediaSelectorMode === 'single') {
             // Mode image principale : prendre seulement le premier ID
-            $this->featuredImageId = !empty($selectedIds) ? $selectedIds[0] : null;
+            $this->featuredImageId = ! empty($selectedIds) ? $selectedIds[0] : null;
         } else {
             // Mode galerie : remplacer tous les médias sélectionnés
             $this->selectedMedia = $selectedIds;
@@ -201,19 +224,19 @@ class TourForm extends Component
         ];
 
         if (empty($tourData['slug'])) {
-            $tourData['slug'] = Str::slug($this->translations['fr']['title'] ?? 'tour-' . uniqid());
+            $tourData['slug'] = Str::slug($this->translations['fr']['title'] ?? 'tour-'.uniqid());
         }
 
         $tour = Tour::updateOrCreate(['id' => $this->tourId], $tourData);
 
         // Sauvegarder les traductions
         foreach ($this->translations as $locale => $data) {
-            if (!empty($data['title'])) {
+            if (! empty($data['title'])) {
                 $tour->translations()->updateOrCreate(
                     ['locale' => $locale],
                     [
                         'title' => $data['title'] ?? '',
-                        'description' => $data['description'] ?? ''
+                        'description' => $data['description'] ?? '',
                     ]
                 );
             }
@@ -223,6 +246,7 @@ class TourForm extends Component
         $tour->media()->sync($this->selectedMedia);
 
         session()->flash('success', 'Tour sauvegardé avec succès.');
+
         return redirect()->route('tours.index');
     }
 

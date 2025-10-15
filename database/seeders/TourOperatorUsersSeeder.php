@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\TourOperator;
 use App\Models\TourOperatorUser;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class TourOperatorUsersSeeder extends Seeder
@@ -16,6 +16,7 @@ class TourOperatorUsersSeeder extends Seeder
 
         if ($tourOperators->isEmpty()) {
             $this->command->info('Aucun tour operator trouvé. Exécutez d\'abord TestTourOperatorSeeder.');
+
             return;
         }
 

@@ -37,7 +37,7 @@ class PointOfInterest extends Model
         'allow_reservations',
         'status',
         'creator_id',
-        'featured_image_id'
+        'featured_image_id',
     ];
 
     /**
@@ -58,7 +58,7 @@ class PointOfInterest extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         // Génération automatique du slug
         static::creating(function ($poi) {
             if (empty($poi->slug)) {
@@ -97,15 +97,12 @@ class PointOfInterest extends Model
     public function media(): BelongsToMany
     {
         return $this->belongsToMany(Media::class, 'media_point_of_interest')
-                    ->withPivot('order')
-                    ->orderBy('order');
+            ->withPivot('order')
+            ->orderBy('order');
     }
 
     /**
      * Check if the POI has a specific status.
-     *
-     * @param string $status
-     * @return bool
      */
     public function hasStatus(string $status): bool
     {
@@ -115,7 +112,7 @@ class PointOfInterest extends Model
     /**
      * Get all published POIs.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopePublished($query)
@@ -126,7 +123,7 @@ class PointOfInterest extends Model
     /**
      * Get all featured POIs.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeFeatured($query)
@@ -136,15 +133,13 @@ class PointOfInterest extends Model
 
     /**
      * Get formatted address with region.
-     *
-     * @return string
      */
     public function getFullAddressAttribute(): string
     {
         if (empty($this->address)) {
             return $this->region ?? '';
         }
-        
-        return $this->address . ($this->region ? ', ' . $this->region : '');
+
+        return $this->address.($this->region ? ', '.$this->region : '');
     }
 }

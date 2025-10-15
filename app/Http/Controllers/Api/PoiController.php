@@ -3,23 +3,22 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Poi;
 use App\Models\Category;
+use App\Models\Poi;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 /**
  * POI API Controller
- * 
+ *
  * Exemple de structure API avec contacts multiples:
  * {
  *   "contacts": [
  *     {
  *       "name": "Restaurant Le Palmier",
  *       "type": "restaurant",
- *       "type_label": "Restaurant", 
+ *       "type_label": "Restaurant",
  *       "phone": "+253 77 XX XX XX",
  *       "email": "contact@palmier.dj",
  *       "website": "https://www.palmier.dj",
@@ -47,7 +46,7 @@ use Illuminate\Support\Facades\DB;
  *   "tour_operators_count": 1,
  *   "primary_tour_operator": { ... }
  * }
- * 
+ *
  * Paramètres de filtrage:
  * - contact_type: restaurant, tour_operator, guide, etc.
  * - has_contacts: true/false
@@ -65,14 +64,14 @@ class PoiController extends Controller
     {
         try {
             $query = Poi::published()
-                         ->with(['featuredImage', 'categories.translations', 'translations', 'tourOperators.translations']);
+                ->with(['featuredImage', 'categories.translations', 'translations', 'tourOperators.translations']);
 
             // Search by name
             if ($request->filled('search')) {
                 $search = $request->get('search');
                 $query->whereHas('translations', function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
-                      ->orWhere('description', 'LIKE', "%{$search}%");
+                        ->orWhere('description', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -80,16 +79,16 @@ class PoiController extends Controller
             if ($request->filled('category_id')) {
                 $categoryId = $request->get('category_id');
                 $category = Category::find($categoryId);
-                
+
                 if ($category) {
                     // Get all category IDs to include (parent + all children)
                     $categoryIds = [$categoryId];
-                    
+
                     // If it's a parent category, include all children
                     if ($category->children()->count() > 0) {
                         $categoryIds = array_merge($categoryIds, $category->children()->pluck('id')->toArray());
                     }
-                    
+
                     $query->whereHas('categories', function ($q) use ($categoryIds) {
                         $q->whereIn('categories.id', $categoryIds);
                     });
@@ -115,8 +114,8 @@ class PoiController extends Controller
             // Filter POIs that have contacts
             if ($request->filled('has_contacts') && $request->boolean('has_contacts')) {
                 $query->whereNotNull('contacts')
-                      ->where('contacts', '!=', '[]')
-                      ->where('contacts', '!=', 'null');
+                    ->where('contacts', '!=', '[]')
+                    ->where('contacts', '!=', 'null');
             }
 
             // Filter by tour operator ID
@@ -154,16 +153,16 @@ class PoiController extends Controller
             if ($sortBy === 'name') {
                 // Sort by translated name using subquery to avoid ID conflicts
                 $locale = $request->header('Accept-Language', 'fr');
-                
+
                 // Use raw SQL with subquery to properly handle the sort
                 $query->addSelect([
-                    'translation_name' => function($subQuery) use ($locale) {
+                    'translation_name' => function ($subQuery) use ($locale) {
                         $subQuery->select('name')
-                                ->from('poi_translations')
-                                ->whereRaw('poi_translations.poi_id = pois.id')
-                                ->where('locale', $locale)
-                                ->limit(1);
-                    }
+                            ->from('poi_translations')
+                            ->whereRaw('poi_translations.poi_id = pois.id')
+                            ->where('locale', $locale)
+                            ->limit(1);
+                    },
                 ])->orderBy('translation_name', $sortOrder);
             } else {
                 $query->orderBy($sortBy, $sortOrder);
@@ -194,16 +193,16 @@ class PoiController extends Controller
                     'filters' => [
                         'regions' => $this->getAvailableRegions(),
                         'categories' => $this->getAvailableCategories($request->header('Accept-Language', 'fr')),
-                        'contact_types' => $this->getAvailableContactTypes()
-                    ]
-                ]
+                        'contact_types' => $this->getAvailableContactTypes(),
+                    ],
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch POIs',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -215,41 +214,41 @@ class PoiController extends Controller
     {
         try {
             $query = Poi::published()
-                         ->with([
-                             'featuredImage', 
-                             'media', 
-                             'categories.translations', 
-                             'translations',
-                             'tourOperators.translations'
-                         ]);
+                ->with([
+                    'featuredImage',
+                    'media',
+                    'categories.translations',
+                    'translations',
+                    'tourOperators.translations',
+                ]);
 
             // Try to find by ID first, then by slug
-            $poi = is_numeric($identifier) 
+            $poi = is_numeric($identifier)
                 ? $query->find($identifier)
                 : $query->where('slug', $identifier)->first();
 
-            if (!$poi) {
+            if (! $poi) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'POI not found'
+                    'message' => 'POI not found',
                 ], 404);
             }
 
             $locale = $request->header('Accept-Language', 'fr');
             $user = Auth::guard('sanctum')->user();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'poi' => $this->transformPoiDetailed($poi, $locale, $user)
-                ]
+                    'poi' => $this->transformPoiDetailed($poi, $locale, $user),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch POI',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -261,19 +260,19 @@ class PoiController extends Controller
     {
         try {
             $category = Category::find($categoryId);
-            
-            if (!$category) {
+
+            if (! $category) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Category not found'
+                    'message' => 'Category not found',
                 ], 404);
             }
 
             $query = Poi::published()
-                         ->with(['featuredImage', 'categories.translations', 'translations'])
-                         ->whereHas('categories', function ($q) use ($categoryId) {
-                             $q->where('categories.id', $categoryId);
-                         });
+                ->with(['featuredImage', 'categories.translations', 'translations'])
+                ->whereHas('categories', function ($q) use ($categoryId) {
+                    $q->where('categories.id', $categoryId);
+                });
 
             $perPage = min($request->get('per_page', 15), 50);
             $pois = $query->paginate($perPage);
@@ -290,23 +289,23 @@ class PoiController extends Controller
                     'category' => [
                         'id' => $category->id,
                         'name' => $category->translation($locale)->name ?? $category->name,
-                        'description' => $category->translation($locale)->description ?? ''
+                        'description' => $category->translation($locale)->description ?? '',
                     ],
                     'pois' => $transformedPois,
                     'pagination' => [
                         'current_page' => $pois->currentPage(),
                         'last_page' => $pois->lastPage(),
                         'per_page' => $pois->perPage(),
-                        'total' => $pois->total()
-                    ]
-                ]
+                        'total' => $pois->total(),
+                    ],
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch POIs by category',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -319,7 +318,7 @@ class PoiController extends Controller
         $request->validate([
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-            'radius' => 'nullable|numeric|min:1|max:100' // radius in kilometers
+            'radius' => 'nullable|numeric|min:1|max:100', // radius in kilometers
         ]);
 
         try {
@@ -328,15 +327,15 @@ class PoiController extends Controller
             $radius = $request->get('radius', 10); // Default 10km radius
 
             $query = Poi::published()
-                         ->with(['featuredImage', 'categories.translations', 'translations'])
-                         ->selectRaw("
+                ->with(['featuredImage', 'categories.translations', 'translations'])
+                ->selectRaw('
                              *,
                              (6371 * acos(cos(radians(?)) * cos(radians(latitude)) 
                              * cos(radians(longitude) - radians(?)) 
                              + sin(radians(?)) * sin(radians(latitude)))) AS distance
-                         ", [$latitude, $longitude, $latitude])
-                         ->having('distance', '<=', $radius)
-                         ->orderBy('distance');
+                         ', [$latitude, $longitude, $latitude])
+                ->having('distance', '<=', $radius)
+                ->orderBy('distance');
 
             $limit = min($request->get('limit', 20), 50);
             $pois = $query->limit($limit)->get();
@@ -346,6 +345,7 @@ class PoiController extends Controller
             $transformedPois = $pois->map(function ($poi) use ($locale, $user) {
                 $transformed = $this->transformPoi($poi, $locale, $user);
                 $transformed['distance'] = round($poi->distance, 2); // Distance in km
+
                 return $transformed;
             });
 
@@ -357,16 +357,16 @@ class PoiController extends Controller
                         'latitude' => $latitude,
                         'longitude' => $longitude,
                         'radius_km' => $radius,
-                        'total_found' => $pois->count()
-                    ]
-                ]
+                        'total_found' => $pois->count(),
+                    ],
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch nearby POIs',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -377,7 +377,7 @@ class PoiController extends Controller
     private function transformPoi(Poi $poi, string $locale = 'fr', $user = null): array
     {
         $translation = $poi->translation($locale);
-        
+
         return [
             'id' => $poi->id,
             'slug' => $poi->slug,
@@ -392,13 +392,13 @@ class PoiController extends Controller
             'allow_reservations' => $poi->allow_reservations,
             'website' => $poi->website,
             'contacts' => $this->transformContacts($poi->contacts ?? []),
-            'has_contacts' => !empty($poi->contacts),
+            'has_contacts' => ! empty($poi->contacts),
             'contacts_count' => count($poi->contacts ?? []),
             'primary_contact' => $this->getPrimaryContact($poi->contacts ?? []),
             'featured_image' => $poi->featuredImage ? [
                 'id' => $poi->featuredImage->id,
                 'url' => $poi->featuredImage->getImageUrl(),
-                'alt' => $poi->featuredImage->translation($locale)->alt_text ?? ''
+                'alt' => $poi->featuredImage->translation($locale)->alt_text ?? '',
             ] : null,
             'categories' => $poi->categories->map(function ($category) use ($locale) {
                 return [
@@ -407,7 +407,7 @@ class PoiController extends Controller
                     'slug' => $category->slug,
                     'level' => $category->level,
                     'parent_id' => $category->parent_id,
-                    'parent_name' => $category->parent ? ($category->parent->translation($locale)->name ?? $category->parent->name) : null
+                    'parent_name' => $category->parent ? ($category->parent->translation($locale)->name ?? $category->parent->name) : null,
                 ];
             }),
             'tour_operators' => $this->transformTourOperators($poi->tourOperators, $locale),
@@ -417,7 +417,7 @@ class PoiController extends Controller
             'favorites_count' => $poi->favorites_count,
             'is_favorited' => $user ? $poi->isFavoritedBy($user->id) : false,
             'created_at' => $poi->created_at->toISOString(),
-            'updated_at' => $poi->updated_at->toISOString()
+            'updated_at' => $poi->updated_at->toISOString(),
         ];
     }
 
@@ -427,9 +427,9 @@ class PoiController extends Controller
     private function transformPoiDetailed(Poi $poi, string $locale = 'fr', $user = null): array
     {
         $translation = $poi->translation($locale);
-        
+
         $basic = $this->transformPoi($poi, $locale, $user);
-        
+
         return array_merge($basic, [
             'description' => $translation->description ?? '',
             'opening_hours' => $translation->opening_hours ?? '',
@@ -440,9 +440,9 @@ class PoiController extends Controller
                     'id' => $media->id,
                     'url' => $media->getImageUrl(),
                     'alt' => $media->translation($locale)->alt_text ?? '',
-                    'order' => $media->pivot->order ?? 0
+                    'order' => $media->pivot->order ?? 0,
                 ];
-            })
+            }),
         ]);
     }
 
@@ -469,7 +469,7 @@ class PoiController extends Controller
             ['key' => 'emergency', 'label' => 'Urgence'],
             ['key' => 'transport', 'label' => 'Transport'],
             ['key' => 'shop', 'label' => 'Boutique/Commerce'],
-            ['key' => 'other', 'label' => 'Autre']
+            ['key' => 'other', 'label' => 'Autre'],
         ];
     }
 
@@ -484,7 +484,7 @@ class PoiController extends Controller
                 return [
                     'id' => $category->id,
                     'name' => $category->translation($locale)->name ?? $category->name,
-                    'slug' => $category->slug
+                    'slug' => $category->slug,
                 ];
             })
             ->toArray();
@@ -529,7 +529,7 @@ class PoiController extends Controller
             'emergency' => 'Urgence',
             'transport' => 'Transport',
             'shop' => 'Boutique/Commerce',
-            'other' => 'Autre'
+            'other' => 'Autre',
         ];
 
         return $labels[$type] ?? 'Type inconnu';
@@ -546,11 +546,11 @@ class PoiController extends Controller
 
         // Try to find primary contact
         $primaryContact = collect($contacts)->firstWhere('is_primary', true);
-        
+
         // If no primary found, use first contact
         $contact = $primaryContact ?: $contacts[0] ?? null;
-        
-        if (!$contact) {
+
+        if (! $contact) {
             return null;
         }
 
@@ -599,10 +599,10 @@ class PoiController extends Controller
                 'logo' => $tourOperator->logo ? [
                     'id' => $tourOperator->logo->id,
                     'url' => $tourOperator->logo->getImageUrl(),
-                    'alt' => $tourOperator->logo->translation($locale)->alt_text ?? ''
+                    'alt' => $tourOperator->logo->translation($locale)->alt_text ?? '',
                 ] : null,
                 'created_at' => $tourOperator->created_at->toISOString(),
-                'updated_at' => $tourOperator->updated_at->toISOString()
+                'updated_at' => $tourOperator->updated_at->toISOString(),
             ];
         })->toArray();
     }
@@ -618,11 +618,11 @@ class PoiController extends Controller
 
         // Try to find primary tour operator
         $primaryOperator = $tourOperators->firstWhere('pivot.is_primary', true);
-        
+
         // If no primary found, use first tour operator
         $operator = $primaryOperator ?: $tourOperators->first();
-        
-        if (!$operator) {
+
+        if (! $operator) {
             return null;
         }
 
@@ -646,8 +646,8 @@ class PoiController extends Controller
             'logo' => $operator->logo ? [
                 'id' => $operator->logo->id,
                 'url' => $operator->logo->getImageUrl(),
-                'alt' => $operator->logo->translation($locale)->alt_text ?? ''
-            ] : null
+                'alt' => $operator->logo->translation($locale)->alt_text ?? '',
+            ] : null,
         ];
     }
 
@@ -663,7 +663,7 @@ class PoiController extends Controller
                 'full_package' => 'Package complet',
                 'accommodation' => 'Hébergement',
                 'activity' => 'Activité spécialisée',
-                'other' => 'Autre service'
+                'other' => 'Autre service',
             ],
             'en' => [
                 'guide' => 'Tour Guide',
@@ -671,7 +671,7 @@ class PoiController extends Controller
                 'full_package' => 'Complete Package',
                 'accommodation' => 'Accommodation',
                 'activity' => 'Specialized Activity',
-                'other' => 'Other Service'
+                'other' => 'Other Service',
             ],
             'ar' => [
                 'guide' => 'مرشد سياحي',
@@ -679,11 +679,12 @@ class PoiController extends Controller
                 'full_package' => 'حزمة كاملة',
                 'accommodation' => 'إقامة',
                 'activity' => 'نشاط متخصص',
-                'other' => 'خدمة أخرى'
-            ]
+                'other' => 'خدمة أخرى',
+            ],
         ];
 
         $localeTypes = $types[$locale] ?? $types['fr'];
+
         return $localeTypes[$type] ?? ucfirst($type);
     }
 }

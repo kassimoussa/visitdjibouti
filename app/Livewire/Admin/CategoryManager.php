@@ -11,23 +11,30 @@ use Livewire\WithPagination;
 
 class CategoryManager extends Component
 {
-    use WithPagination;
-    use WithModal; // Utiliser notre trait de modal
+    use WithModal;
+    use WithPagination; // Utiliser notre trait de modal
 
     // Bootstrap pagination
     protected $paginationTheme = 'bootstrap';
 
     // Propriétés pour le formulaire
     public $categoryId = null;
+
     public $parent_id = null;
+
     public $slug = '';
+
     public $icon = 'fas fa-folder';
+
     public const DEFAULT_COLOR = '#2563eb'; // Couleur bleue par défaut
+
     public $is_active = true;
+
     public $sort_order = 0;
-    
+
     // Propriétés pour les traductions
     public $translations = [];
+
     public $availableLocales = [];
 
     // Propriété pour la recherche
@@ -46,7 +53,7 @@ class CategoryManager extends Component
         foreach ($this->availableLocales as $locale) {
             $this->translations[$locale] = [
                 'name' => '',
-                'description' => ''
+                'description' => '',
             ];
         }
     }
@@ -56,8 +63,8 @@ class CategoryManager extends Component
     {
         $rules = [
             'parent_id' => 'nullable|exists:categories,id',
-            'slug' => $this->modalMode === 'edit' 
-                ? 'nullable|string|max:255|unique:categories,slug,' . $this->categoryId
+            'slug' => $this->modalMode === 'edit'
+                ? 'nullable|string|max:255|unique:categories,slug,'.$this->categoryId
                 : 'nullable|string|max:255|unique:categories,slug',
             'icon' => 'nullable|string|max:50',
             'sort_order' => 'integer|min:0',
@@ -66,7 +73,7 @@ class CategoryManager extends Component
 
         // Ajouter des règles pour chaque langue
         $defaultLocale = config('app.fallback_locale', 'fr');
-        
+
         foreach ($this->availableLocales as $locale) {
             // Le nom est obligatoire uniquement pour la langue par défaut
             if ($locale === $defaultLocale) {
@@ -74,7 +81,7 @@ class CategoryManager extends Component
             } else {
                 $rules["translations.{$locale}.name"] = 'nullable|string|max:255';
             }
-            
+
             $rules["translations.{$locale}.description"] = 'nullable|string';
         }
 
@@ -87,8 +94,8 @@ class CategoryManager extends Component
     public function updatedTranslations()
     {
         $defaultLocale = config('app.fallback_locale', 'fr');
-        
-        if (empty($this->slug) && !empty($this->translations[$defaultLocale]['name'])) {
+
+        if (empty($this->slug) && ! empty($this->translations[$defaultLocale]['name'])) {
             $this->slug = Str::slug($this->translations[$defaultLocale]['name']);
         }
     }
@@ -121,12 +128,12 @@ class CategoryManager extends Component
         $this->icon = $category->icon ?? 'fas fa-folder';
         $this->sort_order = $category->sort_order ?? 0;
         $this->is_active = $category->is_active;
-        
+
         // Charger les traductions existantes
         foreach ($category->translations as $translation) {
             $this->translations[$translation->locale] = [
                 'name' => $translation->name,
-                'description' => $translation->description
+                'description' => $translation->description,
             ];
         }
 
@@ -143,15 +150,15 @@ class CategoryManager extends Component
         $this->icon = 'fas fa-folder';
         $this->is_active = true;
         $this->sort_order = 0;
-        
+
         // Réinitialiser les traductions
         foreach ($this->availableLocales as $locale) {
             $this->translations[$locale] = [
                 'name' => '',
-                'description' => ''
+                'description' => '',
             ];
         }
-        
+
         $this->resetValidation();
     }
 
@@ -185,7 +192,7 @@ class CategoryManager extends Component
 
         // Si le slug est vide, le générer à partir du nom dans la langue par défaut
         $defaultLocale = config('app.fallback_locale', 'fr');
-        if (empty($this->slug) && !empty($this->translations[$defaultLocale]['name'])) {
+        if (empty($this->slug) && ! empty($this->translations[$defaultLocale]['name'])) {
             $this->slug = Str::slug($this->translations[$defaultLocale]['name']);
         }
 
@@ -202,12 +209,12 @@ class CategoryManager extends Component
 
             // Ajouter les traductions
             foreach ($this->translations as $locale => $translation) {
-                if (!empty($translation['name'])) {
+                if (! empty($translation['name'])) {
                     CategoryTranslation::create([
                         'category_id' => $category->id,
                         'locale' => $locale,
                         'name' => $translation['name'],
-                        'description' => $translation['description'] ?? null
+                        'description' => $translation['description'] ?? null,
                     ]);
                 }
             }
@@ -227,12 +234,12 @@ class CategoryManager extends Component
 
             // Mettre à jour ou créer les traductions
             foreach ($this->translations as $locale => $translation) {
-                if (!empty($translation['name'])) {
+                if (! empty($translation['name'])) {
                     CategoryTranslation::updateOrCreate(
                         ['category_id' => $category->id, 'locale' => $locale],
                         [
                             'name' => $translation['name'],
-                            'description' => $translation['description'] ?? null
+                            'description' => $translation['description'] ?? null,
                         ]
                     );
                 }
@@ -252,7 +259,7 @@ class CategoryManager extends Component
     public function delete($id)
     {
         $category = Category::find($id);
-        
+
         // Les traductions seront supprimées automatiquement grâce à la cascade
         $category->delete();
 
@@ -266,39 +273,38 @@ class CategoryManager extends Component
     public function render()
     {
         $defaultLocale = config('app.fallback_locale', 'fr');
-        
+
         // Récupérer toutes les catégories pour le sélecteur parent
-        $parentCategories = Category::with(['translations' => function($query) use ($defaultLocale) {
+        $parentCategories = Category::with(['translations' => function ($query) use ($defaultLocale) {
             $query->where('locale', $defaultLocale);
         }])
-        ->whereNull('parent_id') // Seulement les catégories racines comme parents
-        ->orderBy('sort_order')
-        ->get();
-        
+            ->whereNull('parent_id') // Seulement les catégories racines comme parents
+            ->orderBy('sort_order')
+            ->get();
+
         // Récupérer les catégories avec pagination
-        $categories = Category::with(['translations' => function($query) use ($defaultLocale) {
+        $categories = Category::with(['translations' => function ($query) use ($defaultLocale) {
             $query->where('locale', $defaultLocale);
-        }, 'parent.translations' => function($query) use ($defaultLocale) {
+        }, 'parent.translations' => function ($query) use ($defaultLocale) {
             $query->where('locale', $defaultLocale);
         }])
-        ->when($this->search, function ($query) use ($defaultLocale) {
-            $query->whereHas('translations', function($q) use ($defaultLocale) {
-                $q->where('locale', $defaultLocale)
-                  ->where('name', 'like', '%' . $this->search . '%');
+            ->when($this->search, function ($query) use ($defaultLocale) {
+                $query->whereHas('translations', function ($q) use ($defaultLocale) {
+                    $q->where('locale', $defaultLocale)
+                        ->where('name', 'like', '%'.$this->search.'%');
+                })
+                    ->orWhere('slug', 'like', '%'.$this->search.'%');
             })
-            ->orWhere('slug', 'like', '%' . $this->search . '%');
-        })
-        ->orderBy('sort_order')
-        ->orderBy('created_at', 'desc')
-        ->paginate(15);
+            ->orderBy('sort_order')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
 
         return view('livewire.admin.categories.category-manager', [
             'categories' => $categories,
             'parentCategories' => $parentCategories,
-            'availableLocales' => $this->availableLocales
+            'availableLocales' => $this->availableLocales,
         ]);
     }
-
 
     // Ajoutez un écouteur pour l'événement envoyé par le sélecteur d'icônes
     protected function getListeners()
@@ -311,5 +317,4 @@ class CategoryManager extends Component
     {
         $this->icon = $icon;
     }
-
 }

@@ -5,7 +5,6 @@ namespace App\Livewire\Admin;
 use App\Models\AppUser;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Facades\DB;
 
 class AppUserManager extends Component
 {
@@ -13,28 +12,40 @@ class AppUserManager extends Component
 
     // Filtres
     public $searchFilter = '';
+
     public $statusFilter = ''; // '', 'active', 'inactive'
+
     public $providerFilter = ''; // '', 'email', 'google', 'facebook'
+
     public $languageFilter = ''; // '', 'fr', 'en'
+
     public $registrationDateFrom = '';
+
     public $registrationDateTo = '';
+
     public $lastLoginDateFrom = '';
+
     public $lastLoginDateTo = '';
-    
+
     // Tri
     public $sortField = 'created_at';
+
     public $sortDirection = 'desc';
-    
+
     // Modal et actions
     public $showModal = false;
+
     public $selectedUser;
+
     public $actionType = '';
+
     public $actionReason = '';
-    
+
     // Sélection multiple
     public $selectedUsers = [];
+
     public $selectAll = false;
-    
+
     // Stats globales
     public $globalStats = [];
 
@@ -63,14 +74,14 @@ class AppUserManager extends Component
     public function getUsersProperty()
     {
         $query = AppUser::with(['reservations', 'favorites'])
-                       ->withCount(['reservations', 'favorites']);
+            ->withCount(['reservations', 'favorites']);
 
         // Filtres de recherche
         if ($this->searchFilter) {
-            $query->where(function($q) {
-                $q->where('name', 'like', '%' . $this->searchFilter . '%')
-                  ->orWhere('email', 'like', '%' . $this->searchFilter . '%')
-                  ->orWhere('phone', 'like', '%' . $this->searchFilter . '%');
+            $query->where(function ($q) {
+                $q->where('name', 'like', '%'.$this->searchFilter.'%')
+                    ->orWhere('email', 'like', '%'.$this->searchFilter.'%')
+                    ->orWhere('phone', 'like', '%'.$this->searchFilter.'%');
             });
         }
 
@@ -84,7 +95,7 @@ class AppUserManager extends Component
         // Filtre par provider
         if ($this->providerFilter) {
             if ($this->providerFilter === 'email') {
-                $query->where(function($q) {
+                $query->where(function ($q) {
                     $q->where('provider', 'email')->orWhereNull('provider');
                 });
             } else {
@@ -122,17 +133,17 @@ class AppUserManager extends Component
     public function getProvidersProperty()
     {
         return AppUser::selectRaw('COALESCE(provider, "email") as provider, COUNT(*) as count')
-                     ->groupBy('provider')
-                     ->pluck('count', 'provider')
-                     ->toArray();
+            ->groupBy('provider')
+            ->pluck('count', 'provider')
+            ->toArray();
     }
 
     public function getLanguagesProperty()
     {
         return AppUser::selectRaw('COALESCE(preferred_language, "fr") as language, COUNT(*) as count')
-                     ->groupBy('preferred_language')
-                     ->pluck('count', 'language')
-                     ->toArray();
+            ->groupBy('preferred_language')
+            ->pluck('count', 'language')
+            ->toArray();
     }
 
     // Méthodes de mise à jour des filtres
@@ -227,7 +238,7 @@ class AppUserManager extends Component
 
     public function confirmAction()
     {
-        if (!$this->selectedUser) {
+        if (! $this->selectedUser) {
             return;
         }
 
@@ -237,17 +248,17 @@ class AppUserManager extends Component
                     $this->selectedUser->update(['is_active' => true]);
                     session()->flash('success', 'Utilisateur activé avec succès.');
                     break;
-                    
+
                 case 'deactivate':
                     $this->selectedUser->update(['is_active' => false]);
                     session()->flash('success', 'Utilisateur désactivé avec succès.');
                     break;
-                    
+
                 case 'delete':
                     $this->selectedUser->delete();
                     session()->flash('success', 'Utilisateur supprimé avec succès.');
                     break;
-                    
+
                 case 'reset_password':
                     // TODO: Implement password reset functionality
                     session()->flash('success', 'Email de réinitialisation envoyé.');
@@ -256,9 +267,9 @@ class AppUserManager extends Component
 
             $this->loadGlobalStats();
             $this->closeModal();
-            
+
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur: ' . $e->getMessage());
+            session()->flash('error', 'Erreur: '.$e->getMessage());
         }
     }
 
@@ -275,6 +286,7 @@ class AppUserManager extends Component
     {
         if (empty($this->selectedUsers)) {
             session()->flash('error', 'Aucun utilisateur sélectionné.');
+
             return;
         }
 
@@ -282,17 +294,17 @@ class AppUserManager extends Component
             switch ($action) {
                 case 'activate':
                     AppUser::whereIn('id', $this->selectedUsers)->update(['is_active' => true]);
-                    $message = count($this->selectedUsers) . ' utilisateur(s) activé(s).';
+                    $message = count($this->selectedUsers).' utilisateur(s) activé(s).';
                     break;
-                    
+
                 case 'deactivate':
                     AppUser::whereIn('id', $this->selectedUsers)->update(['is_active' => false]);
-                    $message = count($this->selectedUsers) . ' utilisateur(s) désactivé(s).';
+                    $message = count($this->selectedUsers).' utilisateur(s) désactivé(s).';
                     break;
-                    
+
                 case 'delete':
                     AppUser::whereIn('id', $this->selectedUsers)->delete();
-                    $message = count($this->selectedUsers) . ' utilisateur(s) supprimé(s).';
+                    $message = count($this->selectedUsers).' utilisateur(s) supprimé(s).';
                     break;
             }
 
@@ -300,15 +312,15 @@ class AppUserManager extends Component
             $this->selectAll = false;
             $this->loadGlobalStats();
             session()->flash('success', $message);
-            
+
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur: ' . $e->getMessage());
+            session()->flash('error', 'Erreur: '.$e->getMessage());
         }
     }
 
     public function getProviderBadgeClass($provider)
     {
-        return match($provider) {
+        return match ($provider) {
             'google' => 'bg-danger',
             'facebook' => 'bg-primary',
             'email', null => 'bg-secondary',
@@ -318,7 +330,7 @@ class AppUserManager extends Component
 
     public function getProviderLabel($provider)
     {
-        return match($provider) {
+        return match ($provider) {
             'google' => 'Google',
             'facebook' => 'Facebook',
             'email', null => 'Email',
@@ -328,7 +340,7 @@ class AppUserManager extends Component
 
     public function getLanguageFlag($language)
     {
-        return match($language) {
+        return match ($language) {
             'fr' => 'fi fi-fr',
             'en' => 'fi fi-gb',
             'ar' => 'fi fi-sa',

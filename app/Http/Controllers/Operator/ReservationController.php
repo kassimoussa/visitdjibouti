@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Http\Controllers\Controller;
-use App\Models\Reservation;
 use App\Models\Event;
+use App\Models\Reservation;
 use App\Models\TourSchedule;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Response;
 
 class ReservationController extends Controller
 {
@@ -41,13 +41,13 @@ class ReservationController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('confirmation_number', 'LIKE', "%{$search}%")
-                  ->orWhere('guest_name', 'LIKE', "%{$search}%")
-                  ->orWhere('guest_email', 'LIKE', "%{$search}%")
-                  ->orWhere('guest_phone', 'LIKE', "%{$search}%")
-                  ->orWhereHas('appUser', function ($userQuery) use ($search) {
-                      $userQuery->where('name', 'LIKE', "%{$search}%")
-                               ->orWhere('email', 'LIKE', "%{$search}%");
-                  });
+                    ->orWhere('guest_name', 'LIKE', "%{$search}%")
+                    ->orWhere('guest_email', 'LIKE', "%{$search}%")
+                    ->orWhere('guest_phone', 'LIKE', "%{$search}%")
+                    ->orWhereHas('appUser', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'LIKE', "%{$search}%")
+                            ->orWhere('email', 'LIKE', "%{$search}%");
+                    });
             });
         }
 
@@ -91,7 +91,7 @@ class ReservationController extends Controller
 
         $reservation->load([
             'reservable.translations',
-            'appUser'
+            'appUser',
         ]);
 
         return view('operator.reservations.show', compact('reservation'));
@@ -136,10 +136,10 @@ class ReservationController extends Controller
         $this->verifyReservationAccess($reservation, $user);
 
         $request->validate([
-            'reason' => 'required|string|max:500'
+            'reason' => 'required|string|max:500',
         ]);
 
-        if (!$reservation->canBeCancelled()) {
+        if (! $reservation->canBeCancelled()) {
             return redirect()
                 ->route('operator.reservations.show', $reservation)
                 ->with('error', 'Cette réservation ne peut pas être annulée.');
@@ -192,11 +192,11 @@ class ReservationController extends Controller
 
         $csvData = $this->generateCsvData($reservations);
 
-        $filename = 'reservations_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $filename = 'reservations_'.now()->format('Y-m-d_H-i-s').'.csv';
 
         return response($csvData)
             ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
     }
 
     /**
@@ -289,7 +289,7 @@ class ReservationController extends Controller
             $hasAccess = $reservation->reservable->tour->tour_operator_id === $user->tour_operator_id;
         }
 
-        if (!$hasAccess) {
+        if (! $hasAccess) {
             abort(403, 'Vous n\'avez pas accès à cette réservation.');
         }
     }
@@ -315,10 +315,10 @@ class ReservationController extends Controller
             'Montant',
             'Date de réservation',
             'Date de création',
-            'Exigences spéciales'
+            'Exigences spéciales',
         ];
 
-        $csvData .= '"' . implode('","', $headers) . '"' . "\n";
+        $csvData .= '"'.implode('","', $headers).'"'."\n";
 
         // Data
         foreach ($reservations as $reservation) {
@@ -340,13 +340,13 @@ class ReservationController extends Controller
                 $reservation->user_phone,
                 $reservation->number_of_people,
                 $this->getStatusLabel($reservation->status),
-                $reservation->payment_amount . ' DJF',
+                $reservation->payment_amount.' DJF',
                 $reservation->reservation_date?->format('d/m/Y') ?? 'N/A',
                 $reservation->created_at->format('d/m/Y H:i'),
-                $reservation->special_requirements ?? ''
+                $reservation->special_requirements ?? '',
             ];
 
-            $csvData .= '"' . implode('","', $row) . '"' . "\n";
+            $csvData .= '"'.implode('","', $row).'"'."\n";
         }
 
         return $csvData;
@@ -357,7 +357,7 @@ class ReservationController extends Controller
      */
     private function getStatusLabel(string $status): string
     {
-        return match($status) {
+        return match ($status) {
             'pending' => 'En attente',
             'confirmed' => 'Confirmée',
             'cancelled' => 'Annulée',

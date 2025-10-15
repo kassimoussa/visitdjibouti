@@ -49,7 +49,7 @@ class TourOperatorTranslation extends Model
                 ->translations()
                 ->where('locale', $fallbackLocale)
                 ->first();
-            
+
             if ($fallbackTranslation && $fallbackTranslation->$field) {
                 return $fallbackTranslation->$field;
             }

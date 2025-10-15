@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Reservation;
-use App\Models\Poi;
 use App\Models\Event;
+use App\Models\Poi;
+use App\Models\Reservation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +21,7 @@ class ReservationController extends Controller
     {
         try {
             $user = Auth::guard('sanctum')->user();
-            
+
             // Dynamic validation rules based on authentication status
             $rules = [
                 'reservable_type' => ['required', 'string', Rule::in(['poi', 'event'])],
@@ -30,11 +30,11 @@ class ReservationController extends Controller
                 'reservation_time' => 'nullable|date_format:H:i',
                 'number_of_people' => 'required|integer|min:1|max:20',
                 'special_requirements' => 'nullable|string|max:1000',
-                'notes' => 'nullable|string|max:500'
+                'notes' => 'nullable|string|max:500',
             ];
 
             // If user is not authenticated, require guest information
-            if (!$user) {
+            if (! $user) {
                 $rules['guest_name'] = 'required|string|max:255';
                 $rules['guest_email'] = 'required|email|max:255';
                 $rules['guest_phone'] = 'nullable|string|max:20';
@@ -50,7 +50,7 @@ class ReservationController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -58,22 +58,22 @@ class ReservationController extends Controller
 
             // Determine the reservable model class
             $reservableClass = $data['reservable_type'] === 'poi' ? Poi::class : Event::class;
-            
+
             // Find the reservable entity
             $reservable = $reservableClass::find($data['reservable_id']);
-            
-            if (!$reservable) {
+
+            if (! $reservable) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Resource not found'
+                    'message' => 'Resource not found',
                 ], 404);
             }
 
             // Check if entity allows reservations
-            if (!$reservable->isAvailableForReservation()) {
+            if (! $reservable->isAvailableForReservation()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Reservations are not available for this resource'
+                    'message' => 'Reservations are not available for this resource',
                 ], 400);
             }
 
@@ -83,7 +83,7 @@ class ReservationController extends Controller
                 if ($remainingSpots !== null && $remainingSpots < $data['number_of_people']) {
                     return response()->json([
                         'success' => false,
-                        'message' => "Only {$remainingSpots} spots remaining for this event"
+                        'message' => "Only {$remainingSpots} spots remaining for this event",
                     ], 400);
                 }
             }
@@ -97,7 +97,7 @@ class ReservationController extends Controller
                 'number_of_people' => $data['number_of_people'],
                 'special_requirements' => $data['special_requirements'] ?? null,
                 'notes' => $data['notes'] ?? null,
-                'status' => 'pending'
+                'status' => 'pending',
             ];
 
             // Set user info
@@ -119,20 +119,20 @@ class ReservationController extends Controller
 
             // Transform and return the reservation
             $locale = $request->header('Accept-Language', 'fr');
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Reservation created successfully',
                 'data' => [
-                    'reservation' => $this->transformReservation($reservation, $locale)
-                ]
+                    'reservation' => $this->transformReservation($reservation, $locale),
+                ],
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create reservation',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -144,16 +144,16 @@ class ReservationController extends Controller
     {
         try {
             $user = Auth::guard('sanctum')->user();
-            
-            if (!$user) {
+
+            if (! $user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Authentication required'
+                    'message' => 'Authentication required',
                 ], 401);
             }
 
             $query = Reservation::forUser($user->id)
-                                ->with(['reservable']);
+                ->with(['reservable']);
 
             // Filter by type if specified
             if ($request->filled('type')) {
@@ -196,15 +196,15 @@ class ReservationController extends Controller
                         'total' => $reservations->total(),
                         'from' => $reservations->firstItem(),
                         'to' => $reservations->lastItem(),
-                    ]
-                ]
+                    ],
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch reservations',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -216,13 +216,13 @@ class ReservationController extends Controller
     {
         try {
             $reservation = Reservation::with(['reservable', 'appUser'])
-                                    ->where('confirmation_number', $confirmationNumber)
-                                    ->first();
+                ->where('confirmation_number', $confirmationNumber)
+                ->first();
 
-            if (!$reservation) {
+            if (! $reservation) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Reservation not found'
+                    'message' => 'Reservation not found',
                 ], 404);
             }
 
@@ -231,24 +231,24 @@ class ReservationController extends Controller
             if ($user && $reservation->app_user_id !== $user->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Access denied'
+                    'message' => 'Access denied',
                 ], 403);
             }
 
             $locale = $request->header('Accept-Language', 'fr');
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'reservation' => $this->transformReservationDetailed($reservation, $locale)
-                ]
+                    'reservation' => $this->transformReservationDetailed($reservation, $locale),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch reservation',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -260,25 +260,25 @@ class ReservationController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'reason' => 'nullable|string|max:500'
+                'reason' => 'nullable|string|max:500',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
             $reservation = Reservation::with(['reservable'])
-                                    ->where('confirmation_number', $confirmationNumber)
-                                    ->first();
+                ->where('confirmation_number', $confirmationNumber)
+                ->first();
 
-            if (!$reservation) {
+            if (! $reservation) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Reservation not found'
+                    'message' => 'Reservation not found',
                 ], 404);
             }
 
@@ -287,14 +287,14 @@ class ReservationController extends Controller
             if ($user && $reservation->app_user_id !== $user->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Access denied'
+                    'message' => 'Access denied',
                 ], 403);
             }
 
-            if (!$reservation->canBeCancelled()) {
+            if (! $reservation->canBeCancelled()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'This reservation cannot be cancelled'
+                    'message' => 'This reservation cannot be cancelled',
                 ], 400);
             }
 
@@ -308,20 +308,20 @@ class ReservationController extends Controller
             }
 
             $locale = $request->header('Accept-Language', 'fr');
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Reservation cancelled successfully',
                 'data' => [
-                    'reservation' => $this->transformReservation($reservation, $locale)
-                ]
+                    'reservation' => $this->transformReservation($reservation, $locale),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to cancel reservation',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -334,10 +334,10 @@ class ReservationController extends Controller
         try {
             $reservation = Reservation::where('confirmation_number', $confirmationNumber)->first();
 
-            if (!$reservation) {
+            if (! $reservation) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Reservation not found'
+                    'message' => 'Reservation not found',
                 ], 404);
             }
 
@@ -346,15 +346,15 @@ class ReservationController extends Controller
             if ($user && $reservation->app_user_id !== $user->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Access denied'
+                    'message' => 'Access denied',
                 ], 403);
             }
 
             // Only allow deletion of cancelled reservations
-            if (!$reservation->canBeDeleted()) {
+            if (! $reservation->canBeDeleted()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Only cancelled reservations can be deleted. Please cancel the reservation first.'
+                    'message' => 'Only cancelled reservations can be deleted. Please cancel the reservation first.',
                 ], 400);
             }
 
@@ -363,14 +363,14 @@ class ReservationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Reservation deleted successfully'
+                'message' => 'Reservation deleted successfully',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete reservation',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -414,7 +414,7 @@ class ReservationController extends Controller
             'can_be_deleted' => $reservation->canBeDeleted(),
             'is_active' => $reservation->isActive(),
             'created_at' => $reservation->created_at->toISOString(),
-            'updated_at' => $reservation->updated_at->toISOString()
+            'updated_at' => $reservation->updated_at->toISOString(),
         ];
     }
 
@@ -424,7 +424,7 @@ class ReservationController extends Controller
     private function transformReservationDetailed(Reservation $reservation, string $locale = 'fr'): array
     {
         $basic = $this->transformReservation($reservation, $locale);
-        
+
         return array_merge($basic, [
             'notes' => $reservation->notes,
             'contact_info' => $reservation->contact_info,
@@ -432,7 +432,7 @@ class ReservationController extends Controller
             'cancelled_at' => $reservation->cancelled_at?->toISOString(),
             'confirmation_sent_at' => $reservation->confirmation_sent_at?->toISOString(),
             'reminder_sent_at' => $reservation->reminder_sent_at?->toISOString(),
-            'reservable_details' => $this->getReservableDetails($reservation->reservable, $locale)
+            'reservable_details' => $this->getReservableDetails($reservation->reservable, $locale),
         ]);
     }
 
@@ -443,6 +443,7 @@ class ReservationController extends Controller
     {
         if ($reservable instanceof Poi) {
             $translation = $reservable->translation($locale);
+
             return [
                 'type' => 'poi',
                 'slug' => $reservable->slug,
@@ -453,11 +454,12 @@ class ReservationController extends Controller
                 'website' => $reservable->website,
                 'featured_image' => $reservable->featuredImage ? [
                     'url' => $reservable->featuredImage->getImageUrl(),
-                    'alt' => $reservable->featuredImage->translation($locale)->alt_text ?? ''
-                ] : null
+                    'alt' => $reservable->featuredImage->translation($locale)->alt_text ?? '',
+                ] : null,
             ];
         } elseif ($reservable instanceof Event) {
             $translation = $reservable->translation($locale);
+
             return [
                 'type' => 'event',
                 'slug' => $reservable->slug,
@@ -472,8 +474,8 @@ class ReservationController extends Controller
                 'remaining_spots' => $reservable->getRemainingSpots(),
                 'featured_image' => $reservable->featuredImage ? [
                     'url' => $reservable->featuredImage->getImageUrl(),
-                    'alt' => $reservable->featuredImage->translation($locale)->alt_text ?? ''
-                ] : null
+                    'alt' => $reservable->featuredImage->translation($locale)->alt_text ?? '',
+                ] : null,
             ];
         }
 

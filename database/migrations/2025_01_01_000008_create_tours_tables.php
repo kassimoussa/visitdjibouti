@@ -16,13 +16,14 @@ return new class extends Migration
             $table->id();
             $table->string('slug')->unique();
             $table->foreignId('tour_operator_id')->constrained('tour_operators')->onDelete('cascade');
-            $table->string('type');
+            $table->string('type')->default('mixed');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->string('target_type')->nullable();
             $table->unsignedBigInteger('target_id')->nullable();
             $table->integer('duration_hours')->nullable();
             $table->integer('max_participants')->nullable();
+            $table->integer('current_participants')->default(0);
             $table->integer('min_participants')->default(1);
             $table->decimal('price', 10, 2)->default(0);
             $table->string('currency', 3)->default('DJF');

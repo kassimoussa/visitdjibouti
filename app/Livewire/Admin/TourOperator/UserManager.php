@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Admin\TourOperator;
 
+use App\Mail\TourOperatorInvitation;
 use App\Models\TourOperator;
 use App\Models\TourOperatorUser;
-use App\Mail\TourOperatorInvitation;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -16,18 +16,28 @@ class UserManager extends Component
     use WithPagination;
 
     public $showCreateForm = false;
+
     public $editingUserId = null;
+
     public $search = '';
+
     public $selectedTourOperator = '';
 
     // Form fields
     public $tour_operator_id = '';
+
     public $name = '';
+
     public $email = '';
+
     public $phone_number = '';
+
     public $position = '';
+
     public $language_preference = 'fr';
+
     public $is_active = true;
+
     public $send_invitation = true;
 
     protected $rules = [
@@ -89,8 +99,8 @@ class UserManager extends Component
             $this->sendInvitationEmail($user, $password);
         }
 
-        session()->flash('success', 'Utilisateur créé avec succès. ' .
-            ($this->send_invitation ? 'Un email d\'invitation a été envoyé.' : 'Mot de passe temporaire: ' . $password));
+        session()->flash('success', 'Utilisateur créé avec succès. '.
+            ($this->send_invitation ? 'Un email d\'invitation a été envoyé.' : 'Mot de passe temporaire: '.$password));
 
         $this->hideCreateForm();
     }
@@ -114,7 +124,7 @@ class UserManager extends Component
 
     public function update()
     {
-        $this->rules['email'] = 'required|email|unique:tour_operator_users,email,' . $this->editingUserId;
+        $this->rules['email'] = 'required|email|unique:tour_operator_users,email,'.$this->editingUserId;
         $this->validate();
 
         $user = TourOperatorUser::findOrFail($this->editingUserId);
@@ -136,7 +146,7 @@ class UserManager extends Component
     public function toggleStatus($userId)
     {
         $user = TourOperatorUser::findOrFail($userId);
-        $user->update(['is_active' => !$user->is_active]);
+        $user->update(['is_active' => ! $user->is_active]);
 
         session()->flash('success', 'Statut utilisateur modifié avec succès.');
     }
@@ -173,7 +183,8 @@ class UserManager extends Component
             return true;
         } catch (\Exception $e) {
             // Log l'erreur mais continue le processus
-            \Log::error('Erreur envoi email invitation: ' . $e->getMessage());
+            \Log::error('Erreur envoi email invitation: '.$e->getMessage());
+
             return false;
         }
     }
@@ -186,21 +197,21 @@ class UserManager extends Component
     public function render()
     {
         $tourOperators = TourOperator::where('is_active', true)
-            ->with(['translations' => function($query) {
+            ->with(['translations' => function ($query) {
                 $query->where('locale', 'fr');
             }])
             ->get()
-            ->sortBy(function($operator) {
+            ->sortBy(function ($operator) {
                 return $operator->getTranslatedName('fr');
             });
 
         $query = TourOperatorUser::with(['tourOperator.translations']);
 
         if ($this->search) {
-            $query->where(function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%')
-                  ->orWhere('position', 'like', '%' . $this->search . '%');
+            $query->where(function ($q) {
+                $q->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('email', 'like', '%'.$this->search.'%')
+                    ->orWhere('position', 'like', '%'.$this->search.'%');
             });
         }
 

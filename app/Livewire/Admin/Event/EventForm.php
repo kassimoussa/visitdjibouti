@@ -3,39 +3,59 @@
 namespace App\Livewire\Admin\Event;
 
 use App\Models\Category;
-use App\Models\Media;
 use App\Models\Event;
-use App\Models\EventTranslation;
+use App\Models\Media;
 use App\Models\TourOperator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class EventForm extends Component
 {
     // Propriétés générales de l'événement (non traduites)
     public $eventId;
+
     public $slug = '';
+
     public $start_date = null;
+
     public $end_date = null;
+
     public $start_time = null;
+
     public $end_time = null;
+
     public $location = '';
+
     public $latitude = null;
+
     public $longitude = null;
+
     public $contact_email = '';
+
     public $contact_phone = '';
+
     public $website_url = '';
+
     public $ticket_url = '';
+
     public $price = null;
+
     public $max_participants = null;
+
     public $current_participants = 0;
+
     public $organizer = '';
+
     public $is_featured = false;
+
     public $allow_reservations = false;
+
     public $status = 'draft';
+
     public $featuredImageId = null;
+
     public $tour_operator_id = null;
 
     // Traductions
@@ -57,7 +77,7 @@ class EventForm extends Component
             'requirements' => '',
             'program' => '',
             'additional_info' => '',
-        ]
+        ],
     ];
 
     // Langue active pour l'édition
@@ -68,7 +88,9 @@ class EventForm extends Component
 
     // Médias
     public $selectedMedia = [];
+
     public $showMediaSelector = false;
+
     public $mediaSelectorMode = 'single';
 
     // Mode édition
@@ -78,8 +100,8 @@ class EventForm extends Component
     protected function rules()
     {
         $rules = [
-            'slug' => $this->isEditMode 
-                ? 'nullable|string|max:255|unique:events,slug,' . $this->eventId 
+            'slug' => $this->isEditMode
+                ? 'nullable|string|max:255|unique:events,slug,'.$this->eventId
                 : 'nullable|string|max:255|unique:events,slug',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
@@ -106,19 +128,19 @@ class EventForm extends Component
 
         // Ajouter les règles pour chaque langue
         $requiredLocale = config('app.fallback_locale', 'fr'); // La langue par défaut est obligatoire
-        
+
         foreach (['fr', 'en'] as $locale) {
             $isRequired = ($locale === $requiredLocale) ? 'required' : 'nullable';
-            
+
             $rules["translations.{$locale}.title"] = "{$isRequired}|string|max:255";
             $rules["translations.{$locale}.description"] = "{$isRequired}|string";
-            $rules["translations.{$locale}.short_description"] = "nullable|string|max:500";
-            $rules["translations.{$locale}.location_details"] = "nullable|string|max:255";
-            $rules["translations.{$locale}.requirements"] = "nullable|string";
-            $rules["translations.{$locale}.program"] = "nullable|string";
-            $rules["translations.{$locale}.additional_info"] = "nullable|string";
+            $rules["translations.{$locale}.short_description"] = 'nullable|string|max:500';
+            $rules["translations.{$locale}.location_details"] = 'nullable|string|max:255';
+            $rules["translations.{$locale}.requirements"] = 'nullable|string';
+            $rules["translations.{$locale}.program"] = 'nullable|string';
+            $rules["translations.{$locale}.additional_info"] = 'nullable|string';
         }
-        
+
         return $rules;
     }
 
@@ -145,7 +167,7 @@ class EventForm extends Component
      */
     public function addToGallery($mediaId)
     {
-        if (!in_array($mediaId, $this->selectedMedia)) {
+        if (! in_array($mediaId, $this->selectedMedia)) {
             $this->selectedMedia[] = $mediaId;
         }
     }
@@ -199,7 +221,7 @@ class EventForm extends Component
     public function handleMediaSelection($selectedIds)
     {
         if ($this->mediaSelectorMode === 'single') {
-            $this->featuredImageId = !empty($selectedIds) ? $selectedIds[0] : null;
+            $this->featuredImageId = ! empty($selectedIds) ? $selectedIds[0] : null;
         } else {
             $this->selectedMedia = $selectedIds;
         }
@@ -213,7 +235,7 @@ class EventForm extends Component
         if ($eventId) {
             $this->eventId = $eventId;
             $this->isEditMode = true;
-            
+
             // Récupérer l'événement depuis la base de données
             $event = Event::findOrFail($eventId);
 
@@ -243,7 +265,7 @@ class EventForm extends Component
             // Remplir les traductions
             foreach ($event->translations as $translation) {
                 $locale = $translation->locale;
-                
+
                 if (isset($this->translations[$locale])) {
                     $this->translations[$locale]['title'] = $translation->title;
                     $this->translations[$locale]['description'] = $translation->description;
@@ -268,7 +290,7 @@ class EventForm extends Component
      */
     public function updatedTranslations()
     {
-        if (empty($this->slug) && !empty($this->translations['fr']['title'])) {
+        if (empty($this->slug) && ! empty($this->translations['fr']['title'])) {
             $this->slug = Str::slug($this->translations['fr']['title']);
         }
     }
@@ -292,10 +314,10 @@ class EventForm extends Component
         // 1. Auto-sélectionner les parents quand des enfants sont sélectionnés
         foreach ($this->selectedCategories as $categoryId) {
             $category = $allCategories->firstWhere('id', $categoryId);
-            
+
             if ($category && $category->parent_id) {
                 // Si c'est une sous-catégorie, s'assurer que le parent est sélectionné
-                if (!in_array($category->parent_id, $this->selectedCategories)) {
+                if (! in_array($category->parent_id, $this->selectedCategories)) {
                     $this->selectedCategories[] = $category->parent_id;
                     $updated = true;
                 }
@@ -305,7 +327,7 @@ class EventForm extends Component
         // 2. Auto-désélectionner les enfants quand le parent est désélectionné
         $categoriesToRemove = [];
         foreach ($allCategories->whereNull('parent_id') as $parentCategory) {
-            if (!in_array($parentCategory->id, $this->selectedCategories)) {
+            if (! in_array($parentCategory->id, $this->selectedCategories)) {
                 // Parent pas sélectionné, retirer tous ses enfants
                 foreach ($parentCategory->children as $child) {
                     if (in_array($child->id, $this->selectedCategories)) {
@@ -317,7 +339,7 @@ class EventForm extends Component
         }
 
         // Retirer les catégories à supprimer
-        if (!empty($categoriesToRemove)) {
+        if (! empty($categoriesToRemove)) {
             $this->selectedCategories = array_values(array_diff($this->selectedCategories, $categoriesToRemove));
         }
 
@@ -334,7 +356,7 @@ class EventForm extends Component
         $this->validate();
 
         // Générer le slug s'il n'est pas fourni
-        if (empty($this->slug) && !empty($this->translations['fr']['title'])) {
+        if (empty($this->slug) && ! empty($this->translations['fr']['title'])) {
             $this->slug = Str::slug($this->translations['fr']['title']);
         }
 
@@ -458,18 +480,19 @@ class EventForm extends Component
         // Récupérer les catégories principales avec leurs sous-catégories
         $parentCategories = Category::where('is_active', true)
             ->whereNull('parent_id')
-            ->with(['children' => function($query) {
+            ->with(['children' => function ($query) {
                 $query->where('is_active', true);
-            }, 'translations' => function($query) {
+            }, 'translations' => function ($query) {
                 $query->where('locale', $this->activeLocale)
-                      ->orWhere('locale', config('app.fallback_locale', 'fr'));
-            }, 'children.translations' => function($query) {
+                    ->orWhere('locale', config('app.fallback_locale', 'fr'));
+            }, 'children.translations' => function ($query) {
                 $query->where('locale', $this->activeLocale)
-                      ->orWhere('locale', config('app.fallback_locale', 'fr'));
+                    ->orWhere('locale', config('app.fallback_locale', 'fr'));
             }])
             ->get()
-            ->sortBy(function($category) {
+            ->sortBy(function ($category) {
                 $translation = $category->translation($this->activeLocale);
+
                 return $translation ? $translation->name : '';
             });
 
@@ -478,12 +501,12 @@ class EventForm extends Component
 
         // Récupérer les tour operators actifs avec leurs traductions
         $tourOperators = TourOperator::where('is_active', true)
-            ->with(['translations' => function($query) {
+            ->with(['translations' => function ($query) {
                 $query->where('locale', session('locale', 'fr'))
-                      ->orWhere('locale', 'fr'); // fallback
+                    ->orWhere('locale', 'fr'); // fallback
             }])
             ->get()
-            ->sortBy(function($operator) {
+            ->sortBy(function ($operator) {
                 return $operator->getTranslatedName(session('locale', 'fr'));
             });
 

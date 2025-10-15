@@ -19,10 +19,10 @@ class EventController extends Controller
         try {
             $user = Auth::guard('operator-api')->user();
 
-            if (!$user || !$user->canManageEvents()) {
+            if (! $user || ! $user->canManageEvents()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Permission refusée'
+                    'message' => 'Permission refusée',
                 ], 403);
             }
 
@@ -38,7 +38,7 @@ class EventController extends Controller
                 $search = $request->search;
                 $query->whereHas('translations', function ($q) use ($search) {
                     $q->where('title', 'LIKE', "%{$search}%")
-                      ->orWhere('description', 'LIKE', "%{$search}%");
+                        ->orWhere('description', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -74,15 +74,15 @@ class EventController extends Controller
                         'total' => $events->total(),
                         'from' => $events->firstItem(),
                         'to' => $events->lastItem(),
-                    ]
-                ]
+                    ],
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la récupération des événements',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -95,10 +95,10 @@ class EventController extends Controller
         try {
             $user = Auth::guard('operator-api')->user();
 
-            if (!$user || !$user->canManageEvents()) {
+            if (! $user || ! $user->canManageEvents()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Permission refusée'
+                    'message' => 'Permission refusée',
                 ], 403);
             }
 
@@ -106,7 +106,7 @@ class EventController extends Controller
             if ($event->tour_operator_id !== $user->tour_operator_id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Événement non trouvé'
+                    'message' => 'Événement non trouvé',
                 ], 404);
             }
 
@@ -115,7 +115,7 @@ class EventController extends Controller
                 'featuredImage',
                 'media',
                 'categories.translations',
-                'tourOperator.translations'
+                'tourOperator.translations',
             ]);
 
             $locale = $request->header('Accept-Language', 'fr');
@@ -123,15 +123,15 @@ class EventController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'event' => $this->transformEventDetailedForOperator($event, $locale)
-                ]
+                    'event' => $this->transformEventDetailedForOperator($event, $locale),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la récupération de l\'événement',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -144,10 +144,10 @@ class EventController extends Controller
         try {
             $user = Auth::guard('operator-api')->user();
 
-            if (!$user || !$user->canViewReservations()) {
+            if (! $user || ! $user->canViewReservations()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Permission refusée'
+                    'message' => 'Permission refusée',
                 ], 403);
             }
 
@@ -155,7 +155,7 @@ class EventController extends Controller
             if ($event->tour_operator_id !== $user->tour_operator_id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Événement non trouvé'
+                    'message' => 'Événement non trouvé',
                 ], 404);
             }
 
@@ -170,18 +170,18 @@ class EventController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('confirmation_number', 'LIKE', "%{$search}%")
-                      ->orWhere('guest_name', 'LIKE', "%{$search}%")
-                      ->orWhere('guest_email', 'LIKE', "%{$search}%")
-                      ->orWhereHas('appUser', function ($userQuery) use ($search) {
-                          $userQuery->where('name', 'LIKE', "%{$search}%")
-                                   ->orWhere('email', 'LIKE', "%{$search}%");
-                      });
+                        ->orWhere('guest_name', 'LIKE', "%{$search}%")
+                        ->orWhere('guest_email', 'LIKE', "%{$search}%")
+                        ->orWhereHas('appUser', function ($userQuery) use ($search) {
+                            $userQuery->where('name', 'LIKE', "%{$search}%")
+                                ->orWhere('email', 'LIKE', "%{$search}%");
+                        });
                 });
             }
 
             $perPage = min($request->get('per_page', 20), 100);
             $reservations = $query->orderBy('created_at', 'desc')
-                                  ->paginate($perPage);
+                ->paginate($perPage);
 
             $transformedReservations = $reservations->getCollection()->map(function ($reservation) {
                 return $this->transformReservationForOperator($reservation);
@@ -204,15 +204,15 @@ class EventController extends Controller
                         'cancelled' => $event->reservations()->where('status', 'cancelled')->count(),
                         'revenue' => $event->confirmedReservations()->sum('payment_amount'),
                         'pending_revenue' => $event->pendingReservations()->sum('payment_amount'),
-                    ]
-                ]
+                    ],
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la récupération des réservations',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -225,10 +225,10 @@ class EventController extends Controller
         try {
             $user = Auth::guard('operator-api')->user();
 
-            if (!$user || !$user->canManageEvents()) {
+            if (! $user || ! $user->canManageEvents()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Permission refusée'
+                    'message' => 'Permission refusée',
                 ], 403);
             }
 
@@ -236,7 +236,7 @@ class EventController extends Controller
             if ($event->tour_operator_id !== $user->tour_operator_id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Événement non trouvé'
+                    'message' => 'Événement non trouvé',
                 ], 404);
             }
 
@@ -259,15 +259,15 @@ class EventController extends Controller
                 'success' => true,
                 'message' => 'Événement mis à jour avec succès',
                 'data' => [
-                    'event' => $this->transformEventForOperator($event, $locale)
-                ]
+                    'event' => $this->transformEventForOperator($event, $locale),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la mise à jour de l\'événement',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -312,17 +312,17 @@ class EventController extends Controller
             'featured_image' => $event->featuredImage ? [
                 'id' => $event->featuredImage->id,
                 'url' => $event->featuredImage->getImageUrl(),
-                'alt' => $event->featuredImage->translation($locale)->alt_text ?? ''
+                'alt' => $event->featuredImage->translation($locale)->alt_text ?? '',
             ] : null,
             'categories' => $event->categories->map(function ($category) use ($locale) {
                 return [
                     'id' => $category->id,
                     'name' => $category->translation($locale)->name ?? $category->name,
-                    'slug' => $category->slug
+                    'slug' => $category->slug,
                 ];
             }),
             'created_at' => $event->created_at->toISOString(),
-            'updated_at' => $event->updated_at->toISOString()
+            'updated_at' => $event->updated_at->toISOString(),
         ];
     }
 
@@ -348,9 +348,9 @@ class EventController extends Controller
                     'id' => $media->id,
                     'url' => $media->getImageUrl(),
                     'alt' => $media->translation($locale)->alt_text ?? '',
-                    'order' => $media->pivot->order ?? 0
+                    'order' => $media->pivot->order ?? 0,
                 ];
-            })
+            }),
         ]);
     }
 
@@ -380,7 +380,7 @@ class EventController extends Controller
                 'email' => $reservation->appUser->email,
                 'phone' => $reservation->appUser->phone,
                 'is_anonymous' => $reservation->appUser->is_anonymous,
-            ] : null
+            ] : null,
         ];
     }
 }

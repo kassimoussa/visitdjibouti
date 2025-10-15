@@ -4,11 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AppUser;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -31,7 +30,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation errors',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -61,14 +60,14 @@ class AuthController extends Controller
                     'user' => $user,
                     'token' => $token,
                     'token_type' => 'Bearer',
-                ]
+                ],
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Registration failed',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -87,27 +86,27 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation errors',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         $user = AppUser::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => false,
                 'message' => 'User not found',
             ], 404);
         }
 
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             return response()->json([
                 'success' => false,
                 'message' => 'Account is deactivated',
             ], 403);
         }
 
-        if (!Hash::check($request->password, $user->password)) {
+        if (! Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials',
@@ -130,7 +129,7 @@ class AuthController extends Controller
                 'user' => $user,
                 'token' => $token,
                 'token_type' => 'Bearer',
-            ]
+            ],
         ]);
     }
 
@@ -145,14 +144,14 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Logged out successfully'
+                'message' => 'Logged out successfully',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Logout failed',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -165,8 +164,8 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'user' => $request->user()
-            ]
+                'user' => $request->user(),
+            ],
         ]);
     }
 
@@ -190,31 +189,31 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation errors',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         try {
             $user = $request->user();
             $user->update($request->only([
-                'name', 'phone', 'preferred_language', 'date_of_birth', 
-                'gender', 'city', 'push_notifications_enabled', 
-                'email_notifications_enabled'
+                'name', 'phone', 'preferred_language', 'date_of_birth',
+                'gender', 'city', 'push_notifications_enabled',
+                'email_notifications_enabled',
             ]));
 
             return response()->json([
                 'success' => true,
                 'message' => 'Profile updated successfully',
                 'data' => [
-                    'user' => $user->fresh()
-                ]
+                    'user' => $user->fresh(),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Profile update failed',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -233,13 +232,13 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation errors',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         $user = $request->user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Current password is incorrect',
@@ -248,7 +247,7 @@ class AuthController extends Controller
 
         try {
             $user->update([
-                'password' => Hash::make($request->password)
+                'password' => Hash::make($request->password),
             ]);
 
             // Revoke all tokens except current
@@ -257,14 +256,14 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Password changed successfully'
+                'message' => 'Password changed successfully',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Password change failed',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -282,13 +281,13 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation errors',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         $user = $request->user();
 
-        if (!Hash::check($request->password, $user->password)) {
+        if (! Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Password is incorrect',
@@ -298,23 +297,23 @@ class AuthController extends Controller
         try {
             // Revoke all tokens
             $user->tokens()->delete();
-            
+
             // Deactivate account instead of deleting (for data integrity)
             $user->update([
                 'is_active' => false,
-                'email' => 'deleted_' . time() . '_' . $user->email, // Anonymize email
+                'email' => 'deleted_'.time().'_'.$user->email, // Anonymize email
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Account deleted successfully'
+                'message' => 'Account deleted successfully',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Account deletion failed',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

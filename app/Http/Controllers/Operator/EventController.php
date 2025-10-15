@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Operator;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 
 class EventController extends Controller
 {
@@ -31,7 +31,7 @@ class EventController extends Controller
             $search = $request->search;
             $query->whereHas('translations', function ($q) use ($search) {
                 $q->where('title', 'LIKE', "%{$search}%")
-                  ->orWhere('description', 'LIKE', "%{$search}%");
+                    ->orWhere('description', 'LIKE', "%{$search}%");
             });
         }
 
@@ -51,7 +51,7 @@ class EventController extends Controller
             $locale = session('locale', 'fr');
             $query->leftJoin('event_translations', function ($join) use ($locale) {
                 $join->on('events.id', '=', 'event_translations.event_id')
-                     ->where('event_translations.locale', '=', $locale);
+                    ->where('event_translations.locale', '=', $locale);
             })->orderBy('event_translations.title', $sortOrder);
         } else {
             $query->orderBy($sortBy, $sortOrder);
@@ -95,7 +95,7 @@ class EventController extends Controller
             'media',
             'categories.translations',
             'tourOperator.translations',
-            'creator'
+            'creator',
         ]);
 
         // Get reservations for this event
@@ -160,14 +160,14 @@ class EventController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $filename = 'reservations-' . $event->slug . '-' . now()->format('Y-m-d') . '.csv';
+        $filename = 'reservations-'.$event->slug.'-'.now()->format('Y-m-d').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"$filename\"",
         ];
 
-        $callback = function() use ($reservations) {
+        $callback = function () use ($reservations) {
             $file = fopen('php://output', 'w');
 
             // Headers
@@ -267,7 +267,7 @@ class EventController extends Controller
 
         // Create duplicate
         $newEvent = $event->replicate();
-        $newEvent->slug = $event->slug . '-copy-' . time();
+        $newEvent->slug = $event->slug.'-copy-'.time();
         $newEvent->status = 'draft';
         $newEvent->current_participants = 0;
         $newEvent->views_count = 0;

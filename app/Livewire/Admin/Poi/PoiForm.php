@@ -5,27 +5,38 @@ namespace App\Livewire\Admin\Poi;
 use App\Models\Category;
 use App\Models\Media;
 use App\Models\Poi;
-use App\Models\PoiTranslation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class PoiForm extends Component
 {
     // Propriétés générales du POI (non traduites)
     public $poiId;
+
     public $slug = '';
+
     public $latitude = null;
+
     public $longitude = null;
+
     public $region = '';
+
     public $contacts = [];
+
     public $modalContact = [];
+
     public $editingContactIndex = null;
+
     public $website = '';
+
     public $is_featured = false;
+
     public $allow_reservations = false;
+
     public $status = 'draft';
+
     public $featuredImageId = null;
 
     // Traductions
@@ -67,13 +78,18 @@ class PoiForm extends Component
 
     // Médias
     public $selectedMedia = [];
+
     public $showMediaSelector = false;
+
     public $mediaSelectorMode = 'single';
 
     // Tour Operators
     public $selectedTourOperators = [];
+
     public $showTourOperatorModal = false;
+
     public $modalTourOperator = [];
+
     public $editingTourOperatorIndex = null;
 
     // Mode édition
@@ -83,8 +99,8 @@ class PoiForm extends Component
     protected function rules()
     {
         $rules = [
-            'slug' => $this->isEditMode 
-                ? 'nullable|string|max:255|unique:pois,slug,' . $this->poiId 
+            'slug' => $this->isEditMode
+                ? 'nullable|string|max:255|unique:pois,slug,'.$this->poiId
                 : 'nullable|string|max:255|unique:pois,slug',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
@@ -108,19 +124,19 @@ class PoiForm extends Component
 
         // Ajouter les règles pour chaque langue
         $requiredLocale = config('app.fallback_locale', 'fr'); // La langue par défaut est obligatoire
-        
+
         foreach (['fr', 'en'] as $locale) {
             $isRequired = ($locale === $requiredLocale) ? 'required' : 'nullable';
-            
+
             $rules["translations.{$locale}.name"] = "{$isRequired}|string|max:255";
             $rules["translations.{$locale}.description"] = "{$isRequired}|string";
-            $rules["translations.{$locale}.short_description"] = "nullable|string|max:500";
-            $rules["translations.{$locale}.address"] = "nullable|string|max:255";
-            $rules["translations.{$locale}.opening_hours"] = "nullable|string";
-            $rules["translations.{$locale}.entry_fee"] = "nullable|string|max:255";
-            $rules["translations.{$locale}.tips"] = "nullable|string";
+            $rules["translations.{$locale}.short_description"] = 'nullable|string|max:500';
+            $rules["translations.{$locale}.address"] = 'nullable|string|max:255';
+            $rules["translations.{$locale}.opening_hours"] = 'nullable|string';
+            $rules["translations.{$locale}.entry_fee"] = 'nullable|string|max:255';
+            $rules["translations.{$locale}.tips"] = 'nullable|string';
         }
-        
+
         return $rules;
     }
 
@@ -147,7 +163,7 @@ class PoiForm extends Component
      */
     public function addToGallery($mediaId)
     {
-        if (!in_array($mediaId, $this->selectedMedia)) {
+        if (! in_array($mediaId, $this->selectedMedia)) {
             $this->selectedMedia[] = $mediaId;
         }
     }
@@ -201,7 +217,7 @@ class PoiForm extends Component
     public function handleMediaSelection($selectedIds)
     {
         if ($this->mediaSelectorMode === 'single') {
-            $this->featuredImageId = !empty($selectedIds) ? $selectedIds[0] : null;
+            $this->featuredImageId = ! empty($selectedIds) ? $selectedIds[0] : null;
         } else {
             $this->selectedMedia = $selectedIds;
         }
@@ -215,7 +231,7 @@ class PoiForm extends Component
         if ($poiId) {
             $this->poiId = $poiId;
             $this->isEditMode = true;
-            
+
             // Récupérer le POI depuis la base de données
             $poi = Poi::findOrFail($poiId);
 
@@ -234,7 +250,7 @@ class PoiForm extends Component
             // Remplir les traductions
             foreach ($poi->translations as $translation) {
                 $locale = $translation->locale;
-                
+
                 if (isset($this->translations[$locale])) {
                     $this->translations[$locale]['name'] = $translation->name;
                     $this->translations[$locale]['description'] = $translation->description;
@@ -256,7 +272,7 @@ class PoiForm extends Component
             $this->selectedTourOperators = $poi->tourOperators()
                 ->withPivot(['service_type', 'is_primary', 'notes'])
                 ->get()
-                ->map(function($tourOperator) {
+                ->map(function ($tourOperator) {
                     return [
                         'id' => $tourOperator->id,
                         'service_type' => $tourOperator->pivot->service_type,
@@ -265,7 +281,7 @@ class PoiForm extends Component
                     ];
                 })->toArray();
         }
-        
+
         // Initialiser le modal contact dans tous les cas
         $this->resetModalContact();
         $this->resetModalTourOperator();
@@ -276,7 +292,7 @@ class PoiForm extends Component
      */
     public function updatedTranslations()
     {
-        if (empty($this->slug) && !empty($this->translations['fr']['name'])) {
+        if (empty($this->slug) && ! empty($this->translations['fr']['name'])) {
             $this->slug = Str::slug($this->translations['fr']['name']);
         }
     }
@@ -300,10 +316,10 @@ class PoiForm extends Component
         // 1. Auto-sélectionner les parents quand des enfants sont sélectionnés
         foreach ($this->selectedCategories as $categoryId) {
             $category = $allCategories->firstWhere('id', $categoryId);
-            
+
             if ($category && $category->parent_id) {
                 // Si c'est une sous-catégorie, s'assurer que le parent est sélectionné
-                if (!in_array($category->parent_id, $this->selectedCategories)) {
+                if (! in_array($category->parent_id, $this->selectedCategories)) {
                     $this->selectedCategories[] = $category->parent_id;
                     $updated = true;
                 }
@@ -313,7 +329,7 @@ class PoiForm extends Component
         // 2. Auto-désélectionner les enfants quand le parent est désélectionné
         $categoriesToRemove = [];
         foreach ($allCategories->whereNull('parent_id') as $parentCategory) {
-            if (!in_array($parentCategory->id, $this->selectedCategories)) {
+            if (! in_array($parentCategory->id, $this->selectedCategories)) {
                 // Parent pas sélectionné, retirer tous ses enfants
                 foreach ($parentCategory->children as $child) {
                     if (in_array($child->id, $this->selectedCategories)) {
@@ -325,7 +341,7 @@ class PoiForm extends Component
         }
 
         // Retirer les catégories à supprimer
-        if (!empty($categoriesToRemove)) {
+        if (! empty($categoriesToRemove)) {
             $this->selectedCategories = array_values(array_diff($this->selectedCategories, $categoriesToRemove));
         }
 
@@ -351,7 +367,7 @@ class PoiForm extends Component
         if (isset($this->contacts[$index])) {
             // Définir l'index d'édition
             $this->editingContactIndex = $index;
-            
+
             // S'assurer que tous les champs sont présents avec des valeurs par défaut
             $contact = $this->contacts[$index];
             $this->modalContact = [
@@ -364,10 +380,10 @@ class PoiForm extends Component
                 'description' => $contact['description'] ?? '',
                 'is_primary' => (bool) ($contact['is_primary'] ?? false),
             ];
-            
+
             // Nettoyer les erreurs de validation précédentes
             $this->resetValidation();
-            
+
             // Ouvrir le modal - les données seront affichées grâce à la liaison wire:model
             $this->dispatch('open-contact-modal');
         } else {
@@ -383,24 +399,25 @@ class PoiForm extends Component
         try {
             // Debug: vérifier l'état avant validation
             $isEditing = $this->editingContactIndex !== null;
-            
+
             // Validation du contact modal
             $this->validateModalContact();
 
             // Validation personnalisée de l'URL
-            if (!empty($this->modalContact['website'])) {
+            if (! empty($this->modalContact['website'])) {
                 $website = trim($this->modalContact['website']);
-                if (!preg_match('/^https?:\/\//', $website)) {
-                    $testWebsite = 'https://' . $website;
+                if (! preg_match('/^https?:\/\//', $website)) {
+                    $testWebsite = 'https://'.$website;
                 } else {
                     $testWebsite = $website;
                 }
-                
-                if (!filter_var($testWebsite, FILTER_VALIDATE_URL)) {
+
+                if (! filter_var($testWebsite, FILTER_VALIDATE_URL)) {
                     $this->addError('modalContact.website', "L'adresse du site web n'est pas valide. Exemple : www.oudoum.fr");
+
                     return;
                 }
-                
+
                 // Normaliser l'URL
                 $this->modalContact['website'] = $testWebsite;
             }
@@ -437,18 +454,18 @@ class PoiForm extends Component
 
             // S'assurer qu'au moins un contact est principal
             $hasPrimary = collect($this->contacts)->contains('is_primary', true);
-            if (!$hasPrimary && !empty($this->contacts)) {
+            if (! $hasPrimary && ! empty($this->contacts)) {
                 $this->contacts[0]['is_primary'] = true;
             }
-            
+
             // Fermer le modal et réinitialiser
             $this->dispatch('close-contact-modal');
             $this->resetModalContact();
             $this->editingContactIndex = null;
-            
+
             // Message de succès
             session()->flash('success', $isEditing ? 'Contact mis à jour avec succès' : 'Contact ajouté avec succès');
-            
+
             // Notification optionnelle
             $this->dispatch('contact-saved', ['message' => 'Contact sauvegardé avec succès !']);
 
@@ -457,8 +474,8 @@ class PoiForm extends Component
             throw $e;
         } catch (\Exception $e) {
             // Autres erreurs
-            session()->flash('error', 'Erreur lors de la sauvegarde du contact : ' . $e->getMessage());
-            \Log::error('Erreur saveContact: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la sauvegarde du contact : '.$e->getMessage());
+            \Log::error('Erreur saveContact: '.$e->getMessage());
         }
     }
 
@@ -471,17 +488,16 @@ class PoiForm extends Component
             $wasDeleted = $this->contacts[$index];
             unset($this->contacts[$index]);
             $this->contacts = array_values($this->contacts); // Réindexer
-            
-            // Si on supprime le contact principal et qu'il reste des contacts, 
+
+            // Si on supprime le contact principal et qu'il reste des contacts,
             // faire du premier contact restant le contact principal
             if (($wasDeleted['is_primary'] ?? false) && count($this->contacts) > 0) {
                 $this->contacts[0]['is_primary'] = true;
             }
-            
+
             session()->flash('success', 'Contact supprimé avec succès');
         }
     }
-
 
     /**
      * Annuler l'édition du contact (fermer modal sans sauvegarder)
@@ -507,19 +523,19 @@ class PoiForm extends Component
             'website' => '',
             'address' => '',
             'description' => '',
-            'is_primary' => false
+            'is_primary' => false,
         ];
-        
+
         // Nettoyer les erreurs de validation du modal
         $this->resetValidation([
             'modalContact.name',
             'modalContact.type',
-            'modalContact.phone', 
+            'modalContact.phone',
             'modalContact.email',
             'modalContact.website',
             'modalContact.address',
             'modalContact.description',
-            'modalContact.is_primary'
+            'modalContact.is_primary',
         ]);
     }
 
@@ -532,15 +548,15 @@ class PoiForm extends Component
             'tour_operator_id' => null,
             'service_type' => 'guide',
             'is_primary' => false,
-            'notes' => ''
+            'notes' => '',
         ];
-        
+
         // Nettoyer les erreurs de validation du modal
         $this->resetValidation([
             'modalTourOperator.tour_operator_id',
             'modalTourOperator.service_type',
             'modalTourOperator.is_primary',
-            'modalTourOperator.notes'
+            'modalTourOperator.notes',
         ]);
     }
 
@@ -562,14 +578,14 @@ class PoiForm extends Component
         if (isset($this->selectedTourOperators[$index])) {
             $this->editingTourOperatorIndex = $index;
             $tourOperator = $this->selectedTourOperators[$index];
-            
+
             $this->modalTourOperator = [
                 'tour_operator_id' => $tourOperator['id'],
                 'service_type' => $tourOperator['service_type'] ?? 'guide',
                 'is_primary' => (bool) ($tourOperator['is_primary'] ?? false),
-                'notes' => $tourOperator['notes'] ?? ''
+                'notes' => $tourOperator['notes'] ?? '',
             ];
-            
+
             $this->resetValidation();
             $this->dispatch('open-tour-operator-modal');
         }
@@ -589,12 +605,13 @@ class PoiForm extends Component
         ]);
 
         // Vérifier que ce tour operator n'est pas déjà ajouté
-        $existingIndex = collect($this->selectedTourOperators)->search(function($item) {
+        $existingIndex = collect($this->selectedTourOperators)->search(function ($item) {
             return $item['id'] == $this->modalTourOperator['tour_operator_id'];
         });
 
         if ($existingIndex !== false && $existingIndex !== $this->editingTourOperatorIndex) {
             $this->addError('modalTourOperator.tour_operator_id', 'Ce tour operator est déjà associé à ce POI.');
+
             return;
         }
 
@@ -629,7 +646,7 @@ class PoiForm extends Component
 
         // S'assurer qu'au moins un tour operator est principal
         $hasPrimary = collect($this->selectedTourOperators)->contains('is_primary', true);
-        if (!$hasPrimary && !empty($this->selectedTourOperators)) {
+        if (! $hasPrimary && ! empty($this->selectedTourOperators)) {
             $this->selectedTourOperators[0]['is_primary'] = true;
         }
 
@@ -683,7 +700,7 @@ class PoiForm extends Component
             'emergency' => 'Urgence',
             'transport' => 'Transport',
             'shop' => 'Boutique/Commerce',
-            'other' => 'Autre'
+            'other' => 'Autre',
         ];
     }
 
@@ -702,7 +719,7 @@ class PoiForm extends Component
             'emergency' => 'fas fa-ambulance',
             'transport' => 'fas fa-bus',
             'shop' => 'fas fa-shopping-bag',
-            'other' => 'fas fa-info-circle'
+            'other' => 'fas fa-info-circle',
         ];
 
         return $icons[$type] ?? 'fas fa-phone';
@@ -723,7 +740,7 @@ class PoiForm extends Component
             'emergency' => '#dc3545',
             'transport' => '#ffc107',
             'shop' => '#e91e63',
-            'other' => '#6c757d'
+            'other' => '#6c757d',
         ];
 
         return $colors[$type] ?? '#6c757d';
@@ -735,7 +752,7 @@ class PoiForm extends Component
     public function getServiceTypes()
     {
         $locale = $this->activeLocale ?? 'fr';
-        
+
         $types = [
             'fr' => [
                 'guide' => 'Guide touristique',
@@ -743,7 +760,7 @@ class PoiForm extends Component
                 'full_package' => 'Package complet',
                 'accommodation' => 'Hébergement',
                 'activity' => 'Activité spécialisée',
-                'other' => 'Autre service'
+                'other' => 'Autre service',
             ],
             'en' => [
                 'guide' => 'Tour Guide',
@@ -751,7 +768,7 @@ class PoiForm extends Component
                 'full_package' => 'Complete Package',
                 'accommodation' => 'Accommodation',
                 'activity' => 'Specialized Activity',
-                'other' => 'Other Service'
+                'other' => 'Other Service',
             ],
             'ar' => [
                 'guide' => 'مرشد سياحي',
@@ -759,8 +776,8 @@ class PoiForm extends Component
                 'full_package' => 'حزمة كاملة',
                 'accommodation' => 'إقامة',
                 'activity' => 'نشاط متخصص',
-                'other' => 'خدمة أخرى'
-            ]
+                'other' => 'خدمة أخرى',
+            ],
         ];
 
         return $types[$locale] ?? $types['fr'];
@@ -777,7 +794,7 @@ class PoiForm extends Component
             'full_package' => 'fas fa-suitcase',
             'accommodation' => 'fas fa-bed',
             'activity' => 'fas fa-hiking',
-            'other' => 'fas fa-concierge-bell'
+            'other' => 'fas fa-concierge-bell',
         ];
 
         return $icons[$type] ?? 'fas fa-concierge-bell';
@@ -794,7 +811,7 @@ class PoiForm extends Component
             'full_package' => '#20c997',
             'accommodation' => '#6f42c1',
             'activity' => '#fd7e14',
-            'other' => '#6c757d'
+            'other' => '#6c757d',
         ];
 
         return $colors[$type] ?? '#6c757d';
@@ -806,7 +823,7 @@ class PoiForm extends Component
     public function getInterfaceTexts()
     {
         $locale = $this->activeLocale ?? 'fr';
-        
+
         $texts = [
             'fr' => [
                 'tour_operators_associated' => 'Tour Operators Associés',
@@ -816,7 +833,7 @@ class PoiForm extends Component
                 'enrich_visitor_experience' => 'Associez des tour operators pour enrichir l\'expérience des visiteurs',
                 'modify_association' => 'Modifier l\'association',
                 'delete_association' => 'Supprimer cette association ?',
-                'principal' => 'Principal'
+                'principal' => 'Principal',
             ],
             'en' => [
                 'tour_operators_associated' => 'Associated Tour Operators',
@@ -826,7 +843,7 @@ class PoiForm extends Component
                 'enrich_visitor_experience' => 'Associate tour operators to enrich visitor experience',
                 'modify_association' => 'Modify association',
                 'delete_association' => 'Delete this association?',
-                'principal' => 'Primary'
+                'principal' => 'Primary',
             ],
             'ar' => [
                 'tour_operators_associated' => 'مشغلي الجولات المرتبطين',
@@ -836,8 +853,8 @@ class PoiForm extends Component
                 'enrich_visitor_experience' => 'اربط مشغلي الجولات لإثراء تجربة الزوار',
                 'modify_association' => 'تعديل الارتباط',
                 'delete_association' => 'حذف هذا الارتباط؟',
-                'principal' => 'أساسي'
-            ]
+                'principal' => 'أساسي',
+            ],
         ];
 
         return $texts[$locale] ?? $texts['fr'];
@@ -849,12 +866,12 @@ class PoiForm extends Component
     private function normalizeContactUrls()
     {
         foreach ($this->contacts as &$contact) {
-            if (!empty($contact['website'])) {
+            if (! empty($contact['website'])) {
                 $website = trim($contact['website']);
-                
+
                 // Si l'URL ne commence pas par http:// ou https://, ajouter https://
-                if (!preg_match('/^https?:\/\//', $website)) {
-                    $contact['website'] = 'https://' . $website;
+                if (! preg_match('/^https?:\/\//', $website)) {
+                    $contact['website'] = 'https://'.$website;
                 }
             }
         }
@@ -883,22 +900,23 @@ class PoiForm extends Component
     public function validateContactWebsites()
     {
         foreach ($this->contacts as $index => $contact) {
-            if (!empty($contact['website'])) {
+            if (! empty($contact['website'])) {
                 $website = trim($contact['website']);
-                
+
                 // Ajouter https:// si pas de protocole pour la validation
-                if (!preg_match('/^https?:\/\//', $website)) {
-                    $website = 'https://' . $website;
+                if (! preg_match('/^https?:\/\//', $website)) {
+                    $website = 'https://'.$website;
                 }
-                
+
                 // Valider l'URL complète
-                if (!filter_var($website, FILTER_VALIDATE_URL)) {
+                if (! filter_var($website, FILTER_VALIDATE_URL)) {
                     $this->addError("contacts.{$index}.website", "L'adresse du site web n'est pas valide.");
+
                     return false;
                 }
             }
         }
-        
+
         return true;
     }
 
@@ -914,19 +932,19 @@ class PoiForm extends Component
             if (isset($matches[1])) {
                 $index = $matches[1];
                 $this->clearValidationErrors("contacts.{$index}.website");
-                
-                if (!empty($value)) {
+
+                if (! empty($value)) {
                     $website = trim($value);
-                    
+
                     // Ajouter https:// si pas de protocole pour la validation
-                    if (!preg_match('/^https?:\/\//', $website)) {
-                        $testWebsite = 'https://' . $website;
+                    if (! preg_match('/^https?:\/\//', $website)) {
+                        $testWebsite = 'https://'.$website;
                     } else {
                         $testWebsite = $website;
                     }
-                    
+
                     // Valider l'URL
-                    if (!filter_var($testWebsite, FILTER_VALIDATE_URL)) {
+                    if (! filter_var($testWebsite, FILTER_VALIDATE_URL)) {
                         $this->addError("contacts.{$index}.website", "L'adresse du site web n'est pas valide. Exemple : www.oudoum.fr");
                     }
                 }
@@ -945,7 +963,6 @@ class PoiForm extends Component
         }
     }
 
-
     /**
      * Enregistrer le POI avec ses traductions
      */
@@ -954,42 +971,95 @@ class PoiForm extends Component
         try {
             // Validation standard
             $this->validate();
-        
-        // Validation personnalisée des URLs de contacts
-        if (!$this->validateContactWebsites()) {
-            return;
-        }
-        
-        // Normaliser les URLs des contacts
-        $this->normalizeContactUrls();
 
-        // Générer le slug s'il n'est pas fourni
-        if (empty($this->slug) && !empty($this->translations['fr']['name'])) {
-            $this->slug = Str::slug($this->translations['fr']['name']);
-        }
+            // Validation personnalisée des URLs de contacts
+            if (! $this->validateContactWebsites()) {
+                return;
+            }
 
-        // Créer ou mettre à jour le POI
-        if ($this->isEditMode) {
-            $poi = Poi::findOrFail($this->poiId);
+            // Normaliser les URLs des contacts
+            $this->normalizeContactUrls();
 
-            $poi->update([
-                'slug' => $this->slug,
-                'latitude' => $this->latitude,
-                'longitude' => $this->longitude,
-                'region' => $this->region,
-                'contacts' => $this->contacts,
-                'website' => $this->website,
-                'is_featured' => $this->is_featured,
-                'allow_reservations' => $this->allow_reservations,
-                'status' => $this->status,
-                'featured_image_id' => $this->featuredImageId,
-            ]);
+            // Générer le slug s'il n'est pas fourni
+            if (empty($this->slug) && ! empty($this->translations['fr']['name'])) {
+                $this->slug = Str::slug($this->translations['fr']['name']);
+            }
 
-            // Mettre à jour les traductions
-            foreach ($this->translations as $locale => $translation) {
-                $poi->translations()->updateOrCreate(
-                    ['locale' => $locale],
-                    [
+            // Créer ou mettre à jour le POI
+            if ($this->isEditMode) {
+                $poi = Poi::findOrFail($this->poiId);
+
+                $poi->update([
+                    'slug' => $this->slug,
+                    'latitude' => $this->latitude,
+                    'longitude' => $this->longitude,
+                    'region' => $this->region,
+                    'contacts' => $this->contacts,
+                    'website' => $this->website,
+                    'is_featured' => $this->is_featured,
+                    'allow_reservations' => $this->allow_reservations,
+                    'status' => $this->status,
+                    'featured_image_id' => $this->featuredImageId,
+                ]);
+
+                // Mettre à jour les traductions
+                foreach ($this->translations as $locale => $translation) {
+                    $poi->translations()->updateOrCreate(
+                        ['locale' => $locale],
+                        [
+                            'name' => $translation['name'],
+                            'description' => $translation['description'],
+                            'short_description' => $translation['short_description'],
+                            'address' => $translation['address'],
+                            'opening_hours' => $translation['opening_hours'],
+                            'entry_fee' => $translation['entry_fee'],
+                            'tips' => $translation['tips'],
+                        ]
+                    );
+                }
+
+                // Mettre à jour les catégories
+                $poi->categories()->sync($this->selectedCategories);
+
+                // Mettre à jour les médias
+                $mediaData = [];
+                foreach ($this->selectedMedia as $index => $mediaId) {
+                    $mediaData[$mediaId] = ['order' => $index];
+                }
+                $poi->media()->sync($mediaData);
+
+                // Mettre à jour les tour operators
+                $tourOperatorData = [];
+                foreach ($this->selectedTourOperators as $tourOperator) {
+                    $tourOperatorData[$tourOperator['id']] = [
+                        'service_type' => $tourOperator['service_type'],
+                        'is_primary' => $tourOperator['is_primary'],
+                        'is_active' => true,
+                        'notes' => $tourOperator['notes'] ?? null,
+                    ];
+                }
+                $poi->tourOperators()->sync($tourOperatorData);
+
+                session()->flash('success', 'Point d\'intérêt mis à jour avec succès.');
+            } else {
+                $poi = Poi::create([
+                    'slug' => $this->slug,
+                    'latitude' => $this->latitude,
+                    'longitude' => $this->longitude,
+                    'region' => $this->region,
+                    'contacts' => $this->contacts,
+                    'website' => $this->website,
+                    'is_featured' => $this->is_featured,
+                    'allow_reservations' => $this->allow_reservations,
+                    'status' => $this->status,
+                    'featured_image_id' => $this->featuredImageId,
+                    'creator_id' => Auth::guard('admin')->id(),
+                ]);
+
+                // Créer les traductions
+                foreach ($this->translations as $locale => $translation) {
+                    $poi->translations()->create([
+                        'locale' => $locale,
                         'name' => $translation['name'],
                         'description' => $translation['description'],
                         'short_description' => $translation['short_description'],
@@ -997,98 +1067,46 @@ class PoiForm extends Component
                         'opening_hours' => $translation['opening_hours'],
                         'entry_fee' => $translation['entry_fee'],
                         'tips' => $translation['tips'],
-                    ]
-                );
+                    ]);
+                }
+
+                // Attacher les catégories
+                $poi->categories()->attach($this->selectedCategories);
+
+                // Attacher les médias
+                $mediaData = [];
+                foreach ($this->selectedMedia as $index => $mediaId) {
+                    $mediaData[$mediaId] = ['order' => $index];
+                }
+                $poi->media()->attach($mediaData);
+
+                // Attacher les tour operators
+                $tourOperatorData = [];
+                foreach ($this->selectedTourOperators as $tourOperator) {
+                    $tourOperatorData[$tourOperator['id']] = [
+                        'service_type' => $tourOperator['service_type'],
+                        'is_primary' => $tourOperator['is_primary'],
+                        'is_active' => true,
+                        'notes' => $tourOperator['notes'] ?? null,
+                    ];
+                }
+                $poi->tourOperators()->attach($tourOperatorData);
+
+                session()->flash('success', 'Point d\'intérêt créé avec succès.');
             }
 
-            // Mettre à jour les catégories
-            $poi->categories()->sync($this->selectedCategories);
+            // Rediriger vers la liste des POI
+            return redirect()->route('pois.index');
 
-            // Mettre à jour les médias
-            $mediaData = [];
-            foreach ($this->selectedMedia as $index => $mediaId) {
-                $mediaData[$mediaId] = ['order' => $index];
-            }
-            $poi->media()->sync($mediaData);
-
-            // Mettre à jour les tour operators
-            $tourOperatorData = [];
-            foreach ($this->selectedTourOperators as $tourOperator) {
-                $tourOperatorData[$tourOperator['id']] = [
-                    'service_type' => $tourOperator['service_type'],
-                    'is_primary' => $tourOperator['is_primary'],
-                    'is_active' => true,
-                    'notes' => $tourOperator['notes'] ?? null,
-                ];
-            }
-            $poi->tourOperators()->sync($tourOperatorData);
-
-            session()->flash('success', 'Point d\'intérêt mis à jour avec succès.');
-        } else {
-            $poi = Poi::create([
-                'slug' => $this->slug,
-                'latitude' => $this->latitude,
-                'longitude' => $this->longitude,
-                'region' => $this->region,
-                'contacts' => $this->contacts,
-                'website' => $this->website,
-                'is_featured' => $this->is_featured,
-                'allow_reservations' => $this->allow_reservations,
-                'status' => $this->status,
-                'featured_image_id' => $this->featuredImageId,
-                'creator_id' => Auth::guard('admin')->id(),
-            ]);
-
-            // Créer les traductions
-            foreach ($this->translations as $locale => $translation) {
-                $poi->translations()->create([
-                    'locale' => $locale,
-                    'name' => $translation['name'],
-                    'description' => $translation['description'],
-                    'short_description' => $translation['short_description'],
-                    'address' => $translation['address'],
-                    'opening_hours' => $translation['opening_hours'],
-                    'entry_fee' => $translation['entry_fee'],
-                    'tips' => $translation['tips'],
-                ]);
-            }
-
-            // Attacher les catégories
-            $poi->categories()->attach($this->selectedCategories);
-
-            // Attacher les médias
-            $mediaData = [];
-            foreach ($this->selectedMedia as $index => $mediaId) {
-                $mediaData[$mediaId] = ['order' => $index];
-            }
-            $poi->media()->attach($mediaData);
-
-            // Attacher les tour operators
-            $tourOperatorData = [];
-            foreach ($this->selectedTourOperators as $tourOperator) {
-                $tourOperatorData[$tourOperator['id']] = [
-                    'service_type' => $tourOperator['service_type'],
-                    'is_primary' => $tourOperator['is_primary'],
-                    'is_active' => true,
-                    'notes' => $tourOperator['notes'] ?? null,
-                ];
-            }
-            $poi->tourOperators()->attach($tourOperatorData);
-
-            session()->flash('success', 'Point d\'intérêt créé avec succès.');
-        }
-
-        // Rediriger vers la liste des POI
-        return redirect()->route('pois.index');
-        
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de la sauvegarde du POI: ' . $e->getMessage(), [
+            \Log::error('Erreur lors de la sauvegarde du POI: '.$e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'poiId' => $this->poiId ?? null,
-                'isEditMode' => $this->isEditMode
+                'isEditMode' => $this->isEditMode,
             ]);
-            
-            session()->flash('error', 'Erreur lors de la sauvegarde : ' . $e->getMessage());
+
+            session()->flash('error', 'Erreur lors de la sauvegarde : '.$e->getMessage());
+
             return;
         }
     }
@@ -1116,21 +1134,22 @@ class PoiForm extends Component
         // Récupérer les catégories principales avec leurs sous-catégories
         $parentCategories = Category::where('is_active', true)
             ->whereNull('parent_id')
-            ->with(['children' => function($query) {
+            ->with(['children' => function ($query) {
                 $query->where('is_active', true);
-            }, 'translations' => function($query) {
+            }, 'translations' => function ($query) {
                 $query->where('locale', $this->activeLocale)
-                      ->orWhere('locale', config('app.fallback_locale', 'fr'));
-            }, 'children.translations' => function($query) {
+                    ->orWhere('locale', config('app.fallback_locale', 'fr'));
+            }, 'children.translations' => function ($query) {
                 $query->where('locale', $this->activeLocale)
-                      ->orWhere('locale', config('app.fallback_locale', 'fr'));
+                    ->orWhere('locale', config('app.fallback_locale', 'fr'));
             }])
             ->get()
-            ->sortBy(function($category) {
+            ->sortBy(function ($category) {
                 $translation = $category->translation($this->activeLocale);
+
                 return $translation ? $translation->name : '';
             });
-            
+
         $regions = $this->getRegionsList();
 
         // Récupérer les médias disponibles
@@ -1141,7 +1160,7 @@ class PoiForm extends Component
             ->with('translations')
             ->orderBy('featured', 'desc')
             ->get()
-            ->sortBy(function($operator) {
+            ->sortBy(function ($operator) {
                 return $operator->name;
             });
 

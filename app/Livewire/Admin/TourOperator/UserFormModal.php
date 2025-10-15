@@ -3,27 +3,33 @@
 namespace App\Livewire\Admin\TourOperator;
 
 use App\Models\TourOperatorUser;
-use App\Mail\TourOperatorInvitation;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class UserFormModal extends Component
 {
     public $tourOperatorId;
+
     public $showModal = false;
 
     // Form fields
     public $name = '';
+
     public $username = '';
+
     public $email = '';
+
     public $password = '';
+
     public $password_confirmation = '';
+
     public $phone_number = '';
+
     public $position = '';
+
     public $language_preference = 'fr';
+
     public $is_active = true;
 
     protected $rules = [

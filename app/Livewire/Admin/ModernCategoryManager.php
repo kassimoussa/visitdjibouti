@@ -4,9 +4,9 @@ namespace App\Livewire\Admin;
 
 use App\Models\Category;
 use App\Models\CategoryTranslation;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Str;
 
 class ModernCategoryManager extends Component
 {
@@ -14,31 +14,43 @@ class ModernCategoryManager extends Component
 
     // États de l'interface
     public $viewMode = 'main'; // 'main', 'subcategories'
+
     public $selectedParentId = null;
+
     public $selectedParent = null;
-    
+
     // Modal de création/édition
     public $showModal = false;
+
     public $modalMode = 'create'; // 'create', 'edit'
+
     public $editingCategory = null;
-    
+
     // Formulaire
     public $categoryId = null;
+
     public $parent_id = null;
+
     public $slug = '';
+
     public $icon = 'fas fa-folder';
+
     public $color = '#3498db';
+
     public $is_active = true;
+
     public $sort_order = 1;
+
     public $translations = [];
-    
+
     // Recherche et filtres
     public $search = '';
+
     public $searchSubcategories = '';
 
     protected $listeners = [
         'categoryDeleted' => '$refresh',
-        'categoryUpdated' => '$refresh'
+        'categoryUpdated' => '$refresh',
     ];
 
     public function mount()
@@ -52,7 +64,7 @@ class ModernCategoryManager extends Component
         foreach ($locales as $locale) {
             $this->translations[$locale] = [
                 'name' => '',
-                'description' => ''
+                'description' => '',
             ];
         }
     }
@@ -88,7 +100,7 @@ class ModernCategoryManager extends Component
         $this->parent_id = $parentId;
         $this->modalMode = 'create';
         $this->showModal = true;
-        
+
         // Auto-générer sort_order
         $maxOrder = Category::where('parent_id', $parentId)->max('sort_order') ?? 0;
         $this->sort_order = $maxOrder + 1;
@@ -100,7 +112,7 @@ class ModernCategoryManager extends Component
     public function edit($categoryId)
     {
         $category = Category::with('translations')->find($categoryId);
-        
+
         $this->categoryId = $category->id;
         $this->parent_id = $category->parent_id;
         $this->slug = $category->slug;
@@ -108,15 +120,15 @@ class ModernCategoryManager extends Component
         $this->color = $category->color;
         $this->is_active = $category->is_active;
         $this->sort_order = $category->sort_order;
-        
+
         // Charger les traductions
         foreach ($category->translations as $translation) {
             $this->translations[$translation->locale] = [
                 'name' => $translation->name,
-                'description' => $translation->description ?? ''
+                'description' => $translation->description ?? '',
             ];
         }
-        
+
         $this->modalMode = 'edit';
         $this->showModal = true;
     }
@@ -130,7 +142,7 @@ class ModernCategoryManager extends Component
             'translations.fr.name' => 'required|string|max:255',
             'icon' => 'required|string',
             'color' => 'required|string',
-            'sort_order' => 'required|integer|min:1'
+            'sort_order' => 'required|integer|min:1',
         ]);
 
         // Générer le slug depuis le nom français
@@ -145,7 +157,7 @@ class ModernCategoryManager extends Component
                 'icon' => $this->icon,
                 'color' => $this->color,
                 'sort_order' => $this->sort_order,
-                'is_active' => $this->is_active
+                'is_active' => $this->is_active,
             ]);
         } else {
             $category = Category::find($this->categoryId);
@@ -155,19 +167,19 @@ class ModernCategoryManager extends Component
                 'icon' => $this->icon,
                 'color' => $this->color,
                 'sort_order' => $this->sort_order,
-                'is_active' => $this->is_active
+                'is_active' => $this->is_active,
             ]);
         }
 
         // Sauvegarder les traductions
         foreach ($this->translations as $locale => $translation) {
-            if (!empty($translation['name'])) {
+            if (! empty($translation['name'])) {
                 CategoryTranslation::updateOrCreate([
                     'category_id' => $category->id,
-                    'locale' => $locale
+                    'locale' => $locale,
                 ], [
                     'name' => $translation['name'],
-                    'description' => $translation['description'] ?? ''
+                    'description' => $translation['description'] ?? '',
                 ]);
             }
         }
@@ -183,10 +195,11 @@ class ModernCategoryManager extends Component
     public function delete($categoryId)
     {
         $category = Category::find($categoryId);
-        
+
         // Vérifier s'il y a des sous-catégories
         if ($category->children()->count() > 0) {
             session()->flash('error', 'Impossible de supprimer une catégorie qui a des sous-catégories.');
+
             return;
         }
 
@@ -200,8 +213,8 @@ class ModernCategoryManager extends Component
     public function toggleActive($categoryId)
     {
         $category = Category::find($categoryId);
-        $category->update(['is_active' => !$category->is_active]);
-        
+        $category->update(['is_active' => ! $category->is_active]);
+
         session()->flash('success', 'État de la catégorie mis à jour !');
     }
 
@@ -236,9 +249,9 @@ class ModernCategoryManager extends Component
     {
         return Category::with(['translations', 'children'])
             ->whereNull('parent_id')
-            ->when($this->search, function($query) {
-                $query->whereHas('translations', function($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%');
+            ->when($this->search, function ($query) {
+                $query->whereHas('translations', function ($q) {
+                    $q->where('name', 'like', '%'.$this->search.'%');
                 });
             })
             ->orderBy('sort_order')
@@ -250,15 +263,15 @@ class ModernCategoryManager extends Component
      */
     public function getSubcategories()
     {
-        if (!$this->selectedParentId) {
+        if (! $this->selectedParentId) {
             return collect();
         }
 
         return Category::with('translations')
             ->where('parent_id', $this->selectedParentId)
-            ->when($this->searchSubcategories, function($query) {
-                $query->whereHas('translations', function($q) {
-                    $q->where('name', 'like', '%' . $this->searchSubcategories . '%');
+            ->when($this->searchSubcategories, function ($query) {
+                $query->whereHas('translations', function ($q) {
+                    $q->where('name', 'like', '%'.$this->searchSubcategories.'%');
                 });
             })
             ->orderBy('sort_order')
@@ -269,7 +282,7 @@ class ModernCategoryManager extends Component
     {
         return view('livewire.admin.categories.modern-category-manager', [
             'mainCategories' => $this->getMainCategories(),
-            'subcategories' => $this->getSubcategories()
+            'subcategories' => $this->getSubcategories(),
         ]);
     }
 

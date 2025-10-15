@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Embassy extends Model
@@ -44,31 +44,31 @@ class Embassy extends Model
     {
         return $this->hasMany(EmbassyTranslation::class);
     }
-    
+
     /**
      * Obtenir la traduction dans la langue spécifiée
      */
     public function translation($locale = null)
     {
         $locale = $locale ?: app()->getLocale();
-        
+
         return $this->translations()
-                    ->where('locale', $locale)
-                    ->first() 
+            ->where('locale', $locale)
+            ->first()
                 ?? $this->translations()
-                      ->where('locale', config('app.fallback_locale', 'fr'))
-                      ->first();
+                    ->where('locale', config('app.fallback_locale', 'fr'))
+                    ->first();
     }
 
     public function getTranslation(string $locale)
     {
         $translation = $this->translations->firstWhere('locale', $locale);
-        
-        if (!$translation) {
+
+        if (! $translation) {
             $translation = $this->translations->firstWhere('locale', config('app.fallback_locale', 'fr'));
         }
-        
-        if (!$translation) {
+
+        if (! $translation) {
             return new EmbassyTranslation([
                 'name' => '',
                 'ambassador_name' => '',
@@ -76,7 +76,7 @@ class Embassy extends Model
                 'postal_box' => '',
             ]);
         }
-        
+
         return $translation;
     }
 
@@ -89,9 +89,10 @@ class Embassy extends Model
         if ($translation && $translation->name) {
             return $translation->name;
         }
-        
+
         // Fallback vers français
         $fallback = $this->translations->firstWhere('locale', 'fr');
+
         return $fallback ? $fallback->name : '';
     }
 
@@ -104,9 +105,10 @@ class Embassy extends Model
         if ($translation && $translation->ambassador_name) {
             return $translation->ambassador_name;
         }
-        
+
         // Fallback vers français
         $fallback = $this->translations->firstWhere('locale', 'fr');
+
         return $fallback ? $fallback->ambassador_name : '';
     }
 
@@ -117,17 +119,17 @@ class Embassy extends Model
     {
         return $this->translation() ? $this->translation()->name : '';
     }
-    
+
     public function getAmbassadorNameAttribute()
     {
         return $this->translation() ? $this->translation()->ambassador_name : '';
     }
-    
+
     public function getAddressAttribute()
     {
         return $this->translation() ? $this->translation()->address : '';
     }
-    
+
     public function getPostalBoxAttribute()
     {
         return $this->translation() ? $this->translation()->postal_box : '';
@@ -188,7 +190,7 @@ class Embassy extends Model
      */
     public function getWebsiteUrlAttribute()
     {
-        if (!$this->website) {
+        if (! $this->website) {
             return null;
         }
 
@@ -198,6 +200,6 @@ class Embassy extends Model
         }
 
         // Sinon, ajouter https:// par défaut
-        return 'https://' . $this->website;
+        return 'https://'.$this->website;
     }
 }

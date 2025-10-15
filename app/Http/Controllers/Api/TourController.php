@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tour;
-use App\Models\TourSchedule;
 use App\Models\Reservation;
+use App\Models\Tour;
 use App\Models\TourOperator;
+use App\Models\TourSchedule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class TourController extends Controller
 {
@@ -21,20 +20,19 @@ class TourController extends Controller
     {
         try {
             $query = Tour::active()
-                         ->with([
-                             'tourOperator.translations',
-                             'translations',
-                             'activeSchedules' => function($q) {
-                                 $q->orderBy('start_date')->limit(3);
-                             }
-                         ]);
+                ->with([
+                    'tourOperator.translations',
+                    'translations' => function ($q) {
+                        $q->orderBy('start_date')->limit(3);
+                    },
+                ]);
 
             // Search by title or description
             if ($request->filled('search')) {
                 $search = $request->get('search');
                 $query->whereHas('translations', function ($q) use ($search) {
                     $q->where('title', 'LIKE', "%{$search}%")
-                      ->orWhere('description', 'LIKE', "%{$search}%");
+                        ->orWhere('description', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -77,13 +75,6 @@ class TourController extends Controller
                 $query->where('start_date', '<=', $request->get('date_to'));
             }
 
-            // Filter by available dates
-            if ($request->filled('available_from')) {
-                $query->whereHas('activeSchedules', function($q) use ($request) {
-                    $q->where('start_date', '>=', $request->get('available_from'));
-                });
-            }
-
             // Filter by featured
             if ($request->filled('featured')) {
                 $query->featured();
@@ -107,14 +98,8 @@ class TourController extends Controller
                 $locale = $request->header('Accept-Language', 'fr');
                 $query->leftJoin('tour_translations', function ($join) use ($locale) {
                     $join->on('tours.id', '=', 'tour_translations.tour_id')
-                         ->where('tour_translations.locale', '=', $locale);
+                        ->where('tour_translations.locale', '=', $locale);
                 })->orderBy('tour_translations.title', $sortOrder);
-            } elseif ($sortBy === 'next_date') {
-                $query->leftJoin('tour_schedules', function ($join) {
-                    $join->on('tours.id', '=', 'tour_schedules.tour_id')
-                         ->where('tour_schedules.status', '=', 'available')
-                         ->where('tour_schedules.start_date', '>=', now()->toDateString());
-                })->orderBy('tour_schedules.start_date', $sortOrder);
             } else {
                 $query->orderBy($sortBy, $sortOrder);
             }
@@ -144,16 +129,16 @@ class TourController extends Controller
                     'filters' => [
                         'operators' => $this->getAvailableOperators($locale),
                         'types' => $this->getAvailableTypes(),
-                        'difficulties' => $this->getAvailableDifficulties()
-                    ]
-                ]
+                        'difficulties' => $this->getAvailableDifficulties(),
+                    ],
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch tours',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -165,23 +150,22 @@ class TourController extends Controller
     {
         try {
             $query = Tour::active()
-                         ->with([
-                             'tourOperator.translations',
-                             'translations',
-                             'featuredImage',
-                             'media',
-                             'upcomingSchedules'
-                         ]);
+                ->with([
+                    'tourOperator.translations',
+                    'translations',
+                    'featuredImage',
+                    'media',
+                ]);
 
             // Try to find by ID first, then by slug
             $tour = is_numeric($identifier)
                 ? $query->find($identifier)
                 : $query->where('slug', $identifier)->first();
 
-            if (!$tour) {
+            if (! $tour) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Tour not found'
+                    'message' => 'Tour not found',
                 ], 404);
             }
 
@@ -193,15 +177,15 @@ class TourController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'tour' => $this->transformTourDetailed($tour, $locale)
-                ]
+                    'tour' => $this->transformTourDetailed($tour, $locale),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch tour',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -209,7 +193,7 @@ class TourController extends Controller
     /**
      * Get schedules for a specific tour
      */
-    public function schedules(Request $request, Tour $tour): JsonResponse
+    /* public function schedules(Request $request, Tour $tour): JsonResponse
     {
         try {
             if ($tour->status !== 'active') {
@@ -261,12 +245,12 @@ class TourController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
-    }
+    } */
 
     /**
      * Book a tour schedule
      */
-    public function book(Request $request, TourSchedule $schedule): JsonResponse
+    /* public function book(Request $request, TourSchedule $schedule): JsonResponse
     {
         try {
             // Check if schedule exists and is available
@@ -384,12 +368,12 @@ class TourController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
-    }
+    } */
 
     /**
      * Cancel a tour booking
      */
-    public function cancelBooking(Request $request, int $reservationId): JsonResponse
+    /* public function cancelBooking(Request $request, int $reservationId): JsonResponse
     {
         try {
             $user = $request->user();
@@ -441,60 +425,60 @@ class TourController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
-    }
+    } */
 
     /**
      * Get user's tour bookings
      */
-    public function myBookings(Request $request): JsonResponse
-    {
-        try {
-            $user = $request->user();
+    /*  public function myBookings(Request $request): JsonResponse
+     {
+         try {
+             $user = $request->user();
 
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Authentication required'
-                ], 401);
-            }
+             if (!$user) {
+                 return response()->json([
+                     'success' => false,
+                     'message' => 'Authentication required'
+                 ], 401);
+             }
 
-            $query = Reservation::where('app_user_id', $user->id)
-                                ->where('reservable_type', TourSchedule::class)
-                                ->with(['reservable.tour.translations', 'reservable.tour.tourOperator.translations']);
+             $query = Reservation::where('app_user_id', $user->id)
+                                 ->where('reservable_type', TourSchedule::class)
+                                 ->with(['reservable.tour.translations', 'reservable.tour.tourOperator.translations']);
 
-            // Filter by status
-            if ($request->filled('status')) {
-                $query->where('status', $request->get('status'));
-            }
+             // Filter by status
+             if ($request->filled('status')) {
+                 $query->where('status', $request->get('status'));
+             }
 
-            $reservations = $query->orderBy('created_at', 'desc')->paginate(20);
+             $reservations = $query->orderBy('created_at', 'desc')->paginate(20);
 
-            $locale = $request->header('Accept-Language', 'fr');
-            $transformedReservations = $reservations->getCollection()->map(function ($reservation) use ($locale) {
-                return $this->transformReservationWithTour($reservation, $locale);
-            });
+             $locale = $request->header('Accept-Language', 'fr');
+             $transformedReservations = $reservations->getCollection()->map(function ($reservation) use ($locale) {
+                 return $this->transformReservationWithTour($reservation, $locale);
+             });
 
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'bookings' => $transformedReservations,
-                    'pagination' => [
-                        'current_page' => $reservations->currentPage(),
-                        'last_page' => $reservations->lastPage(),
-                        'per_page' => $reservations->perPage(),
-                        'total' => $reservations->total()
-                    ]
-                ]
-            ]);
+             return response()->json([
+                 'success' => true,
+                 'data' => [
+                     'bookings' => $transformedReservations,
+                     'pagination' => [
+                         'current_page' => $reservations->currentPage(),
+                         'last_page' => $reservations->lastPage(),
+                         'per_page' => $reservations->perPage(),
+                         'total' => $reservations->total()
+                     ]
+                 ]
+             ]);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch bookings',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
+         } catch (\Exception $e) {
+             return response()->json([
+                 'success' => false,
+                 'message' => 'Failed to fetch bookings',
+                 'error' => $e->getMessage()
+             ], 500);
+         }
+     } */
 
     /**
      * Transform tour for list view
@@ -517,29 +501,27 @@ class TourController extends Controller
             'duration' => [
                 'hours' => $tour->duration_hours,
                 'days' => $tour->duration_in_days,
-                'formatted' => $tour->formatted_duration
+                'formatted' => $tour->formatted_duration,
             ],
             'price' => $tour->price,
-            'currency' => $tour->currency,
             'formatted_price' => $tour->formatted_price,
             'is_free' => $tour->is_free,
             'is_featured' => $tour->is_featured,
             'max_participants' => $tour->max_participants,
             'min_participants' => $tour->min_participants,
             'available_spots' => $tour->available_spots,
-            'next_available_date' => $tour->next_available_date?->toDateString(),
             'tour_operator' => [
                 'id' => $tour->tourOperator->id,
                 'name' => $tour->tourOperator->getTranslatedName($locale),
-                'slug' => $tour->tourOperator->slug
+                'slug' => $tour->tourOperator->slug,
             ],
             'featured_image' => $tour->featuredImage ? [
                 'id' => $tour->featuredImage->id,
                 'url' => $tour->featuredImage->getImageUrl(),
-                'alt' => $tour->featuredImage->translation($locale)->alt_text ?? ''
+                'alt' => $tour->featuredImage->translation($locale)->alt_text ?? '',
             ] : null,
             'created_at' => $tour->created_at->toISOString(),
-            'updated_at' => $tour->updated_at->toISOString()
+            'updated_at' => $tour->updated_at->toISOString(),
         ];
     }
 
@@ -558,60 +540,26 @@ class TourController extends Controller
                 'latitude' => $tour->meeting_point_latitude,
                 'longitude' => $tour->meeting_point_longitude,
                 'address' => $tour->meeting_point_address,
-                'description' => $translation->meeting_point_description ?? ''
+                'description' => $translation->meeting_point_description ?? '',
             ],
             'highlights' => $translation->highlights ?? [],
             'what_to_bring' => $translation->what_to_bring ?? [],
             'age_restrictions' => [
                 'min' => $tour->age_restriction_min,
                 'max' => $tour->age_restriction_max,
-                'text' => $tour->age_restrictions_text
+                'text' => $tour->age_restrictions_text,
             ],
             'weather_dependent' => $tour->weather_dependent,
-            'cancellation_policy' => $translation->cancellation_policy_text ?? $tour->cancellation_policy,
             'views_count' => $tour->views_count,
             'media' => $tour->media->map(function ($media) use ($locale) {
                 return [
                     'id' => $media->id,
                     'url' => $media->getImageUrl(),
                     'alt' => $media->translation($locale)->alt_text ?? '',
-                    'order' => $media->pivot->order ?? 0
+                    'order' => $media->pivot->order ?? 0,
                 ];
             }),
-            'upcoming_schedules' => $tour->upcomingSchedules->map(function ($schedule) use ($locale) {
-                return $this->transformSchedule($schedule, $locale);
-            })
         ]);
-    }
-
-    /**
-     * Transform tour schedule
-     */
-    private function transformSchedule(TourSchedule $schedule, string $locale = 'fr'): array
-    {
-        return [
-            'id' => $schedule->id,
-            'start_date' => $schedule->start_date->toDateString(),
-            'end_date' => $schedule->end_date?->toDateString(),
-            'start_time' => $schedule->start_time?->format('H:i'),
-            'end_time' => $schedule->end_time?->format('H:i'),
-            'formatted_date_range' => $schedule->formatted_date_range,
-            'formatted_time_range' => $schedule->formatted_time_range,
-            'formatted_date_time' => $schedule->formatted_date_time,
-            'available_spots' => $schedule->available_spots,
-            'booked_spots' => $schedule->booked_spots,
-            'remaining_spots' => $schedule->remaining_spots,
-            'status' => $schedule->status,
-            'status_label' => $schedule->status_label,
-            'is_available' => $schedule->is_available,
-            'is_full' => $schedule->is_full,
-            'guide_name' => $schedule->guide_name,
-            'guide_languages' => $schedule->guide_languages ?? [],
-            'guide_languages_text' => $schedule->guide_languages_text,
-            'effective_price' => $schedule->effective_price,
-            'effective_meeting_point' => $schedule->effective_meeting_point,
-            'special_notes' => $schedule->special_notes
-        ];
     }
 
     /**
@@ -630,21 +578,8 @@ class TourController extends Controller
             'reservation_date' => $reservation->reservation_date?->toDateString(),
             'user_name' => $reservation->user_name,
             'user_email' => $reservation->user_email,
-            'created_at' => $reservation->created_at->toISOString()
+            'created_at' => $reservation->created_at->toISOString(),
         ];
-    }
-
-    /**
-     * Transform reservation with tour details
-     */
-    private function transformReservationWithTour(Reservation $reservation, string $locale = 'fr'): array
-    {
-        $basic = $this->transformReservation($reservation);
-
-        return array_merge($basic, [
-            'schedule' => $this->transformSchedule($reservation->reservable, $locale),
-            'tour' => $this->transformTour($reservation->reservable->tour, $locale)
-        ]);
     }
 
     /**
@@ -653,7 +588,7 @@ class TourController extends Controller
     private function getAvailableOperators(string $locale = 'fr'): array
     {
         return TourOperator::active()
-            ->whereHas('tours', function($q) {
+            ->whereHas('tours', function ($q) {
                 $q->active();
             })
             ->with('translations')
@@ -662,7 +597,7 @@ class TourController extends Controller
                 return [
                     'id' => $operator->id,
                     'name' => $operator->getTranslatedName($locale),
-                    'slug' => $operator->slug
+                    'slug' => $operator->slug,
                 ];
             })
             ->toArray();
@@ -680,7 +615,7 @@ class TourController extends Controller
             ['value' => 'cultural', 'label' => 'Culturel'],
             ['value' => 'adventure', 'label' => 'Aventure'],
             ['value' => 'nature', 'label' => 'Nature'],
-            ['value' => 'gastronomic', 'label' => 'Gastronomique']
+            ['value' => 'gastronomic', 'label' => 'Gastronomique'],
         ];
     }
 
@@ -693,7 +628,7 @@ class TourController extends Controller
             ['value' => 'easy', 'label' => 'Facile'],
             ['value' => 'moderate', 'label' => 'Modéré'],
             ['value' => 'difficult', 'label' => 'Difficile'],
-            ['value' => 'expert', 'label' => 'Expert']
+            ['value' => 'expert', 'label' => 'Expert'],
         ];
     }
 }

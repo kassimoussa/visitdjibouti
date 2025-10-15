@@ -3,24 +3,33 @@
 namespace App\Livewire\Admin\TourOperator;
 
 use App\Models\TourOperator;
-use Livewire\Component;
-use Livewire\Attributes\On;
 use Illuminate\Support\Str;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class TourOperatorForm extends Component
 {
     public $tourOperatorId = null;
+
     public $isEditing = false;
 
     // Propriétés du formulaire principal
     public $phones = '';
+
     public $emails = '';
+
     public $website = '';
+
     public $address = '';
+
     public $latitude = null;
+
     public $longitude = null;
+
     public $logo_id = null;
+
     public $is_active = true;
+
     public $featured = false;
 
     // Traductions
@@ -46,6 +55,7 @@ class TourOperatorForm extends Component
     public $selectedMedia = [];
 
     public $availableLocales = ['fr', 'en'];
+
     public $activeLocale = 'fr';
 
     protected function rules()
@@ -96,7 +106,7 @@ class TourOperatorForm extends Component
     public function loadTourOperator()
     {
         $tourOperator = TourOperator::with(['translations', 'media'])->findOrFail($this->tourOperatorId);
-        
+
         $this->phones = $tourOperator->phones ?? '';
         $this->emails = $tourOperator->emails ?? '';
         $this->website = $tourOperator->website ?? '';
@@ -160,7 +170,7 @@ class TourOperatorForm extends Component
 
             // Sauvegarder les traductions
             foreach ($this->translations as $locale => $translation) {
-                if (!empty($translation['name'])) {
+                if (! empty($translation['name'])) {
                     $tourOperator->translations()->updateOrCreate(
                         ['locale' => $locale],
                         $translation
@@ -169,7 +179,7 @@ class TourOperatorForm extends Component
             }
 
             // Sauvegarder les médias de la galerie
-            if (!empty($this->selectedMedia)) {
+            if (! empty($this->selectedMedia)) {
                 $mediaData = [];
                 foreach ($this->selectedMedia as $index => $mediaId) {
                     $mediaData[$mediaId] = ['order' => $index + 1];
@@ -183,7 +193,7 @@ class TourOperatorForm extends Component
             return redirect()->route('tour-operators.index');
 
         } catch (\Exception $e) {
-            session()->flash('error', 'Une erreur est survenue: ' . $e->getMessage());
+            session()->flash('error', 'Une erreur est survenue: '.$e->getMessage());
         }
     }
 
@@ -222,7 +232,7 @@ class TourOperatorForm extends Component
         $counter = 1;
 
         while (TourOperator::where('slug', $slug)->where('id', '!=', $this->tourOperatorId)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
+            $slug = $baseSlug.'-'.$counter;
             $counter++;
         }
 

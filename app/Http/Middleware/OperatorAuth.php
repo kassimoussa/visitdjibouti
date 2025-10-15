@@ -14,21 +14,23 @@ class OperatorAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::guard('operator')->check()) {
+        if (! Auth::guard('operator')->check()) {
             return redirect()->route('operator.login');
         }
 
         $user = Auth::guard('operator')->user();
 
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             Auth::guard('operator')->logout();
+
             return redirect()->route('operator.login')
                 ->withErrors(['email' => 'Votre compte a été désactivé.']);
         }
 
         // Verify tour operator is still active
-        if (!$user->tourOperator || !$user->tourOperator->is_active) {
+        if (! $user->tourOperator || ! $user->tourOperator->is_active) {
             Auth::guard('operator')->logout();
+
             return redirect()->route('operator.login')
                 ->withErrors(['email' => 'Votre opérateur touristique a été désactivé.']);
         }

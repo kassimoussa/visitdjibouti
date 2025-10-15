@@ -33,7 +33,7 @@ class ExternalLinkController extends Controller
         ]);
 
         return redirect()->route('external-links.index')
-                        ->with('success', 'Lien externe créé avec succès.');
+            ->with('success', 'Lien externe créé avec succès.');
     }
 
     public function show(ExternalLink $externalLink)
@@ -61,7 +61,7 @@ class ExternalLinkController extends Controller
         ]);
 
         return redirect()->route('external-links.index')
-                        ->with('success', 'Lien externe modifié avec succès.');
+            ->with('success', 'Lien externe modifié avec succès.');
     }
 
     public function destroy(ExternalLink $externalLink)
@@ -69,6 +69,6 @@ class ExternalLinkController extends Controller
         $externalLink->delete();
 
         return redirect()->route('external-links.index')
-                        ->with('success', 'Lien externe supprimé avec succès.');
+            ->with('success', 'Lien externe supprimé avec succès.');
     }
 }

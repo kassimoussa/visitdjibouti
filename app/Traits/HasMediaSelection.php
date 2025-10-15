@@ -8,7 +8,9 @@ use Livewire\Attributes\On;
 trait HasMediaSelection
 {
     public $showMediaSelector = false;
+
     public $mediaSelectorMode = 'single';
+
     public $mediaSelectorTarget = null;
 
     /**
@@ -46,7 +48,7 @@ trait HasMediaSelection
     protected function handleFeaturedImageSelection($selectedIds)
     {
         if (property_exists($this, 'featuredImageId')) {
-            $this->featuredImageId = !empty($selectedIds) ? $selectedIds[0] : null;
+            $this->featuredImageId = ! empty($selectedIds) ? $selectedIds[0] : null;
         }
     }
 
@@ -91,7 +93,8 @@ trait HasMediaSelection
             $size /= 1024;
             $unit++;
         }
-        return round($size, 1) . ' ' . $units[$unit];
+
+        return round($size, 1).' '.$units[$unit];
     }
 
     /**
@@ -99,7 +102,10 @@ trait HasMediaSelection
      */
     public function getThumbnailUrl($media)
     {
-        if (!$media) return null;
+        if (! $media) {
+            return null;
+        }
+
         return asset($media->thumbnail_path ?? $media->path);
     }
 
@@ -108,7 +114,10 @@ trait HasMediaSelection
      */
     public function getMediaUrl($media)
     {
-        if (!$media) return null;
+        if (! $media) {
+            return null;
+        }
+
         return asset($media->path);
     }
 }

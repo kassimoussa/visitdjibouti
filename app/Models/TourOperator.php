@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class TourOperator extends Model
@@ -39,9 +39,9 @@ class TourOperator extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($tourOperator) {
-            if (!$tourOperator->slug) {
+            if (! $tourOperator->slug) {
                 $tourOperator->slug = Str::random(10);
             }
         });
@@ -69,9 +69,9 @@ class TourOperator extends Model
     public function media(): BelongsToMany
     {
         return $this->belongsToMany(Media::class, 'tour_operator_media')
-                    ->withPivot(['order'])
-                    ->withTimestamps()
-                    ->orderByPivot('order');
+            ->withPivot(['order'])
+            ->withTimestamps()
+            ->orderByPivot('order');
     }
 
     /**
@@ -80,13 +80,13 @@ class TourOperator extends Model
     public function translation($locale = null)
     {
         $locale = $locale ?: app()->getLocale();
-        
+
         return $this->translations()
-                    ->where('locale', $locale)
-                    ->first() 
+            ->where('locale', $locale)
+            ->first()
                 ?? $this->translations()
-                      ->where('locale', config('app.fallback_locale', 'fr'))
-                      ->first();
+                    ->where('locale', config('app.fallback_locale', 'fr'))
+                    ->first();
     }
 
     /**
@@ -95,19 +95,19 @@ class TourOperator extends Model
     public function getTranslation(string $locale)
     {
         $translation = $this->translations->firstWhere('locale', $locale);
-        
-        if (!$translation) {
+
+        if (! $translation) {
             $translation = $this->translations->firstWhere('locale', config('app.fallback_locale', 'fr'));
         }
-        
-        if (!$translation) {
+
+        if (! $translation) {
             return new TourOperatorTranslation([
                 'name' => '',
                 'description' => '',
                 'address_translated' => '',
             ]);
         }
-        
+
         return $translation;
     }
 
@@ -118,7 +118,7 @@ class TourOperator extends Model
     {
         return $this->translation() ? $this->translation()->name : '';
     }
-    
+
     public function getDescriptionAttribute()
     {
         return $this->translation() ? $this->translation()->description : '';
@@ -133,8 +133,9 @@ class TourOperator extends Model
         if ($translation && $translation->name) {
             return $translation->name;
         }
-        
+
         $fallback = $this->translations->firstWhere('locale', 'fr');
+
         return $fallback ? $fallback->name : '';
     }
 
@@ -147,8 +148,9 @@ class TourOperator extends Model
         if ($translation && $translation->description) {
             return $translation->description;
         }
-        
+
         $fallback = $this->translations->firstWhere('locale', 'fr');
+
         return $fallback ? $fallback->description : '';
     }
 
@@ -167,10 +169,10 @@ class TourOperator extends Model
 
     public function scopeNearby($query, $latitude, $longitude, $radius = 50)
     {
-        return $query->selectRaw("
+        return $query->selectRaw('
                 *,
                 (6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance
-            ", [$latitude, $longitude, $latitude])
+            ', [$latitude, $longitude, $latitude])
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->having('distance', '<=', $radius)
@@ -199,6 +201,7 @@ class TourOperator extends Model
     public function getFirstPhoneAttribute()
     {
         $phones = $this->phones_array;
+
         return count($phones) > 0 ? $phones[0] : null;
     }
 
@@ -208,6 +211,7 @@ class TourOperator extends Model
     public function getFirstEmailAttribute()
     {
         $emails = $this->emails_array;
+
         return count($emails) > 0 ? $emails[0] : null;
     }
 
@@ -216,7 +220,7 @@ class TourOperator extends Model
      */
     public function getWebsiteUrlAttribute()
     {
-        if (!$this->website) {
+        if (! $this->website) {
             return null;
         }
 
@@ -224,7 +228,7 @@ class TourOperator extends Model
             return $this->website;
         }
 
-        return 'https://' . $this->website;
+        return 'https://'.$this->website;
     }
 
     /**
@@ -241,10 +245,10 @@ class TourOperator extends Model
     public function pois(): BelongsToMany
     {
         return $this->belongsToMany(Poi::class, 'poi_tour_operator')
-                    ->withPivot(['service_type', 'is_primary', 'is_active', 'notes'])
-                    ->withTimestamps()
-                    ->where('poi_tour_operator.is_active', true)
-                    ->orderByPivot('is_primary', 'desc');
+            ->withPivot(['service_type', 'is_primary', 'is_active', 'notes'])
+            ->withTimestamps()
+            ->where('poi_tour_operator.is_active', true)
+            ->orderByPivot('is_primary', 'desc');
     }
 
     /**
@@ -253,7 +257,7 @@ class TourOperator extends Model
     public function activePois(): BelongsToMany
     {
         return $this->pois()
-                    ->where('pois.status', 'published');
+            ->where('pois.status', 'published');
     }
 
     /**
@@ -262,7 +266,7 @@ class TourOperator extends Model
     public function primaryPois(): BelongsToMany
     {
         return $this->pois()
-                    ->wherePivot('is_primary', true);
+            ->wherePivot('is_primary', true);
     }
 
     /**
@@ -343,10 +347,10 @@ class TourOperator extends Model
                         $subQ->where('r.reservable_type', Event::class)
                             ->where('e.tour_operator_id', $this->id);
                     })
-                    ->orWhere(function ($subQ) {
-                        $subQ->where('r.reservable_type', TourSchedule::class)
-                            ->where('t.tour_operator_id', $this->id);
-                    });
+                        ->orWhere(function ($subQ) {
+                            $subQ->where('r.reservable_type', TourSchedule::class)
+                                ->where('t.tour_operator_id', $this->id);
+                        });
                 })
                 ->whereNull('r.deleted_at');
         });

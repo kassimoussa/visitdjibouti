@@ -8,8 +8,9 @@ use Livewire\Component;
 class PoiDetails extends Component
 {
     public $poi;
+
     public $currentLocale;
-    
+
     /**
      * Montage du composant
      */
@@ -18,11 +19,11 @@ class PoiDetails extends Component
         // Charger le POI avec ses relations
         $this->poi = Poi::with(['categories', 'media', 'creator', 'featuredImage', 'translations'])
             ->findOrFail($poiId);
-            
+
         // Initialiser la langue courante avec la langue de l'application
         $this->currentLocale = app()->getLocale();
     }
-    
+
     /**
      * Changer la langue d'affichage
      */
@@ -32,7 +33,7 @@ class PoiDetails extends Component
             $this->currentLocale = $locale;
         }
         // Émettre un événement pour signaler le changement de langue
-            $this->dispatch('poi-locale-updated');
+        $this->dispatch('poi-locale-updated');
     }
 
     /**
@@ -50,7 +51,7 @@ class PoiDetails extends Component
             'emergency' => 'fas fa-ambulance',
             'transport' => 'fas fa-bus',
             'shop' => 'fas fa-shopping-bag',
-            'other' => 'fas fa-info-circle'
+            'other' => 'fas fa-info-circle',
         ];
 
         return $icons[$type] ?? 'fas fa-phone';
@@ -71,7 +72,7 @@ class PoiDetails extends Component
             'emergency' => '#dc3545',
             'transport' => '#ffc107',
             'shop' => '#e91e63',
-            'other' => '#6c757d'
+            'other' => '#6c757d',
         ];
 
         return $colors[$type] ?? '#6c757d';
@@ -92,12 +93,12 @@ class PoiDetails extends Component
             'emergency' => 'Urgence',
             'transport' => 'Transport',
             'shop' => 'Boutique/Commerce',
-            'other' => 'Autre'
+            'other' => 'Autre',
         ];
 
         return $types[$type] ?? 'Type inconnu';
     }
-    
+
     /**
      * Rendu du composant
      */

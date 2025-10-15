@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Operator;
 use App\Http\Controllers\Controller;
 use App\Models\Tour;
 use App\Models\TourSchedule;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 
 class TourController extends Controller
 {
@@ -35,7 +35,7 @@ class TourController extends Controller
             $search = $request->search;
             $query->whereHas('translations', function ($q) use ($search) {
                 $q->where('title', 'LIKE', "%{$search}%")
-                  ->orWhere('description', 'LIKE', "%{$search}%");
+                    ->orWhere('description', 'LIKE', "%{$search}%");
             });
         }
 
@@ -47,7 +47,7 @@ class TourController extends Controller
             $locale = session('locale', 'fr');
             $query->leftJoin('tour_translations', function ($join) use ($locale) {
                 $join->on('tours.id', '=', 'tour_translations.tour_id')
-                     ->where('tour_translations.locale', '=', $locale);
+                    ->where('tour_translations.locale', '=', $locale);
             })->orderBy('tour_translations.title', $sortOrder);
         } else {
             $query->orderBy($sortBy, $sortOrder);
@@ -86,7 +86,7 @@ class TourController extends Controller
             'media',
             'tourOperator.translations',
             'target.translations',
-            'schedules'
+            'schedules',
         ]);
 
         // Get upcoming schedules
@@ -269,7 +269,7 @@ class TourController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i|after:start_time',
-            'available_spots' => 'required|integer|min:' . $schedule->booked_spots,
+            'available_spots' => 'required|integer|min:'.$schedule->booked_spots,
             'status' => 'required|in:available,full,cancelled,completed',
             'guide_name' => 'nullable|string|max:255',
             'guide_contact' => 'nullable|string|max:255',
@@ -311,7 +311,7 @@ class TourController extends Controller
         $schedule->pendingReservations()->update([
             'status' => 'cancelled',
             'cancellation_reason' => 'Calendrier supprimé par l\'opérateur',
-            'cancelled_at' => now()
+            'cancelled_at' => now(),
         ]);
 
         $schedule->delete();

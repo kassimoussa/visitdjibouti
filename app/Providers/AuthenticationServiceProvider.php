@@ -29,7 +29,7 @@ class AuthenticationServiceProvider extends ServiceProvider
                     'email' => $notifiable->getEmailForPasswordReset(),
                 ]));
             }
-            
+
             return url(route('password.reset', [
                 'token' => $token,
                 'email' => $notifiable->getEmailForPasswordReset(),

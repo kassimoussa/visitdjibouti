@@ -3,32 +3,38 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Media;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class MediaSelectorModal extends Component
 {
     // Configuration du modal
     public $isOpen = false;
+
     public $selectionMode = 'single'; // 'single', 'multiple'
+
     public $selectedImages = [];
+
     public $preselectedImages = [];
 
     // Filtres et recherche
     public $search = '';
-    public $typeFilter = 'all';
-    public $sortBy = 'created_at';
-    public $sortDirection = 'desc';
 
+    public $typeFilter = 'all';
+
+    public $sortBy = 'created_at';
+
+    public $sortDirection = 'desc';
 
     // Lazy Loading
     public $loadedItems = 24; // Nombre initial d'items à charger
+
     public $itemsPerLoad = 24; // Nombre d'items à charger à chaque scroll
 
     // Preview
     public $previewImage = null;
-    public $showPreview = false;
 
+    public $showPreview = false;
 
     protected $listeners = ['openMediaSelector', 'closeMediaSelector'];
 
@@ -144,31 +150,30 @@ class MediaSelectorModal extends Component
         $this->previewImage = null;
     }
 
-
     /**
      * Construire la requête des médias
      */
     private function getMediaQuery()
     {
         $query = Media::query()
-            ->with(['translations' => function($q) {
+            ->with(['translations' => function ($q) {
                 $q->where('locale', app()->getLocale())
-                  ->orWhere('locale', config('app.fallback_locale', 'fr'));
+                    ->orWhere('locale', config('app.fallback_locale', 'fr'));
             }]);
 
         // Filtrer par type
         if ($this->typeFilter !== 'all') {
             // Support des deux formats (pluriel et singulier)
             if ($this->typeFilter === 'images') {
-                $query->where(function($q) {
+                $query->where(function ($q) {
                     $q->where('type', 'images')->orWhere('type', 'image');
                 });
             } elseif ($this->typeFilter === 'documents') {
-                $query->where(function($q) {
+                $query->where(function ($q) {
                     $q->where('type', 'documents')->orWhere('type', 'document');
                 });
             } elseif ($this->typeFilter === 'videos') {
-                $query->where(function($q) {
+                $query->where(function ($q) {
                     $q->where('type', 'videos')->orWhere('type', 'video');
                 });
             } else {
@@ -177,15 +182,15 @@ class MediaSelectorModal extends Component
         }
 
         // Recherche
-        if (!empty($this->search)) {
-            $query->where(function($q) {
-                $q->where('original_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('filename', 'like', '%' . $this->search . '%')
-                  ->orWhereHas('translations', function($tq) {
-                      $tq->where('title', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%')
-                        ->orWhere('alt_text', 'like', '%' . $this->search . '%');
-                  });
+        if (! empty($this->search)) {
+            $query->where(function ($q) {
+                $q->where('original_name', 'like', '%'.$this->search.'%')
+                    ->orWhere('filename', 'like', '%'.$this->search.'%')
+                    ->orWhereHas('translations', function ($tq) {
+                        $tq->where('title', 'like', '%'.$this->search.'%')
+                            ->orWhere('description', 'like', '%'.$this->search.'%')
+                            ->orWhere('alt_text', 'like', '%'.$this->search.'%');
+                    });
             });
         }
 
@@ -215,7 +220,8 @@ class MediaSelectorModal extends Component
             $bytes /= 1024;
             $unit++;
         }
-        return round($bytes, 1) . ' ' . $units[$unit];
+
+        return round($bytes, 1).' '.$units[$unit];
     }
 
     /**

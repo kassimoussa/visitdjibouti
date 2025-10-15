@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AppUser;
-use App\Models\Reservation;
-use App\Models\UserFavorite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -29,7 +27,7 @@ class AppUserController extends Controller
             'reservations.reservable.translations',
             'favorites',
             'favoritePois.translations',
-            'favoriteEvents.translations'
+            'favoriteEvents.translations',
         ])->findOrFail($id);
 
         return view('admin.app-users.show', compact('appUser'));
@@ -41,6 +39,7 @@ class AppUserController extends Controller
     public function edit($id)
     {
         $appUser = AppUser::findOrFail($id);
+
         return view('admin.app-users.edit', compact('appUser'));
     }
 
@@ -53,7 +52,7 @@ class AppUserController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:app_users,email,' . $appUser->id,
+            'email' => 'required|email|unique:app_users,email,'.$appUser->id,
             'phone' => 'nullable|string|max:20',
             'date_of_birth' => 'nullable|date|before:today',
             'gender' => 'nullable|in:male,female,other',
@@ -67,7 +66,7 @@ class AppUserController extends Controller
         ]);
 
         // Only update password if provided
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
@@ -76,7 +75,7 @@ class AppUserController extends Controller
         $appUser->update($validated);
 
         return redirect()->route('app-users.show', $appUser->id)
-                        ->with('success', 'Utilisateur mis à jour avec succès.');
+            ->with('success', 'Utilisateur mis à jour avec succès.');
     }
 
     /**
@@ -85,12 +84,12 @@ class AppUserController extends Controller
     public function destroy($id)
     {
         $appUser = AppUser::findOrFail($id);
-        
+
         // Soft delete to preserve data integrity
         $appUser->delete();
 
         return redirect()->route('app-users.index')
-                        ->with('success', 'Utilisateur supprimé avec succès.');
+            ->with('success', 'Utilisateur supprimé avec succès.');
     }
 
     /**
@@ -102,7 +101,7 @@ class AppUserController extends Controller
         $appUser->restore();
 
         return redirect()->route('app-users.show', $appUser->id)
-                        ->with('success', 'Utilisateur restauré avec succès.');
+            ->with('success', 'Utilisateur restauré avec succès.');
     }
 
     /**
@@ -111,16 +110,16 @@ class AppUserController extends Controller
     public function forceDelete($id)
     {
         $appUser = AppUser::onlyTrashed()->findOrFail($id);
-        
+
         // Delete associated avatar if it's a local file
-        if ($appUser->avatar && !str_starts_with($appUser->avatar, 'http')) {
+        if ($appUser->avatar && ! str_starts_with($appUser->avatar, 'http')) {
             Storage::disk('public')->delete($appUser->avatar);
         }
-        
+
         $appUser->forceDelete();
 
         return redirect()->route('app-users.index')
-                        ->with('success', 'Utilisateur définitivement supprimé.');
+            ->with('success', 'Utilisateur définitivement supprimé.');
     }
 
     /**
@@ -129,10 +128,10 @@ class AppUserController extends Controller
     public function toggleStatus($id)
     {
         $appUser = AppUser::findOrFail($id);
-        $appUser->update(['is_active' => !$appUser->is_active]);
+        $appUser->update(['is_active' => ! $appUser->is_active]);
 
         $status = $appUser->is_active ? 'activé' : 'désactivé';
-        
+
         return back()->with('success', "Utilisateur {$status} avec succès.");
     }
 
@@ -142,10 +141,10 @@ class AppUserController extends Controller
     public function sendPasswordReset($id)
     {
         $appUser = AppUser::findOrFail($id);
-        
+
         // TODO: Implement password reset email functionality
         // This would typically send an email with a reset link
-        
+
         return back()->with('success', 'Email de réinitialisation envoyé.');
     }
 
@@ -168,23 +167,23 @@ class AppUserController extends Controller
 
         // Users by provider
         $providers = AppUser::selectRaw('COALESCE(provider, "email") as provider, COUNT(*) as count')
-                           ->groupBy('provider')
-                           ->pluck('count', 'provider')
-                           ->toArray();
+            ->groupBy('provider')
+            ->pluck('count', 'provider')
+            ->toArray();
 
         // Users by preferred language
         $languages = AppUser::selectRaw('COALESCE(preferred_language, "fr") as language, COUNT(*) as count')
-                           ->groupBy('preferred_language')
-                           ->pluck('count', 'language')
-                           ->toArray();
+            ->groupBy('preferred_language')
+            ->pluck('count', 'language')
+            ->toArray();
 
         // Registration trends (last 12 months)
         $registrationTrends = AppUser::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, COUNT(*) as count')
-                                    ->where('created_at', '>=', now()->subMonths(12))
-                                    ->groupBy('month')
-                                    ->orderBy('month')
-                                    ->pluck('count', 'month')
-                                    ->toArray();
+            ->where('created_at', '>=', now()->subMonths(12))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('count', 'month')
+            ->toArray();
 
         return response()->json([
             'general_stats' => $stats,
@@ -211,7 +210,7 @@ class AppUserController extends Controller
         $validated = $request->validate([
             'action' => 'required|in:activate,deactivate,delete',
             'user_ids' => 'required|array|min:1',
-            'user_ids.*' => 'exists:app_users,id'
+            'user_ids.*' => 'exists:app_users,id',
         ]);
 
         $userIds = $validated['user_ids'];
@@ -220,17 +219,17 @@ class AppUserController extends Controller
         switch ($action) {
             case 'activate':
                 AppUser::whereIn('id', $userIds)->update(['is_active' => true]);
-                $message = count($userIds) . ' utilisateur(s) activé(s).';
+                $message = count($userIds).' utilisateur(s) activé(s).';
                 break;
-                
+
             case 'deactivate':
                 AppUser::whereIn('id', $userIds)->update(['is_active' => false]);
-                $message = count($userIds) . ' utilisateur(s) désactivé(s).';
+                $message = count($userIds).' utilisateur(s) désactivé(s).';
                 break;
-                
+
             case 'delete':
                 AppUser::whereIn('id', $userIds)->delete();
-                $message = count($userIds) . ' utilisateur(s) supprimé(s).';
+                $message = count($userIds).' utilisateur(s) supprimé(s).';
                 break;
         }
 
@@ -250,25 +249,25 @@ class AppUserController extends Controller
 
         // Get top users with most reservations
         $topUsersByReservations = AppUser::withCount('reservations')
-                                        ->orderByDesc('reservations_count')
-                                        ->limit(10)
-                                        ->get();
+            ->orderByDesc('reservations_count')
+            ->limit(10)
+            ->get();
 
         // Get top users with most favorites
         $topUsersByFavorites = AppUser::withCount('favorites')
-                                     ->orderByDesc('favorites_count')
-                                     ->limit(10)
-                                     ->get();
+            ->orderByDesc('favorites_count')
+            ->limit(10)
+            ->get();
 
         // Recent users
         $recentUsers = AppUser::with(['reservations', 'favorites'])
-                             ->latest()
-                             ->limit(10)
-                             ->get();
+            ->latest()
+            ->limit(10)
+            ->get();
 
         return view('admin.app-users.dashboard', compact(
             'totalUsers',
-            'activeUsers', 
+            'activeUsers',
             'inactiveUsers',
             'recentSignups',
             'topUsersByReservations',

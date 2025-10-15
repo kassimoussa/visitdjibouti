@@ -33,22 +33,22 @@ class OrganizationInfo extends Model
     {
         return $this->hasMany(OrganizationInfoTranslation::class, 'organization_info_id');
     }
-    
+
     /**
      * Obtenir la traduction dans la langue spécifiée.
      */
     public function translation($locale = null)
     {
         $locale = $locale ?: app()->getLocale();
-        
+
         return $this->translations()
-                    ->where('locale', $locale)
-                    ->first() 
+            ->where('locale', $locale)
+            ->first()
                 ?? $this->translations()
-                      ->where('locale', config('app.fallback_locale'))
-                      ->first();
+                    ->where('locale', config('app.fallback_locale'))
+                    ->first();
     }
-    
+
     /**
      * Accesseurs pour les attributs traduits.
      */
@@ -56,7 +56,7 @@ class OrganizationInfo extends Model
     {
         return $this->translation() ? $this->translation()->name : '';
     }
-    
+
     public function getDescriptionAttribute()
     {
         return $this->translation() ? $this->translation()->description : '';
@@ -68,6 +68,7 @@ class OrganizationInfo extends Model
     public function getTranslatedName($locale = null)
     {
         $translation = $this->translation($locale);
+
         return $translation ? $translation->name : '';
     }
 
@@ -77,18 +78,19 @@ class OrganizationInfo extends Model
     public function getTranslatedDescription($locale = null)
     {
         $translation = $this->translation($locale);
+
         return $translation ? $translation->description : '';
     }
-    
+
     public function getOpeningHoursTranslatedAttribute()
     {
         $translation = $this->translation();
-        
+
         // Si on a une traduction des horaires, on l'utilise, sinon on prend les horaires par défaut
         if ($translation && $translation->opening_hours_translated) {
             return $translation->opening_hours_translated;
         }
-        
+
         return $this->opening_hours;
     }
 
@@ -98,12 +100,12 @@ class OrganizationInfo extends Model
     public function getTranslatedOpeningHours($locale = null)
     {
         $translation = $this->translation($locale);
-        
+
         // Si on a une traduction des horaires pour cette locale, on l'utilise
         if ($translation && $translation->opening_hours_translated) {
             return $translation->opening_hours_translated;
         }
-        
+
         // Sinon on retourne les horaires par défaut
         return $this->opening_hours;
     }

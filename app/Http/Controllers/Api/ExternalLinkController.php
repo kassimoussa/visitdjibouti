@@ -16,10 +16,10 @@ class ExternalLinkController extends Controller
     {
         try {
             $locale = $request->header('Accept-Language', config('app.fallback_locale', 'fr'));
-            
+
             $links = Link::with(['translations', 'organizationInfo'])
-                         ->orderBy('order')
-                         ->get();
+                ->orderBy('order')
+                ->get();
 
             $transformedLinks = $links->map(function ($link) use ($locale) {
                 return $this->transformLink($link, $locale);
@@ -29,16 +29,16 @@ class ExternalLinkController extends Controller
                 'success' => true,
                 'data' => [
                     'links' => $transformedLinks,
-                    'total' => $links->count()
+                    'total' => $links->count(),
                 ],
-                'locale' => $locale
+                'locale' => $locale,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch external links',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -50,29 +50,29 @@ class ExternalLinkController extends Controller
     {
         try {
             $locale = $request->header('Accept-Language', config('app.fallback_locale', 'fr'));
-            
+
             $link = Link::with(['translations', 'organizationInfo'])->find($id);
 
-            if (!$link) {
+            if (! $link) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'External link not found'
+                    'message' => 'External link not found',
                 ], 404);
             }
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'link' => $this->transformLink($link, $locale)
+                    'link' => $this->transformLink($link, $locale),
                 ],
-                'locale' => $locale
+                'locale' => $locale,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch external link',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -83,7 +83,7 @@ class ExternalLinkController extends Controller
     private function transformLink(Link $link, string $locale = 'fr'): array
     {
         $translation = $link->translation($locale);
-        
+
         return [
             'id' => $link->id,
             'name' => $translation ? $translation->name : '',
@@ -96,7 +96,7 @@ class ExternalLinkController extends Controller
             'domain' => $this->extractDomain($link->url),
             'organization_info_id' => $link->organization_info_id,
             'created_at' => $link->created_at->toISOString(),
-            'updated_at' => $link->updated_at->toISOString()
+            'updated_at' => $link->updated_at->toISOString(),
         ];
     }
 
@@ -107,7 +107,7 @@ class ExternalLinkController extends Controller
     {
         $currentDomain = request()->getHost();
         $urlDomain = parse_url($url, PHP_URL_HOST);
-        
+
         return $urlDomain && $urlDomain !== $currentDomain;
     }
 
@@ -117,8 +117,8 @@ class ExternalLinkController extends Controller
     private function extractDomain(string $url): ?string
     {
         $domain = parse_url($url, PHP_URL_HOST);
-        
-        if (!$domain) {
+
+        if (! $domain) {
             return null;
         }
 

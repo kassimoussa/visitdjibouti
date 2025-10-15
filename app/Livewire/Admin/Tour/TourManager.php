@@ -2,72 +2,110 @@
 
 namespace App\Livewire\Admin\Tour;
 
-use Livewire\Component;
+use App\Models\Event;
+use App\Models\Poi;
 use App\Models\Tour;
 use App\Models\TourOperator;
 use App\Models\TourSchedule;
-use App\Models\Poi;
-use App\Models\Event;
-use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class TourManager extends Component
 {
     use WithPagination;
 
     public $search = '';
+
     public $statusFilter = '';
+
     public $operatorFilter = '';
+
     public $typeFilter = '';
+
     public $difficultyFilter = '';
 
     public $showCreateModal = false;
+
     public $showEditModal = false;
+
     public $showScheduleModal = false;
+
     public $editingTour = null;
+
     public $selectedTour = null;
 
     // Form fields for tour creation/editing
     public $tour_operator_id = '';
+
     public $type = 'poi';
+
     public $target_id = '';
+
     public $target_type = '';
+
     public $duration_hours = '';
+
     public $duration_days = '';
+
     public $max_participants = '';
+
     public $min_participants = 1;
+
     public $price = 0;
+
     public $currency = 'DJF';
+
     public $difficulty_level = 'easy';
+
     public $includes = [];
+
     public $requirements = [];
+
     public $meeting_point_latitude = '';
+
     public $meeting_point_longitude = '';
+
     public $meeting_point_address = '';
+
     public $status = 'active';
+
     public $is_featured = false;
+
     public $is_recurring = false;
+
     public $weather_dependent = false;
+
     public $age_restriction_min = '';
+
     public $age_restriction_max = '';
+
     public $cancellation_policy = '';
 
     // Translations
     public $translations = [
         'fr' => ['title' => '', 'description' => '', 'short_description' => '', 'itinerary' => '', 'meeting_point_description' => ''],
         'en' => ['title' => '', 'description' => '', 'short_description' => '', 'itinerary' => '', 'meeting_point_description' => ''],
-        'ar' => ['title' => '', 'description' => '', 'short_description' => '', 'itinerary' => '', 'meeting_point_description' => '']
+        'ar' => ['title' => '', 'description' => '', 'short_description' => '', 'itinerary' => '', 'meeting_point_description' => ''],
     ];
 
     // Schedule form fields
     public $schedule_start_date = '';
+
     public $schedule_end_date = '';
+
     public $schedule_start_time = '';
+
     public $schedule_end_time = '';
+
     public $schedule_available_spots = '';
+
     public $schedule_guide_name = '';
+
     public $schedule_guide_contact = '';
+
     public $schedule_guide_languages = [];
+
     public $schedule_special_notes = '';
 
     protected $listeners = ['tourDeleted' => '$refresh'];
@@ -201,7 +239,7 @@ class TourManager extends Component
 
             // Create translations
             foreach ($this->translations as $locale => $translation) {
-                if (!empty($translation['title'])) {
+                if (! empty($translation['title'])) {
                     $tour->translations()->create([
                         'locale' => $locale,
                         'title' => $translation['title'],
@@ -220,7 +258,7 @@ class TourManager extends Component
 
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Erreur lors de la création du tour: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la création du tour: '.$e->getMessage());
         }
     }
 
@@ -265,7 +303,7 @@ class TourManager extends Component
 
             // Update translations
             foreach ($this->translations as $locale => $translation) {
-                if (!empty($translation['title'])) {
+                if (! empty($translation['title'])) {
                     $this->editingTour->translations()->updateOrCreate(
                         ['locale' => $locale],
                         [
@@ -286,7 +324,7 @@ class TourManager extends Component
 
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Erreur lors de la mise à jour du tour: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la mise à jour du tour: '.$e->getMessage());
         }
     }
 
@@ -321,7 +359,7 @@ class TourManager extends Component
             $this->closeModals();
 
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors de la création du créneau: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la création du créneau: '.$e->getMessage());
         }
     }
 
@@ -332,7 +370,7 @@ class TourManager extends Component
             session()->flash('success', 'Tour supprimé avec succès');
             $this->dispatch('tourDeleted');
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors de la suppression du tour: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la suppression du tour: '.$e->getMessage());
         }
     }
 
@@ -365,7 +403,7 @@ class TourManager extends Component
         $this->translations = [
             'fr' => ['title' => '', 'description' => '', 'short_description' => '', 'itinerary' => '', 'meeting_point_description' => ''],
             'en' => ['title' => '', 'description' => '', 'short_description' => '', 'itinerary' => '', 'meeting_point_description' => ''],
-            'ar' => ['title' => '', 'description' => '', 'short_description' => '', 'itinerary' => '', 'meeting_point_description' => '']
+            'ar' => ['title' => '', 'description' => '', 'short_description' => '', 'itinerary' => '', 'meeting_point_description' => ''],
         ];
     }
 
@@ -425,25 +463,25 @@ class TourManager extends Component
         $query = Tour::with(['tourOperator.translations', 'target', 'translations', 'schedules']);
 
         // Apply filters
-        if (!empty($this->search)) {
+        if (! empty($this->search)) {
             $query->whereHas('translations', function ($q) {
-                $q->where('title', 'LIKE', '%' . $this->search . '%');
+                $q->where('title', 'LIKE', '%'.$this->search.'%');
             });
         }
 
-        if (!empty($this->statusFilter)) {
+        if (! empty($this->statusFilter)) {
             $query->where('status', $this->statusFilter);
         }
 
-        if (!empty($this->operatorFilter)) {
+        if (! empty($this->operatorFilter)) {
             $query->where('tour_operator_id', $this->operatorFilter);
         }
 
-        if (!empty($this->typeFilter)) {
+        if (! empty($this->typeFilter)) {
             $query->where('type', $this->typeFilter);
         }
 
-        if (!empty($this->difficultyFilter)) {
+        if (! empty($this->difficultyFilter)) {
             $query->where('difficulty_level', $this->difficultyFilter);
         }
 

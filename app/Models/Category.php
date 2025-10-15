@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
@@ -19,7 +19,7 @@ class Category extends Model
         'color',
         'sort_order',
         'level',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [
@@ -40,7 +40,7 @@ class Category extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($category) {
             if (empty($category->slug) && request()->has('translations')) {
                 $defaultLocale = config('app.fallback_locale', 'fr');
@@ -49,7 +49,7 @@ class Category extends Model
                     $category->slug = Str::slug($name);
                 }
             }
-            
+
             // Auto-calcul du niveau hiérarchique
             if ($category->parent_id) {
                 $parent = static::find($category->parent_id);
@@ -57,14 +57,14 @@ class Category extends Model
             } else {
                 $category->level = 0;
             }
-            
+
             // Auto-définition de sort_order si pas défini
-            if (!$category->sort_order) {
+            if (! $category->sort_order) {
                 $maxOrder = static::where('parent_id', $category->parent_id)->max('sort_order') ?? 0;
                 $category->sort_order = $maxOrder + 1;
             }
         });
-        
+
         static::updating(function ($category) {
             // Recalcul du niveau si le parent change
             if ($category->isDirty('parent_id')) {
@@ -74,13 +74,13 @@ class Category extends Model
                 } else {
                     $category->level = 0;
                 }
-                
+
                 // Mettre à jour les niveaux des enfants
                 $category->updateChildrenLevels();
             }
         });
     }
-    
+
     /**
      * Récupérer toutes les traductions.
      */
@@ -88,22 +88,22 @@ class Category extends Model
     {
         return $this->hasMany(CategoryTranslation::class);
     }
-    
+
     /**
      * Obtenir la traduction dans la langue spécifiée.
      */
     public function translation($locale = null)
     {
         $locale = $locale ?: app()->getLocale();
-        
+
         return $this->translations()
-                    ->where('locale', $locale)
-                    ->first() 
+            ->where('locale', $locale)
+            ->first()
                 ?? $this->translations()
-                      ->where('locale', config('app.fallback_locale'))
-                      ->first();
+                    ->where('locale', config('app.fallback_locale'))
+                    ->first();
     }
-    
+
     /**
      * Accesseurs pour les attributs traduits.
      */
@@ -111,12 +111,12 @@ class Category extends Model
     {
         return $this->translation() ? $this->translation()->name : '';
     }
-    
+
     public function getDescriptionAttribute()
     {
         return $this->translation() ? $this->translation()->description : '';
     }
-    
+
     /**
      * Relations hiérarchiques
      */
@@ -124,17 +124,17 @@ class Category extends Model
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
-    
+
     public function children(): HasMany
     {
         return $this->hasMany(Category::class, 'parent_id')->orderBy('sort_order');
     }
-    
+
     public function allChildren(): HasMany
     {
         return $this->hasMany(Category::class, 'parent_id')->with('allChildren')->orderBy('sort_order');
     }
-    
+
     /**
      * Scopes pour la hiérarchie
      */
@@ -142,17 +142,17 @@ class Category extends Model
     {
         return $query->whereNull('parent_id')->orderBy('sort_order');
     }
-    
+
     public function scopeChildrenOf($query, $parentId)
     {
         return $query->where('parent_id', $parentId)->orderBy('sort_order');
     }
-    
+
     public function scopeByLevel($query, $level)
     {
         return $query->where('level', $level)->orderBy('sort_order');
     }
-    
+
     /**
      * Méthodes utilitaires pour la hiérarchie
      */
@@ -160,51 +160,51 @@ class Category extends Model
     {
         return $this->parent_id === null;
     }
-    
+
     public function isChild(): bool
     {
         return $this->parent_id !== null;
     }
-    
+
     public function hasChildren(): bool
     {
         return $this->children()->count() > 0;
     }
-    
+
     public function isDescendantOf(Category $category): bool
     {
         if ($this->parent_id === $category->id) {
             return true;
         }
-        
+
         if ($this->parent) {
             return $this->parent->isDescendantOf($category);
         }
-        
+
         return false;
     }
-    
+
     public function getAncestors()
     {
         $ancestors = collect();
         $current = $this->parent;
-        
+
         while ($current) {
             $ancestors->prepend($current);
             $current = $current->parent;
         }
-        
+
         return $ancestors;
     }
-    
+
     public function getBreadcrumb($separator = ' > ')
     {
         $ancestors = $this->getAncestors();
         $ancestors->push($this);
-        
+
         return $ancestors->pluck('name')->implode($separator);
     }
-    
+
     public function updateChildrenLevels()
     {
         $this->children->each(function ($child) {
@@ -213,7 +213,7 @@ class Category extends Model
             $child->updateChildrenLevels();
         });
     }
-    
+
     public function getTreeAttribute()
     {
         return [
@@ -224,10 +224,10 @@ class Category extends Model
             'sort_order' => $this->sort_order,
             'children' => $this->children->map(function ($child) {
                 return $child->tree;
-            })
+            }),
         ];
     }
-    
+
     /**
      * Relation avec les POIs.
      */
@@ -235,7 +235,7 @@ class Category extends Model
     {
         return $this->belongsToMany(Poi::class, 'category_poi');
     }
-    
+
     /**
      * Relation avec les événements.
      */

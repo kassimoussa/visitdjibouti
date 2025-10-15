@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\TourOperator;
+use Illuminate\Database\Seeder;
 
 class TestTourOperatorSeeder extends Seeder
 {

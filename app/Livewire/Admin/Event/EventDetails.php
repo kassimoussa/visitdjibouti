@@ -2,15 +2,17 @@
 
 namespace App\Livewire\Admin\Event;
 
-use Livewire\Component;
 use App\Models\Event;
+use Livewire\Component;
 
 class EventDetails extends Component
 {
     public $event;
+
     public $currentLocale;
+
     public $activeTab = 'details'; // details, registrations, statistics
-    
+
     /**
      * Montage du composant
      */
@@ -18,21 +20,21 @@ class EventDetails extends Component
     {
         // Charger l'événement avec ses relations
         $this->event = Event::with([
-            'categories', 
-            'media', 
-            'creator', 
-            'featuredImage', 
+            'categories',
+            'media',
+            'creator',
+            'featuredImage',
             'translations',
             'reservations.appUser',
-            'reviews' => function($query) {
+            'reviews' => function ($query) {
                 $query->approved()->latest();
-            }
+            },
         ])->findOrFail($eventId);
-            
+
         // Initialiser la langue courante avec la langue de l'application
         $this->currentLocale = app()->getLocale();
     }
-    
+
     /**
      * Changer la langue d'affichage
      */
@@ -44,7 +46,7 @@ class EventDetails extends Component
         // Émettre un événement pour signaler le changement de langue
         $this->dispatch('event-locale-updated');
     }
-    
+
     /**
      * Changer l'onglet actif
      */
@@ -54,7 +56,7 @@ class EventDetails extends Component
             $this->activeTab = $tab;
         }
     }
-    
+
     /**
      * Obtenir le statut de l'événement avec style
      */
@@ -62,28 +64,28 @@ class EventDetails extends Component
     {
         $now = now();
         $today = $now->toDateString();
-        
+
         if ($this->event->end_date < $today) {
             return [
                 'label' => 'Terminé',
                 'class' => 'bg-secondary',
-                'icon' => 'fas fa-check-circle'
+                'icon' => 'fas fa-check-circle',
             ];
         } elseif ($this->event->start_date <= $today && $this->event->end_date >= $today) {
             return [
                 'label' => 'En cours',
                 'class' => 'bg-success',
-                'icon' => 'fas fa-play-circle'
+                'icon' => 'fas fa-play-circle',
             ];
         } else {
             return [
                 'label' => 'À venir',
                 'class' => 'bg-primary',
-                'icon' => 'fas fa-calendar-alt'
+                'icon' => 'fas fa-calendar-alt',
             ];
         }
     }
-    
+
     /**
      * Obtenir les inscriptions groupées par statut
      */
@@ -95,14 +97,14 @@ class EventDetails extends Component
             'cancelled' => $this->event->reservations()->where('status', 'cancelled')->latest()->get(),
         ];
     }
-    
+
     /**
      * Obtenir les statistiques détaillées
      */
     public function getDetailedStats()
     {
         $reservations = $this->event->reservations;
-        
+
         return [
             'total_registrations' => $reservations->count(),
             'confirmed_registrations' => $reservations->where('status', 'confirmed')->count(),
@@ -113,6 +115,7 @@ class EventDetails extends Component
             'pending_payments' => $reservations->where('payment_status', 'pending')->sum('payment_amount'),
         ];
     }
+
     public function getEventStats()
     {
         $confirmedRegistrations = $this->event->reservations()->confirmed()->count();
@@ -120,10 +123,10 @@ class EventDetails extends Component
         $totalParticipants = $this->event->reservations()
             ->confirmed()
             ->sum('number_of_people');
-        
+
         $approvedReviews = $this->event->reviews()->approved()->count();
         $averageRating = $this->event->reviews()->approved()->avg('rating');
-        
+
         return [
             'confirmed_registrations' => $confirmedRegistrations,
             'pending_registrations' => $pendingRegistrations,
@@ -134,17 +137,19 @@ class EventDetails extends Component
             'is_sold_out' => $this->event->is_sold_out,
         ];
     }
-    
+
     /**
      * Obtenir les heures formatées
      */
     public function getFormattedTime($time)
     {
-        if (!$time) return null;
-        
+        if (! $time) {
+            return null;
+        }
+
         return \Carbon\Carbon::parse($time)->format('H:i');
     }
-    
+
     /**
      * Obtenir les dates formatées
      */
@@ -153,22 +158,22 @@ class EventDetails extends Component
         if ($this->event->start_date->isSameDay($this->event->end_date)) {
             return $this->event->start_date->format('d/m/Y');
         }
-        
-        return $this->event->start_date->format('d/m/Y') . ' - ' . $this->event->end_date->format('d/m/Y');
+
+        return $this->event->start_date->format('d/m/Y').' - '.$this->event->end_date->format('d/m/Y');
     }
-    
+
     /**
      * Obtenir le prix formaté
      */
     public function getFormattedPrice()
     {
-        if (!$this->event->price) {
+        if (! $this->event->price) {
             return 'Gratuit';
         }
-        
-        return number_format($this->event->price, 0, ',', ' ') . ' DJF';
+
+        return number_format($this->event->price, 0, ',', ' ').' DJF';
     }
-    
+
     /**
      * Rendu du composant
      */
@@ -178,7 +183,7 @@ class EventDetails extends Component
         $eventStats = $this->getEventStats();
         $groupedRegistrations = $this->getGroupedRegistrations();
         $detailedStats = $this->getDetailedStats();
-        
+
         return view('livewire.admin.event.event-details', [
             'availableLocales' => ['fr', 'en'],
             'eventStatus' => $eventStatus,
@@ -190,5 +195,5 @@ class EventDetails extends Component
             'startTime' => $this->getFormattedTime($this->event->start_time),
             'endTime' => $this->getFormattedTime($this->event->end_time),
         ]);
-    } 
+    }
 }

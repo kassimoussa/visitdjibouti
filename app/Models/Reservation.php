@@ -39,7 +39,7 @@ class Reservation extends Model
         'cancelled_at',
         'cancellation_reason',
         'reminder_sent_at',
-        'confirmation_sent_at'
+        'confirmation_sent_at',
     ];
 
     /**
@@ -63,7 +63,7 @@ class Reservation extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         // Génération automatique du numéro de confirmation
         static::creating(function ($reservation) {
             if (empty($reservation->confirmation_number)) {
@@ -93,7 +93,7 @@ class Reservation extends Model
      */
     private function generateConfirmationNumber(): string
     {
-        $prefix = match($this->reservable_type) {
+        $prefix = match ($this->reservable_type) {
             Poi::class => 'POI',
             Event::class => 'EVT',
             TourSchedule::class => 'TUR',
@@ -101,7 +101,7 @@ class Reservation extends Model
         };
 
         do {
-            $number = $prefix . '-' . strtoupper(Str::random(8));
+            $number = $prefix.'-'.strtoupper(Str::random(8));
         } while (self::where('confirmation_number', $number)->exists());
 
         return $number;
@@ -123,9 +123,10 @@ class Reservation extends Model
         if ($this->appUser) {
             // Utiliser la méthode getDisplayName() qui gère les utilisateurs anonymes
             $displayName = $this->appUser->getDisplayName();
+
             return $displayName ?? 'Utilisateur';
         }
-        
+
         return $this->guest_name ?? '';
     }
 
@@ -139,9 +140,10 @@ class Reservation extends Model
             if ($this->appUser->is_anonymous) {
                 return $this->appUser->email ?? '';
             }
+
             return $this->appUser->email ?? '';
         }
-        
+
         return $this->guest_email ?? '';
     }
 
@@ -154,7 +156,7 @@ class Reservation extends Model
             // Pour tous les utilisateurs (anonymes et normaux), le phone peut être null
             return $this->appUser->phone ?? '';
         }
-        
+
         return $this->guest_phone ?? '';
     }
 
@@ -246,7 +248,7 @@ class Reservation extends Model
         if ($endDate) {
             return $query->whereBetween('reservation_date', [$startDate, $endDate]);
         }
-        
+
         return $query->where('reservation_date', $startDate);
     }
 
@@ -256,7 +258,7 @@ class Reservation extends Model
     public function scopeUpcoming($query)
     {
         return $query->where('reservation_date', '>=', now()->toDateString())
-                    ->whereNotIn('status', ['cancelled', 'completed']);
+            ->whereNotIn('status', ['cancelled', 'completed']);
     }
 
     /**
@@ -266,11 +268,11 @@ class Reservation extends Model
     {
         $this->status = 'cancelled';
         $this->cancelled_at = now();
-        
+
         if ($reason) {
             $this->cancellation_reason = $reason;
         }
-        
+
         return $this->save();
     }
 
@@ -281,7 +283,7 @@ class Reservation extends Model
     {
         $this->status = 'confirmed';
         $this->confirmation_sent_at = now();
-        
+
         return $this->save();
     }
 
@@ -291,7 +293,7 @@ class Reservation extends Model
     public function markAsCompleted(): bool
     {
         $this->status = 'completed';
-        
+
         return $this->save();
     }
 
@@ -300,7 +302,7 @@ class Reservation extends Model
      */
     public function canBeCancelled(): bool
     {
-        return in_array($this->status, ['pending', 'confirmed']) 
+        return in_array($this->status, ['pending', 'confirmed'])
             && $this->reservation_date > now()->toDateString();
     }
 
@@ -317,7 +319,7 @@ class Reservation extends Model
      */
     public function isActive(): bool
     {
-        return !in_array($this->status, ['cancelled', 'completed']);
+        return ! in_array($this->status, ['cancelled', 'completed']);
     }
 
     /**
@@ -325,8 +327,8 @@ class Reservation extends Model
      */
     public function requiresPayment(): bool
     {
-        return !is_null($this->payment_amount) 
-            && $this->payment_amount > 0 
+        return ! is_null($this->payment_amount)
+            && $this->payment_amount > 0
             && $this->payment_status !== 'not_required';
     }
 

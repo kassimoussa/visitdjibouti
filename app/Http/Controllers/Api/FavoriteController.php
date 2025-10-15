@@ -9,7 +9,6 @@ use App\Models\UserFavorite;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 
 class FavoriteController extends Controller
 {
@@ -19,24 +18,26 @@ class FavoriteController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Utilisateur non authentifié'
+                'message' => 'Utilisateur non authentifié',
             ], 401);
         }
 
         $favorites = UserFavorite::forUser($user->id)
-                                ->with(['favoritable' => function($query) {
-                                    $query->with(['translations', 'featuredImage', 'categories.translations']);
-                                }])
-                                ->orderBy('created_at', 'desc')
-                                ->get();
+            ->with(['favoritable' => function ($query) {
+                $query->with(['translations', 'featuredImage', 'categories.translations']);
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        $formattedFavorites = $favorites->map(function($favorite) use ($request) {
+        $formattedFavorites = $favorites->map(function ($favorite) use ($request) {
             $item = $favorite->favoritable;
-            if (!$item) return null;
+            if (! $item) {
+                return null;
+            }
 
             $locale = $request->header('Accept-Language', 'fr');
             $translation = $item->translation($locale);
@@ -52,14 +53,14 @@ class FavoriteController extends Controller
                     'id' => $item->featuredImage->id,
                     'url' => asset($item->featuredImage->path),
                     'thumbnail_url' => asset($item->featuredImage->thumbnail_path ?? $item->featuredImage->path),
-                    'alt_text' => $item->featuredImage->getTranslation($locale)->alt_text ?? ''
+                    'alt_text' => $item->featuredImage->getTranslation($locale)->alt_text ?? '',
                 ] : null,
-                'categories' => $item->categories->map(function($category) use ($locale) {
+                'categories' => $item->categories->map(function ($category) use ($locale) {
                     return [
                         'id' => $category->id,
                         'name' => $category->translation($locale)?->name ?? '',
                         'color' => $category->color,
-                        'icon' => $category->icon
+                        'icon' => $category->icon,
                     ];
                 }),
                 'favorited_at' => $favorite->created_at->toISOString(),
@@ -89,7 +90,7 @@ class FavoriteController extends Controller
                 'total' => $formattedFavorites->count(),
                 'pois_count' => $favorites->where('favoritable_type', Poi::class)->count(),
                 'events_count' => $favorites->where('favoritable_type', Event::class)->count(),
-            ]
+            ],
         ]);
     }
 
@@ -99,34 +100,34 @@ class FavoriteController extends Controller
     public function pois(Request $request): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Utilisateur non authentifié'
+                'message' => 'Utilisateur non authentifié',
             ], 401);
         }
 
         $locale = $request->header('Accept-Language', 'fr');
-        
-        $favorites = $user->favoritePois()
-                         ->with([
-                             'translations' => function($query) use ($locale) {
-                                 $query->where('locale', $locale)
-                                       ->orWhere('locale', config('app.fallback_locale', 'fr'));
-                             },
-                             'featuredImage',
-                             'categories.translations' => function($query) use ($locale) {
-                                 $query->where('locale', $locale)
-                                       ->orWhere('locale', config('app.fallback_locale', 'fr'));
-                             }
-                         ])
-                         ->published()
-                         ->get();
 
-        $formattedPois = $favorites->map(function($poi) use ($locale, $user) {
+        $favorites = $user->favoritePois()
+            ->with([
+                'translations' => function ($query) use ($locale) {
+                    $query->where('locale', $locale)
+                        ->orWhere('locale', config('app.fallback_locale', 'fr'));
+                },
+                'featuredImage',
+                'categories.translations' => function ($query) use ($locale) {
+                    $query->where('locale', $locale)
+                        ->orWhere('locale', config('app.fallback_locale', 'fr'));
+                },
+            ])
+            ->published()
+            ->get();
+
+        $formattedPois = $favorites->map(function ($poi) use ($locale) {
             $translation = $poi->translation($locale);
-            
+
             return [
                 'id' => $poi->id,
                 'slug' => $poi->slug,
@@ -141,14 +142,14 @@ class FavoriteController extends Controller
                 'featured_image' => $poi->featuredImage ? [
                     'id' => $poi->featuredImage->id,
                     'url' => asset($poi->featuredImage->path),
-                    'thumbnail_url' => asset($poi->featuredImage->thumbnail_path ?? $poi->featuredImage->path)
+                    'thumbnail_url' => asset($poi->featuredImage->thumbnail_path ?? $poi->featuredImage->path),
                 ] : null,
-                'categories' => $poi->categories->map(function($category) use ($locale) {
+                'categories' => $poi->categories->map(function ($category) use ($locale) {
                     return [
                         'id' => $category->id,
                         'name' => $category->translation($locale)?->name ?? '',
                         'color' => $category->color,
-                        'icon' => $category->icon
+                        'icon' => $category->icon,
                     ];
                 }),
                 'favorites_count' => $poi->favorites_count,
@@ -161,8 +162,8 @@ class FavoriteController extends Controller
             'success' => true,
             'data' => [
                 'pois' => $formattedPois,
-                'total' => $formattedPois->count()
-            ]
+                'total' => $formattedPois->count(),
+            ],
         ]);
     }
 
@@ -172,33 +173,33 @@ class FavoriteController extends Controller
     public function addPoi(Request $request, Poi $poi): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Utilisateur non authentifié'
+                'message' => 'Utilisateur non authentifié',
             ], 401);
         }
 
         if ($poi->status !== 'published') {
             return response()->json([
                 'success' => false,
-                'message' => 'Ce point d\'intérêt n\'est pas disponible'
+                'message' => 'Ce point d\'intérêt n\'est pas disponible',
             ], 404);
         }
 
         $result = $user->toggleFavorite($poi);
-        
+
         return response()->json([
             'success' => true,
-            'message' => $result['action'] === 'added' 
-                ? 'Point d\'intérêt ajouté aux favoris' 
+            'message' => $result['action'] === 'added'
+                ? 'Point d\'intérêt ajouté aux favoris'
                 : 'Point d\'intérêt retiré des favoris',
             'data' => [
                 'is_favorited' => $result['is_favorited'],
                 'action' => $result['action'],
-                'favorites_count' => $poi->favorites_count + ($result['action'] === 'added' ? 1 : -1)
-            ]
+                'favorites_count' => $poi->favorites_count + ($result['action'] === 'added' ? 1 : -1),
+            ],
         ]);
     }
 
@@ -208,26 +209,26 @@ class FavoriteController extends Controller
     public function removePoi(Request $request, Poi $poi): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Utilisateur non authentifié'
+                'message' => 'Utilisateur non authentifié',
             ], 401);
         }
 
         $removed = $user->removeFromFavorites($poi);
-        
+
         return response()->json([
             'success' => true,
-            'message' => $removed 
-                ? 'Point d\'intérêt retiré des favoris' 
+            'message' => $removed
+                ? 'Point d\'intérêt retiré des favoris'
                 : 'Ce point d\'intérêt n\'était pas dans vos favoris',
             'data' => [
                 'is_favorited' => false,
                 'removed' => $removed,
-                'favorites_count' => max(0, $poi->favorites_count - ($removed ? 1 : 0))
-            ]
+                'favorites_count' => max(0, $poi->favorites_count - ($removed ? 1 : 0)),
+            ],
         ]);
     }
 
@@ -237,32 +238,32 @@ class FavoriteController extends Controller
     public function addEvent(Request $request, Event $event): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Utilisateur non authentifié'
+                'message' => 'Utilisateur non authentifié',
             ], 401);
         }
 
         if ($event->status !== 'published') {
             return response()->json([
                 'success' => false,
-                'message' => 'Cet événement n\'est pas disponible'
+                'message' => 'Cet événement n\'est pas disponible',
             ], 404);
         }
 
         $result = $user->toggleFavorite($event);
-        
+
         return response()->json([
             'success' => true,
-            'message' => $result['action'] === 'added' 
-                ? 'Événement ajouté aux favoris' 
+            'message' => $result['action'] === 'added'
+                ? 'Événement ajouté aux favoris'
                 : 'Événement retiré des favoris',
             'data' => [
                 'is_favorited' => $result['is_favorited'],
-                'action' => $result['action']
-            ]
+                'action' => $result['action'],
+            ],
         ]);
     }
 
@@ -272,25 +273,25 @@ class FavoriteController extends Controller
     public function removeEvent(Request $request, Event $event): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Utilisateur non authentifié'
+                'message' => 'Utilisateur non authentifié',
             ], 401);
         }
 
         $removed = $user->removeFromFavorites($event);
-        
+
         return response()->json([
             'success' => true,
-            'message' => $removed 
-                ? 'Événement retiré des favoris' 
+            'message' => $removed
+                ? 'Événement retiré des favoris'
                 : 'Cet événement n\'était pas dans vos favoris',
             'data' => [
                 'is_favorited' => false,
-                'removed' => $removed
-            ]
+                'removed' => $removed,
+            ],
         ]);
     }
 
@@ -300,11 +301,11 @@ class FavoriteController extends Controller
     public function stats(Request $request): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Utilisateur non authentifié'
+                'message' => 'Utilisateur non authentifié',
             ], 401);
         }
 
@@ -313,23 +314,23 @@ class FavoriteController extends Controller
             'pois_count' => $user->favorites()->pois()->count(),
             'events_count' => $user->favorites()->events()->count(),
             'recent_favorites' => $user->favorites()
-                                      ->with('favoritable')
-                                      ->orderBy('created_at', 'desc')
-                                      ->limit(5)
-                                      ->get()
-                                      ->map(function($favorite) {
-                                          return [
-                                              'id' => $favorite->favoritable->id,
-                                              'type' => class_basename($favorite->favoritable_type),
-                                              'name' => $favorite->favoritable->name ?? $favorite->favoritable->title ?? '',
-                                              'favorited_at' => $favorite->created_at->toISOString()
-                                          ];
-                                      })
+                ->with('favoritable')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get()
+                ->map(function ($favorite) {
+                    return [
+                        'id' => $favorite->favoritable->id,
+                        'type' => class_basename($favorite->favoritable_type),
+                        'name' => $favorite->favoritable->name ?? $favorite->favoritable->title ?? '',
+                        'favorited_at' => $favorite->created_at->toISOString(),
+                    ];
+                }),
         ];
 
         return response()->json([
             'success' => true,
-            'data' => $stats
+            'data' => $stats,
         ]);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Auth;
 // Routes d'authentification pour tour operators (ouvertes)
 // Redirection vers la page de connexion admin unifiée
 Route::prefix('operator')->name('operator.')->group(function () {
-    Route::get('/login', function() {
+    Route::get('/login', function () {
         return redirect()->route('login');
     })->name('login');
 });
@@ -72,7 +72,7 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
     });
 
     // Route pour l'entreprise
-    Route::get('/tour-operator', function() {
+    Route::get('/tour-operator', function () {
         $user = Auth::guard('operator')->user();
         $tourOperator = $user->tourOperator;
 
@@ -89,10 +89,11 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
     })->name('tour-operator.show');
 
     // Déconnexion
-    Route::post('/logout', function() {
+    Route::post('/logout', function () {
         Auth::guard('operator')->logout();
         request()->session()->invalidate();
         request()->session()->regenerateToken();
+
         return redirect()->route('login');
     })->name('logout');
 });

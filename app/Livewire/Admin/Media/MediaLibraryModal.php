@@ -2,19 +2,21 @@
 
 namespace App\Livewire\Admin\Media;
 
-use Livewire\Component;
-use Livewire\WithFileUploads;
 use App\Models\Media;
 use App\Models\MediaTranslation;
-use Illuminate\Support\Facades\Storage;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class MediaLibraryModal extends Component
 {
     use WithFileUploads;
 
     public bool $show = false;
+
     public $mediaList = [];
+
     public $selectedMediaId = null;
+
     public $upload;
 
     public function mount()
@@ -44,21 +46,21 @@ class MediaLibraryModal extends Component
         $path = $file->store('media', 'public');
 
         $media = Media::create([
-            'filename'       => basename($path),
-            'original_name'  => $file->getClientOriginalName(),
-            'mime_type'      => $file->getClientMimeType(),
-            'size'           => $file->getSize(),
-            'path'           => 'storage/' . $path,
-            'thumbnail_path' => 'storage/' . $path, // You may generate thumbnail here
-            'type'           => str_contains($file->getClientMimeType(), 'video') ? 'video' : 'image',
+            'filename' => basename($path),
+            'original_name' => $file->getClientOriginalName(),
+            'mime_type' => $file->getClientMimeType(),
+            'size' => $file->getSize(),
+            'path' => 'storage/'.$path,
+            'thumbnail_path' => 'storage/'.$path, // You may generate thumbnail here
+            'type' => str_contains($file->getClientMimeType(), 'video') ? 'video' : 'image',
         ]);
 
         // Création traduction FR par défaut
         MediaTranslation::create([
-            'media_id'    => $media->id,
-            'locale'      => config('app.fallback_locale', 'fr'),
-            'title'       => $media->original_name,
-            'alt_text'    => '',
+            'media_id' => $media->id,
+            'locale' => config('app.fallback_locale', 'fr'),
+            'title' => $media->original_name,
+            'alt_text' => '',
             'description' => '',
         ]);
 
@@ -83,4 +85,3 @@ class MediaLibraryModal extends Component
         return view('livewire.admin.media.media-library-modal');
     }
 }
-

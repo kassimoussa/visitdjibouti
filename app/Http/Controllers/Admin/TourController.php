@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Event;
+use App\Models\Poi;
 use App\Models\Tour;
 use App\Models\TourOperator;
-use App\Models\Poi;
-use App\Models\Event;
-use Illuminate\Http\Request;
 
 class TourController extends Controller
 {
@@ -52,9 +51,9 @@ class TourController extends Controller
         $tour = Tour::with([
             'translations',
             'tourOperator.translations',
-            'target.translations' => function($query) {
+            'target.translations' => function ($query) {
                 $query->orderBy('start_date');
-            }
+            },
         ])->findOrFail($id);
 
         return view('admin.tours.show', compact('tour'));

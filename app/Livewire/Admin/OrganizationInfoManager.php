@@ -2,24 +2,32 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\OrganizationInfo;
 use App\Models\Link;
-use Livewire\Component;
+use App\Models\OrganizationInfo;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class OrganizationInfoManager extends Component
 {
     public $showModal = false;
+
     public $modalMode = 'edit';
+
     public $modalTitle = 'Informations de l\'organisation';
+
     public $modalType = 'basic'; // basic, contact, hours, logo, links
+
     public $organizationId = null;
 
     // Propriétés du formulaire principal
     public $logo_id = null;
+
     public $email = '';
+
     public $phone = '';
+
     public $address = '';
+
     public $opening_hours = '';
 
     // Traductions
@@ -43,6 +51,7 @@ class OrganizationInfoManager extends Component
 
     // Liens
     public $links = [];
+
     public $currentLink = [
         'id' => null,
         'url' => '',
@@ -52,11 +61,13 @@ class OrganizationInfoManager extends Component
             'fr' => ['name' => ''],
             'en' => ['name' => ''],
             'ar' => ['name' => ''],
-        ]
+        ],
     ];
+
     public $linkEditMode = 'create'; // create ou edit
 
     public $availableLocales = ['fr', 'en'];
+
     public $currentLocale = 'fr';
 
     public $availablePlatforms = [
@@ -91,8 +102,8 @@ class OrganizationInfoManager extends Component
         // Règles pour le lien en cours d'édition (seulement si on est dans le modal des liens)
         if ($this->modalType === 'links') {
             $rules['currentLink.url'] = 'required|url|max:255';
-            $rules['currentLink.platform'] = 'required|string|in:' . implode(',', array_keys($this->availablePlatforms));
-            
+            $rules['currentLink.platform'] = 'required|string|in:'.implode(',', array_keys($this->availablePlatforms));
+
             foreach ($this->availableLocales as $locale) {
                 $isRequired = ($locale === 'fr') ? 'required' : 'nullable';
                 $rules["currentLink.translations.{$locale}.name"] = "{$isRequired}|string|max:255";
@@ -125,7 +136,7 @@ class OrganizationInfoManager extends Component
     public function loadOrganizationInfo()
     {
         $organization = OrganizationInfo::with(['translations', 'links.translations'])->first();
-        
+
         if ($organization) {
             $this->organizationId = $organization->id;
             $this->logo_id = $organization->logo_id;
@@ -162,7 +173,7 @@ class OrganizationInfoManager extends Component
 
                 foreach ($link->translations as $translation) {
                     $linkTranslations[$translation->locale] = [
-                        'name' => $translation->name ?? ''
+                        'name' => $translation->name ?? '',
                     ];
                 }
 
@@ -171,7 +182,7 @@ class OrganizationInfoManager extends Component
                     'url' => $link->url,
                     'platform' => $link->platform,
                     'order' => $link->order,
-                    'translations' => $linkTranslations
+                    'translations' => $linkTranslations,
                 ];
             }
         } else {
@@ -185,7 +196,7 @@ class OrganizationInfoManager extends Component
         $this->loadOrganizationInfo();
         $this->modalMode = 'edit';
         $this->modalType = $type;
-        
+
         switch ($type) {
             case 'basic':
                 $this->modalTitle = 'Informations de base';
@@ -205,7 +216,7 @@ class OrganizationInfoManager extends Component
             default:
                 $this->modalTitle = 'Informations de l\'organisation';
         }
-        
+
         $this->showModal = true;
     }
 
@@ -232,7 +243,7 @@ class OrganizationInfoManager extends Component
 
             // Sauvegarder les traductions
             foreach ($this->translations as $locale => $translation) {
-                if (!empty($translation['name'])) {
+                if (! empty($translation['name'])) {
                     $organization->translations()->updateOrCreate(
                         ['locale' => $locale],
                         $translation
@@ -241,7 +252,7 @@ class OrganizationInfoManager extends Component
             }
 
             // Sauvegarder un lien spécifique si on est dans le modal des liens
-            if ($this->modalType === 'links' && !empty($this->currentLink['url'])) {
+            if ($this->modalType === 'links' && ! empty($this->currentLink['url'])) {
                 if ($this->linkEditMode === 'create') {
                     // Créer un nouveau lien
                     $link = $organization->links()->create([
@@ -260,7 +271,7 @@ class OrganizationInfoManager extends Component
 
                 // Sauvegarder les traductions du lien
                 foreach ($this->currentLink['translations'] as $locale => $translation) {
-                    if (!empty($translation['name'])) {
+                    if (! empty($translation['name'])) {
                         $link->translations()->updateOrCreate(
                             ['locale' => $locale],
                             ['name' => $translation['name']]
@@ -272,7 +283,7 @@ class OrganizationInfoManager extends Component
             $this->closeModal();
             session()->flash('message', 'Informations de l\'organisation mises à jour avec succès.');
         } catch (\Exception $e) {
-            session()->flash('error', 'Une erreur est survenue: ' . $e->getMessage());
+            session()->flash('error', 'Une erreur est survenue: '.$e->getMessage());
         }
     }
 
@@ -290,7 +301,7 @@ class OrganizationInfoManager extends Component
         // Charger les données du lien
         $organization = OrganizationInfo::with(['links.translations'])->first();
         $link = $organization->links()->with('translations')->find($linkId);
-        
+
         if ($link) {
             $this->currentLink = [
                 'id' => $link->id,
@@ -301,16 +312,16 @@ class OrganizationInfoManager extends Component
                     'fr' => ['name' => ''],
                     'en' => ['name' => ''],
                     'ar' => ['name' => ''],
-                ]
+                ],
             ];
 
             // Charger les traductions existantes
             foreach ($link->translations as $translation) {
                 $this->currentLink['translations'][$translation->locale] = [
-                    'name' => $translation->name ?? ''
+                    'name' => $translation->name ?? '',
                 ];
             }
-            
+
             $this->linkEditMode = 'edit';
             $this->modalType = 'links';
             $this->modalTitle = 'Modifier le lien';
@@ -323,10 +334,10 @@ class OrganizationInfoManager extends Component
         try {
             $link = Link::findOrFail($linkId);
             $link->delete();
-            
+
             session()->flash('message', 'Lien supprimé avec succès.');
         } catch (\Exception $e) {
-            session()->flash('error', 'Erreur lors de la suppression: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la suppression: '.$e->getMessage());
         }
     }
 
@@ -341,7 +352,7 @@ class OrganizationInfoManager extends Component
                 'fr' => ['name' => ''],
                 'en' => ['name' => ''],
                 'ar' => ['name' => ''],
-            ]
+            ],
         ];
     }
 
@@ -364,7 +375,7 @@ class OrganizationInfoManager extends Component
     {
         // Si c'est un tableau, prendre le premier élément, sinon utiliser directement la valeur
         $this->logo_id = is_array($mediaIds) && count($mediaIds) > 0 ? $mediaIds[0] : $mediaIds;
-        
+
     }
 
     public function closeModal()

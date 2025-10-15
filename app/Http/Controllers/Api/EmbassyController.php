@@ -52,16 +52,16 @@ class EmbassyController extends Controller
                     'total' => $embassies->count(),
                     'types' => [
                         'foreign_in_djibouti' => 'Ambassades étrangères à Djibouti',
-                        'djiboutian_abroad' => 'Ambassades djiboutiennes à l\'étranger'
-                    ]
-                ]
+                        'djiboutian_abroad' => 'Ambassades djiboutiennes à l\'étranger',
+                    ],
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch embassies',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -74,10 +74,10 @@ class EmbassyController extends Controller
         try {
             $embassy = Embassy::active()->with('translations')->find($id);
 
-            if (!$embassy) {
+            if (! $embassy) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Embassy not found'
+                    'message' => 'Embassy not found',
                 ], 404);
             }
 
@@ -86,15 +86,15 @@ class EmbassyController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'embassy' => $this->transformEmbassy($embassy, $locale, true)
-                ]
+                    'embassy' => $this->transformEmbassy($embassy, $locale, true),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch embassy',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -104,10 +104,10 @@ class EmbassyController extends Controller
      */
     public function getByType(Request $request, string $type): JsonResponse
     {
-        if (!in_array($type, ['foreign_in_djibouti', 'djiboutian_abroad'])) {
+        if (! in_array($type, ['foreign_in_djibouti', 'djiboutian_abroad'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid embassy type'
+                'message' => 'Invalid embassy type',
             ], 400);
         }
 
@@ -127,15 +127,15 @@ class EmbassyController extends Controller
                     'embassies' => $transformedEmbassies,
                     'type' => $type,
                     'type_label' => Embassy::TYPES[$type],
-                    'total' => $embassies->count()
-                ]
+                    'total' => $embassies->count(),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch embassies by type',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -148,7 +148,7 @@ class EmbassyController extends Controller
         $request->validate([
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-            'radius' => 'nullable|numeric|min:1|max:100' // radius in kilometers
+            'radius' => 'nullable|numeric|min:1|max:100', // radius in kilometers
         ]);
 
         try {
@@ -157,17 +157,17 @@ class EmbassyController extends Controller
             $radius = $request->get('radius', 50); // Default 50km radius
 
             $query = Embassy::active()
-                           ->with('translations')
-                           ->whereNotNull('latitude')
-                           ->whereNotNull('longitude')
-                           ->selectRaw("
+                ->with('translations')
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->selectRaw('
                                *,
                                (6371 * acos(cos(radians(?)) * cos(radians(latitude)) 
                                * cos(radians(longitude) - radians(?)) 
                                + sin(radians(?)) * sin(radians(latitude)))) AS distance
-                           ", [$latitude, $longitude, $latitude])
-                           ->having('distance', '<=', $radius)
-                           ->orderBy('distance');
+                           ', [$latitude, $longitude, $latitude])
+                ->having('distance', '<=', $radius)
+                ->orderBy('distance');
 
             $limit = min($request->get('limit', 20), 50);
             $embassies = $query->limit($limit)->get();
@@ -176,6 +176,7 @@ class EmbassyController extends Controller
             $transformedEmbassies = $embassies->map(function ($embassy) use ($locale) {
                 $transformed = $this->transformEmbassy($embassy, $locale);
                 $transformed['distance'] = round($embassy->distance, 2); // Distance in km
+
                 return $transformed;
             });
 
@@ -187,16 +188,16 @@ class EmbassyController extends Controller
                         'latitude' => $latitude,
                         'longitude' => $longitude,
                         'radius_km' => $radius,
-                        'total_found' => $embassies->count()
-                    ]
-                ]
+                        'total_found' => $embassies->count(),
+                    ],
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch nearby embassies',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -220,7 +221,7 @@ class EmbassyController extends Controller
             'website' => $embassy->website_url,
             'is_active' => $embassy->is_active,
             'created_at' => $embassy->created_at->toISOString(),
-            'updated_at' => $embassy->updated_at->toISOString()
+            'updated_at' => $embassy->updated_at->toISOString(),
         ];
 
         if ($detailed) {
@@ -231,7 +232,7 @@ class EmbassyController extends Controller
                 'ld' => $embassy->ld_array,
                 'latitude' => $embassy->latitude,
                 'longitude' => $embassy->longitude,
-                'has_coordinates' => !is_null($embassy->latitude) && !is_null($embassy->longitude)
+                'has_coordinates' => ! is_null($embassy->latitude) && ! is_null($embassy->longitude),
             ]);
         }
 

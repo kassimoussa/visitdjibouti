@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AppUser;
 use App\Models\UserLocationHistory;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class DeviceController extends Controller
 {
@@ -18,11 +18,11 @@ class DeviceController extends Controller
     public function updateDeviceInfo(Request $request): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
 
@@ -35,25 +35,25 @@ class DeviceController extends Controller
             'device_os' => 'nullable|string|max:50',
             'device_os_version' => 'nullable|string|max:50',
             'device_platform' => 'nullable|string|max:50',
-            
+
             // Application info
             'app_version' => 'nullable|string|max:30',
             'app_build' => 'nullable|string|max:30',
             'app_bundle_id' => 'nullable|string|max:150',
             'app_debug_mode' => 'nullable|boolean',
-            
+
             // Screen characteristics
             'screen_resolution' => 'nullable|string|max:30',
             'screen_density' => 'nullable|numeric|between:0,99.99',
             'screen_size' => 'nullable|string|max:20',
             'orientation' => 'nullable|string|in:portrait,landscape',
-            
+
             // Network capabilities
             'network_type' => 'nullable|string|max:30',
             'carrier_name' => 'nullable|string|max:100',
             'connection_type' => 'nullable|string|max:30',
             'is_roaming' => 'nullable|boolean',
-            
+
             // System information
             'total_memory' => 'nullable|integer|min:0',
             'available_memory' => 'nullable|integer|min:0',
@@ -62,7 +62,7 @@ class DeviceController extends Controller
             'battery_level' => 'nullable|numeric|between:0,100',
             'is_charging' => 'nullable|boolean',
             'is_low_power_mode' => 'nullable|boolean',
-            
+
             // Notifications and permissions
             'push_token' => 'nullable|string|max:500',
             'push_provider' => 'nullable|string|in:fcm,apns',
@@ -71,7 +71,7 @@ class DeviceController extends Controller
             'contacts_permission' => 'nullable|boolean',
             'storage_permission' => 'nullable|boolean',
             'notification_permission' => 'nullable|boolean',
-            
+
             // User settings
             'device_languages' => 'nullable|array',
             'device_languages.*' => 'string|max:10',
@@ -80,7 +80,7 @@ class DeviceController extends Controller
             'currency_format' => 'nullable|string|max:10',
             'dark_mode_enabled' => 'nullable|boolean',
             'accessibility_enabled' => 'nullable|boolean',
-            
+
             // Tracking and analytics
             'user_agent' => 'nullable|string|max:500',
             'advertising_id' => 'nullable|string|max:100',
@@ -88,14 +88,14 @@ class DeviceController extends Controller
             'first_install_at' => 'nullable|date',
             'last_app_update_at' => 'nullable|date',
             'installed_apps' => 'nullable|array',
-            
+
             // Usage metrics
             'total_app_launches' => 'nullable|integer|min:0',
             'total_time_spent' => 'nullable|integer|min:0',
             'crashes_count' => 'nullable|integer|min:0',
             'last_crash_at' => 'nullable|date',
             'feature_usage' => 'nullable|array',
-            
+
             // Security
             'is_jailbroken_rooted' => 'nullable|boolean',
             'developer_mode_enabled' => 'nullable|boolean',
@@ -107,13 +107,13 @@ class DeviceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         $updateData = $validator->validated();
         $updateData['device_info_updated_at'] = now();
-        
+
         // Increment session count if this is a new session
         if ($request->has('new_session') && $request->boolean('new_session')) {
             $updateData['session_count'] = $user->session_count + 1;
@@ -126,8 +126,8 @@ class DeviceController extends Controller
             'message' => 'Device information updated successfully',
             'data' => [
                 'device_info_updated_at' => $user->device_info_updated_at,
-                'session_count' => $user->session_count
-            ]
+                'session_count' => $user->session_count,
+            ],
         ]);
     }
 
@@ -137,11 +137,11 @@ class DeviceController extends Controller
     public function updateLocation(Request $request): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
 
@@ -163,7 +163,7 @@ class DeviceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -179,8 +179,8 @@ class DeviceController extends Controller
             'data' => [
                 'latitude' => $user->current_latitude,
                 'longitude' => $user->current_longitude,
-                'location_updated_at' => $user->location_updated_at
-            ]
+                'location_updated_at' => $user->location_updated_at,
+            ],
         ]);
     }
 
@@ -190,11 +190,11 @@ class DeviceController extends Controller
     public function recordLocationHistory(Request $request): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
 
@@ -230,7 +230,7 @@ class DeviceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -241,7 +241,7 @@ class DeviceController extends Controller
         $locationHistory = UserLocationHistory::create($historyData);
 
         // Also update user's current location if this is more recent
-        if (!$user->location_updated_at || 
+        if (! $user->location_updated_at ||
             $locationHistory->recorded_at->gt($user->location_updated_at)) {
             $user->update([
                 'current_latitude' => $historyData['latitude'],
@@ -264,8 +264,8 @@ class DeviceController extends Controller
             'message' => 'Location history recorded successfully',
             'data' => [
                 'id' => $locationHistory->id,
-                'recorded_at' => $locationHistory->recorded_at
-            ]
+                'recorded_at' => $locationHistory->recorded_at,
+            ],
         ]);
     }
 
@@ -275,11 +275,11 @@ class DeviceController extends Controller
     public function getLocationHistory(Request $request): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
 
@@ -297,7 +297,7 @@ class DeviceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -334,8 +334,8 @@ class DeviceController extends Controller
             'data' => $locations,
             'meta' => [
                 'total' => $locations->count(),
-                'limit' => $limit
-            ]
+                'limit' => $limit,
+            ],
         ]);
     }
 
@@ -345,11 +345,11 @@ class DeviceController extends Controller
     public function getDeviceInfo(Request $request): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
 
@@ -364,7 +364,7 @@ class DeviceController extends Controller
                 'os_version' => $user->device_os_version,
                 'platform' => $user->device_platform,
             ],
-            
+
             // App info
             'app' => [
                 'version' => $user->app_version,
@@ -372,7 +372,7 @@ class DeviceController extends Controller
                 'bundle_id' => $user->app_bundle_id,
                 'debug_mode' => $user->app_debug_mode,
             ],
-            
+
             // Current location
             'location' => [
                 'latitude' => $user->current_latitude,
@@ -383,7 +383,7 @@ class DeviceController extends Controller
                 'country' => $user->current_country,
                 'updated_at' => $user->location_updated_at,
             ],
-            
+
             // System metrics
             'system' => [
                 'total_memory' => $user->total_memory,
@@ -392,7 +392,7 @@ class DeviceController extends Controller
                 'is_charging' => $user->is_charging,
                 'is_low_power_mode' => $user->is_low_power_mode,
             ],
-            
+
             // Usage statistics
             'usage' => [
                 'session_count' => $user->session_count,
@@ -401,7 +401,7 @@ class DeviceController extends Controller
                 'crashes_count' => $user->crashes_count,
                 'last_crash_at' => $user->last_crash_at,
             ],
-            
+
             // Permissions
             'permissions' => [
                 'location' => $user->location_permission,
@@ -410,13 +410,13 @@ class DeviceController extends Controller
                 'storage' => $user->storage_permission,
                 'notifications' => $user->notification_permission,
             ],
-            
+
             'last_updated' => $user->device_info_updated_at,
         ];
 
         return response()->json([
             'success' => true,
-            'data' => $deviceInfo
+            'data' => $deviceInfo,
         ]);
     }
 
@@ -426,19 +426,19 @@ class DeviceController extends Controller
     public function getNearbyUsers(Request $request): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
 
         // Check if user has location permission and current location
-        if (!$user->location_permission || !$user->current_latitude || !$user->current_longitude) {
+        if (! $user->location_permission || ! $user->current_latitude || ! $user->current_longitude) {
             return response()->json([
                 'success' => false,
-                'message' => 'Location permission required or location not available'
+                'message' => 'Location permission required or location not available',
             ], 403);
         }
 
@@ -450,7 +450,7 @@ class DeviceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -462,7 +462,7 @@ class DeviceController extends Controller
             ->where('id', '!=', $user->id)
             ->where('location_updated_at', '>', now()->subHours(6)) // Only recent locations
             ->whereRaw(
-                "(6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(current_latitude)) * COS(RADIANS(current_longitude) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(current_latitude)))) <= ?",
+                '(6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(current_latitude)) * COS(RADIANS(current_longitude) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(current_latitude)))) <= ?',
                 [$user->current_latitude, $user->current_longitude, $user->current_latitude, $radiusKm]
             )
             ->count();
@@ -475,8 +475,8 @@ class DeviceController extends Controller
                 'center' => [
                     'latitude' => $user->current_latitude,
                     'longitude' => $user->current_longitude,
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 }

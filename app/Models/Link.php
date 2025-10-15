@@ -30,22 +30,22 @@ class Link extends Model
     {
         return $this->hasMany(LinkTranslation::class, 'link_id');
     }
-    
+
     /**
      * Obtenir la traduction dans la langue spécifiée.
      */
     public function translation($locale = null)
     {
         $locale = $locale ?: app()->getLocale();
-        
+
         return $this->translations()
-                    ->where('locale', $locale)
-                    ->first() 
+            ->where('locale', $locale)
+            ->first()
                 ?? $this->translations()
-                      ->where('locale', config('app.fallback_locale'))
-                      ->first();
+                    ->where('locale', config('app.fallback_locale'))
+                    ->first();
     }
-    
+
     /**
      * Accesseur pour le nom traduit.
      */
