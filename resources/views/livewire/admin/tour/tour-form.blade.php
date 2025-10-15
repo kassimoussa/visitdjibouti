@@ -129,7 +129,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Tour Opérateur</label>
-                            <select class="form-select" wire:model="tour.tour_operator_id">
+                            <select class="form-select" wire:model.blur="tour.tour_operator_id">
                                 <option value="">Sélectionner...</option>
                                 @foreach($tourOperators as $operator)
                                     <option value="{{ $operator->id }}">{{ $operator->name }}</option>
@@ -139,7 +139,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Prix</label>
-                            <input type="number" step="any" class="form-control" wire:model="tour.price">
+                            <input type="number" step="any" class="form-control" wire:model.blur="tour.price">
                             @error('tour.price') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
                         <div class="mb-3">

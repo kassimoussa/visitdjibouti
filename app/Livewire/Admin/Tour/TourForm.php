@@ -51,6 +51,21 @@ class TourForm extends Component
         ];
     }
 
+    protected function messages()
+    {
+        return [
+            'tour.tour_operator_id.required' => 'Le tour opérateur est requis.',
+            'tour.tour_operator_id.exists' => 'Le tour opérateur sélectionné n\'existe pas.',
+            'tour.price.required' => 'Le prix est requis.',
+            'tour.price.numeric' => 'Le prix doit être un nombre.',
+            'tour.price.min' => 'Le prix doit être au minimum 0.',
+            'tour.difficulty_level.required' => 'Le niveau de difficulté est requis.',
+            'tour.status.required' => 'Le statut est requis.',
+            'translations.fr.title.required' => 'Le titre en français est requis.',
+            'translations.fr.description.required' => 'La description en français est requise.',
+        ];
+    }
+
     public function mount(Tour $tour = null)
     {
         $this->tour = $tour ?? new Tour();
