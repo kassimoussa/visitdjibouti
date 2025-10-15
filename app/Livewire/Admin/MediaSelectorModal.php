@@ -4,29 +4,27 @@ namespace App\Livewire\Admin;
 
 use App\Models\Media;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\Attributes\On;
 
 class MediaSelectorModal extends Component
 {
-    use WithPagination;
-
     // Configuration du modal
     public $isOpen = false;
     public $selectionMode = 'single'; // 'single', 'multiple'
     public $selectedImages = [];
     public $preselectedImages = [];
-    
+
     // Filtres et recherche
     public $search = '';
     public $typeFilter = 'all';
     public $sortBy = 'created_at';
     public $sortDirection = 'desc';
-    
-    
-    // Pagination
-    public $perPage = 20;
-    
+
+
+    // Lazy Loading
+    public $loadedItems = 24; // Nombre initial d'items à charger
+    public $itemsPerLoad = 24; // Nombre d'items à charger à chaque scroll
+
     // Preview
     public $previewImage = null;
     public $showPreview = false;
@@ -35,16 +33,29 @@ class MediaSelectorModal extends Component
     protected $listeners = ['openMediaSelector', 'closeMediaSelector'];
 
     /**
-     * Réinitialiser la pagination lors du changement de recherche
+     * Réinitialiser le chargement lors du changement de recherche
      */
     public function updatingSearch()
     {
-        $this->resetPage();
+        $this->loadedItems = $this->itemsPerLoad;
     }
 
     public function updatingTypeFilter()
     {
-        $this->resetPage();
+        $this->loadedItems = $this->itemsPerLoad;
+    }
+
+    public function updatingSortBy()
+    {
+        $this->loadedItems = $this->itemsPerLoad;
+    }
+
+    /**
+     * Charger plus de médias
+     */
+    public function loadMore()
+    {
+        $this->loadedItems += $this->itemsPerLoad;
     }
 
     /**
@@ -57,7 +68,7 @@ class MediaSelectorModal extends Component
         $this->selectionMode = $mode;
         $this->preselectedImages = is_array($preselected) ? $preselected : [];
         $this->selectedImages = $this->preselectedImages;
-        $this->resetPage();
+        $this->loadedItems = $this->itemsPerLoad;
         $this->dispatch('modal-opened');
     }
 
@@ -212,8 +223,10 @@ class MediaSelectorModal extends Component
      */
     public function render()
     {
-        $media = $this->getMediaQuery()->paginate($this->perPage);
-        
+        $query = $this->getMediaQuery();
+        $totalCount = $query->count();
+        $media = $query->limit($this->loadedItems)->get();
+
         $stats = [
             'total' => Media::count(),
             'images' => Media::where('type', 'images')->count() + Media::where('type', 'image')->count(),
@@ -224,6 +237,8 @@ class MediaSelectorModal extends Component
         return view('livewire.admin.media-selector-modal', [
             'media' => $media,
             'stats' => $stats,
+            'totalCount' => $totalCount,
+            'hasMore' => $this->loadedItems < $totalCount,
         ]);
     }
 }

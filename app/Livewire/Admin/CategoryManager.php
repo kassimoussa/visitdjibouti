@@ -38,9 +38,10 @@ class CategoryManager extends Component
 
     public function mount()
     {
-        // Initialiser les langues disponibles
-        $this->availableLocales = config('app.available_locales', ['fr']);
-        
+        // Initialiser les langues disponibles (exclure l'arabe)
+        $allLocales = config('app.available_locales', ['fr']);
+        $this->availableLocales = array_values(array_diff($allLocales, ['ar']));
+
         // Initialiser le tableau des traductions avec des entrées vides pour chaque langue
         foreach ($this->availableLocales as $locale) {
             $this->translations[$locale] = [

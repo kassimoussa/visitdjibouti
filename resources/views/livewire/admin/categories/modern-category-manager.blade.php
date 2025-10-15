@@ -334,7 +334,7 @@
     <!-- Modal de création/édition -->
     @if($showModal)
         <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg">
                     <div class="modal-header bg-primary text-white border-0">
                         <h5 class="modal-title">
@@ -348,11 +348,16 @@
                     <form wire:submit.prevent="save">
                         <div class="modal-body p-4">
                             <div class="row g-4">
-                                <!-- Informations de base -->
+                                <!-- Colonne gauche : Configuration -->
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-cog me-2"></i>Configuration
+                                    </h6>
+
+                                    <!-- Icône -->
+                                    <div class="form-group mb-3">
                                         <label class="form-label">Icône</label>
-                                        
+
                                         <!-- Dropdown pour choisir le fournisseur -->
                                         <div class="mb-2">
                                             <select class="form-select form-select-sm" id="iconProvider" onchange="updateIconPlaceholder(this.value)">
@@ -364,18 +369,18 @@
                                                 <option value="emojis">Emojis Unicode (🏛️)</option>
                                             </select>
                                         </div>
-                                        
+
                                         <!-- Champ texte avec preview -->
                                         <div class="input-group">
                                             <span class="input-group-text icon-preview" style="min-width: 60px; justify-content: center; background: #f8f9fa;">
                                                 @php
-                                                    $isEmoji = $icon && strlen($icon) > 0 && !str_contains($icon, ' ') && 
-                                                               !str_contains($icon, 'fa-') && !str_contains($icon, 'bi-') && 
-                                                               !str_contains($icon, 'fi fi-') && !str_contains($icon, 'ph ph-') && 
-                                                               !str_contains($icon, 'ti ti-') && 
+                                                    $isEmoji = $icon && strlen($icon) > 0 && !str_contains($icon, ' ') &&
+                                                               !str_contains($icon, 'fa-') && !str_contains($icon, 'bi-') &&
+                                                               !str_contains($icon, 'fi fi-') && !str_contains($icon, 'ph ph-') &&
+                                                               !str_contains($icon, 'ti ti-') &&
                                                                preg_match('/[\x{1F600}-\x{1F64F}]|[\x{1F300}-\x{1F5FF}]|[\x{1F680}-\x{1F6FF}]|[\x{1F1E0}-\x{1F1FF}]|[\x{2600}-\x{26FF}]|[\x{2700}-\x{27BF}]/u', $icon);
                                                 @endphp
-                                                
+
                                                 @if($icon && str_contains($icon, 'fi fi-'))
                                                     <span class="{{ $icon }}" style="font-size: 1.5rem;"></span>
                                                 @elseif($icon && str_contains($icon, 'ti ti-'))
@@ -390,18 +395,18 @@
                                                     <i class="{{ $icon }}" style="font-size: 1.5rem; color: {{ $color }};"></i>
                                                 @endif
                                             </span>
-                                            <input type="text" 
-                                                   class="form-control" 
-                                                   wire:model.live="icon" 
+                                            <input type="text"
+                                                   class="form-control"
+                                                   wire:model.live="icon"
                                                    id="iconInput"
                                                    placeholder="fas fa-folder">
                                         </div>
-                                        
+
                                         <!-- Suggestions d'icônes selon le fournisseur -->
-                                        <div class="mt-3">
+                                        <div class="mt-2">
                                             <div class="icon-suggestions-container" id="iconSuggestions">
-                                                <div class="mb-2">
-                                                    <span class="text-muted fw-bold">FontAwesome:</span>
+                                                <div class="mb-1">
+                                                    <span class="text-muted small fw-bold">Suggestions:</span>
                                                 </div>
                                                 <div class="d-flex flex-wrap">
                                                     <span class="icon-suggestion" onclick="selectIcon('fas fa-home')">fas fa-home</span>
@@ -411,56 +416,66 @@
                                                     <span class="icon-suggestion" onclick="selectIcon('fas fa-map-marker-alt')">fas fa-map-marker-alt</span>
                                                 </div>
                                             </div>
-                                            
+
                                             <!-- Bouton pour ouvrir la galerie complète -->
-                                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
                                                 <small class="text-muted">
                                                     <i class="fas fa-info-circle me-1"></i>
-                                                    Tapez votre icône ou cliquez sur une suggestion ci-dessus
+                                                    Tapez votre icône ou cliquez sur une suggestion
                                                 </small>
-                                                <button type="button" 
+                                                <button type="button"
                                                         class="btn btn-sm btn-outline-info"
                                                         onclick="window.open('{{ route('icons.gallery') }}', 'iconGallery', 'width=1200,height=800,scrollbars=yes,resizable=yes')"
-                                                        data-bs-toggle="tooltip" 
-                                                        data-bs-placement="top" 
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-placement="top"
                                                         data-bs-title="Voir toutes les icônes disponibles">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="col-md-6">
-                                    <div class="form-group">
+                                    <!-- Couleur -->
+                                    <div class="form-group mb-3">
                                         <label class="form-label">Couleur</label>
-                                        <input type="color" class="form-control form-control-color" 
-                                               wire:model.live="color">
+                                        <input type="text" class="form-control"
+                                               wire:model.live="color" placeholder="#31a051">
                                     </div>
-                                </div>
 
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Ordre d'affichage</label>
-                                        <input type="number" class="form-control" wire:model="sort_order" min="1">
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" wire:model="is_active">
-                                            <label class="form-check-label">Catégorie active</label>
+                                    <!-- Ordre d'affichage et Statut actif sur la même ligne -->
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Ordre d'affichage</label>
+                                                <input type="number" class="form-control" wire:model="sort_order" min="0">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label d-block">Statut</label>
+                                                <div class="form-check form-switch mt-2">
+                                                    <input class="form-check-input" type="checkbox" wire:model="is_active" id="categoryActive">
+                                                    <label class="form-check-label" for="categoryActive">Catégorie active</label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+
+                                    <!-- Slug (masqué par défaut) -->
+                                    <div class="form-group mb-3" id="slugField" style="display: none;">
+                                        <label class="form-label">Slug (personnalisé)</label>
+                                        <input type="text" class="form-control"
+                                               wire:model="slug" placeholder="mon-slug">
+                                        <small class="text-muted">Laissez vide pour générer automatiquement depuis le nom français</small>
+                                    </div>
                                 </div>
 
-                                <!-- Traductions -->
-                                <div class="col-12">
+                                <!-- Colonne droite : Traductions -->
+                                <div class="col-md-6">
                                     <h6 class="mb-3">
                                         <i class="fas fa-language me-2"></i>Traductions
                                     </h6>
-                                    
+
                                     <ul class="nav nav-tabs" role="tablist">
                                         <li class="nav-item">
                                             <a class="nav-link active" data-bs-toggle="tab" href="#tab-fr">
@@ -472,25 +487,20 @@
                                                 🇬🇧 English
                                             </a>
                                         </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" data-bs-toggle="tab" href="#tab-ar">
-                                                🇸🇦 العربية
-                                            </a>
-                                        </li>
                                     </ul>
 
-                                    <div class="tab-content border border-top-0 p-3">
+                                    <div class="tab-content border border-top-0 p-3" style="min-height: 400px;">
                                         <!-- Français -->
                                         <div class="tab-pane fade show active" id="tab-fr">
                                             <div class="row g-3">
                                                 <div class="col-12">
                                                     <label class="form-label">Nom *</label>
-                                                    <input type="text" class="form-control" 
+                                                    <input type="text" class="form-control"
                                                            wire:model="translations.fr.name" required>
                                                 </div>
                                                 <div class="col-12">
                                                     <label class="form-label">Description</label>
-                                                    <textarea class="form-control" rows="3" 
+                                                    <textarea class="form-control" rows="8"
                                                               wire:model="translations.fr.description"></textarea>
                                                 </div>
                                             </div>
@@ -501,29 +511,13 @@
                                             <div class="row g-3">
                                                 <div class="col-12">
                                                     <label class="form-label">Name</label>
-                                                    <input type="text" class="form-control" 
+                                                    <input type="text" class="form-control"
                                                            wire:model="translations.en.name">
                                                 </div>
                                                 <div class="col-12">
                                                     <label class="form-label">Description</label>
-                                                    <textarea class="form-control" rows="3" 
+                                                    <textarea class="form-control" rows="8"
                                                               wire:model="translations.en.description"></textarea>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Arabic -->
-                                        <div class="tab-pane fade" id="tab-ar">
-                                            <div class="row g-3">
-                                                <div class="col-12">
-                                                    <label class="form-label">الاسم</label>
-                                                    <input type="text" class="form-control" 
-                                                           wire:model="translations.ar.name" dir="rtl">
-                                                </div>
-                                                <div class="col-12">
-                                                    <label class="form-label">الوصف</label>
-                                                    <textarea class="form-control" rows="3" 
-                                                              wire:model="translations.ar.description" dir="rtl"></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -577,6 +571,8 @@
         transform: translateY(-4px);
         box-shadow: var(--shadow-hover);
         border-color: var(--category-color);
+        z-index: 20;
+        position: relative;
     }
 
     .category-header {
@@ -611,17 +607,24 @@
     }
 
     /* Styles pour les dropdowns - force l'affichage au-dessus */
+    .category-actions {
+        position: relative;
+        z-index: 10;
+    }
+
     .category-actions .dropdown {
-        position: static;
+        position: relative;
     }
 
     .category-actions .dropdown-menu {
         position: absolute;
-        z-index: 1050;
+        z-index: 1050 !important;
         margin-top: 0.125rem;
-        min-width: 160px;
+        min-width: 180px;
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
         border-radius: 0.375rem;
+        right: 0;
+        left: auto;
     }
 
     /* Force le dropdown à s'afficher vers le haut pour les dernières cartes */
@@ -630,6 +633,17 @@
         bottom: 100%;
         margin-top: 0;
         margin-bottom: 0.125rem;
+    }
+
+    .category-card .dropdown.show {
+        z-index: 1051;
+    }
+
+    /* S'assurer que le dropdown est toujours visible, même à droite de l'écran */
+    .categories-grid .col-lg-3:last-child .dropdown-menu,
+    .categories-grid .col-lg-3:nth-child(4n) .dropdown-menu {
+        right: 0;
+        left: auto;
     }
 
     .category-content {
@@ -718,6 +732,8 @@
     .subcategory-card:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow-hover);
+        z-index: 20;
+        position: relative;
     }
 
     .subcategory-header {
@@ -763,17 +779,24 @@
     }
 
     /* Styles pour les dropdowns des sous-catégories */
+    .subcategory-actions {
+        position: relative;
+        z-index: 10;
+    }
+
     .subcategory-actions .dropdown {
-        position: static;
+        position: relative;
     }
 
     .subcategory-actions .dropdown-menu {
         position: absolute;
-        z-index: 1050;
+        z-index: 1050 !important;
         margin-top: 0.125rem;
-        min-width: 160px;
+        min-width: 180px;
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
         border-radius: 0.375rem;
+        right: 0;
+        left: auto;
     }
 
     /* Force les dropdowns des sous-catégories vers le haut si nécessaire */
@@ -782,6 +805,10 @@
         bottom: 100%;
         margin-top: 0;
         margin-bottom: 0.125rem;
+    }
+
+    .subcategory-card .dropdown.show {
+        z-index: 1051;
     }
 
     /* Empty States */
@@ -929,6 +956,131 @@
         line-height: 1.8;
     }
     </style>
+
+    @script
+    <script>
+        // Fonction pour afficher/masquer le champ slug
+        window.toggleSlugField = function() {
+            const slugField = document.getElementById('slugField');
+            const toggleLink = document.getElementById('toggleSlug');
+
+            if (slugField.style.display === 'none') {
+                slugField.style.display = 'block';
+                toggleLink.innerHTML = '<i class="fas fa-eye-slash me-1"></i>Masquer les options avancées';
+            } else {
+                slugField.style.display = 'none';
+                toggleLink.innerHTML = '<i class="fas fa-cog me-1"></i>Options avancées (slug personnalisé)';
+            }
+        };
+
+        // Fonction pour sélectionner une icône depuis les suggestions
+        window.selectIcon = function(iconClass) {
+            @this.set('icon', iconClass);
+        };
+
+        // Fonction pour mettre à jour le placeholder selon le fournisseur d'icônes
+        window.updateIconPlaceholder = function(provider) {
+            const iconInput = document.getElementById('iconInput');
+            const suggestionsContainer = document.getElementById('iconSuggestions');
+
+            if (!iconInput || !suggestionsContainer) return;
+
+            let placeholder = '';
+            let suggestions = '';
+
+            switch(provider) {
+                case 'fontawesome':
+                    placeholder = 'fas fa-folder';
+                    suggestions = `
+                        <div class="mb-1"><span class="text-muted small fw-bold">FontAwesome:</span></div>
+                        <div class="d-flex flex-wrap">
+                            <span class="icon-suggestion" onclick="selectIcon('fas fa-home')">fas fa-home</span>
+                            <span class="icon-suggestion" onclick="selectIcon('fas fa-user')">fas fa-user</span>
+                            <span class="icon-suggestion" onclick="selectIcon('fas fa-heart')">fas fa-heart</span>
+                            <span class="icon-suggestion" onclick="selectIcon('fas fa-star')">fas fa-star</span>
+                            <span class="icon-suggestion" onclick="selectIcon('fas fa-map-marker-alt')">fas fa-map-marker-alt</span>
+                            <span class="icon-suggestion" onclick="selectIcon('fas fa-camera')">fas fa-camera</span>
+                        </div>
+                    `;
+                    break;
+                case 'bootstrap':
+                    placeholder = 'bi-house';
+                    suggestions = `
+                        <div class="mb-1"><span class="text-muted small fw-bold">Bootstrap Icons:</span></div>
+                        <div class="d-flex flex-wrap">
+                            <span class="icon-suggestion" onclick="selectIcon('bi-house')">bi-house</span>
+                            <span class="icon-suggestion" onclick="selectIcon('bi-person')">bi-person</span>
+                            <span class="icon-suggestion" onclick="selectIcon('bi-heart')">bi-heart</span>
+                            <span class="icon-suggestion" onclick="selectIcon('bi-star')">bi-star</span>
+                            <span class="icon-suggestion" onclick="selectIcon('bi-geo-alt')">bi-geo-alt</span>
+                            <span class="icon-suggestion" onclick="selectIcon('bi-camera')">bi-camera</span>
+                        </div>
+                    `;
+                    break;
+                case 'phosphor':
+                    placeholder = 'ph ph-house';
+                    suggestions = `
+                        <div class="mb-1"><span class="text-muted small fw-bold">Phosphor Icons:</span></div>
+                        <div class="d-flex flex-wrap">
+                            <span class="icon-suggestion" onclick="selectIcon('ph ph-house')">ph ph-house</span>
+                            <span class="icon-suggestion" onclick="selectIcon('ph ph-user')">ph ph-user</span>
+                            <span class="icon-suggestion" onclick="selectIcon('ph ph-heart')">ph ph-heart</span>
+                            <span class="icon-suggestion" onclick="selectIcon('ph ph-star')">ph ph-star</span>
+                            <span class="icon-suggestion" onclick="selectIcon('ph ph-map-pin')">ph ph-map-pin</span>
+                            <span class="icon-suggestion" onclick="selectIcon('ph ph-camera')">ph ph-camera</span>
+                        </div>
+                    `;
+                    break;
+                case 'tabler':
+                    placeholder = 'ti ti-home';
+                    suggestions = `
+                        <div class="mb-1"><span class="text-muted small fw-bold">Tabler Icons:</span></div>
+                        <div class="d-flex flex-wrap">
+                            <span class="icon-suggestion" onclick="selectIcon('ti ti-home')">ti ti-home</span>
+                            <span class="icon-suggestion" onclick="selectIcon('ti ti-user')">ti ti-user</span>
+                            <span class="icon-suggestion" onclick="selectIcon('ti ti-heart')">ti ti-heart</span>
+                            <span class="icon-suggestion" onclick="selectIcon('ti ti-star')">ti ti-star</span>
+                            <span class="icon-suggestion" onclick="selectIcon('ti ti-map-pin')">ti ti-map-pin</span>
+                            <span class="icon-suggestion" onclick="selectIcon('ti ti-camera')">ti ti-camera</span>
+                        </div>
+                    `;
+                    break;
+                case 'flags':
+                    placeholder = 'fi fi-fr';
+                    suggestions = `
+                        <div class="mb-1"><span class="text-muted small fw-bold">Flag Icons:</span></div>
+                        <div class="d-flex flex-wrap">
+                            <span class="icon-suggestion" onclick="selectIcon('fi fi-dj')">fi fi-dj (Djibouti)</span>
+                            <span class="icon-suggestion" onclick="selectIcon('fi fi-fr')">fi fi-fr (France)</span>
+                            <span class="icon-suggestion" onclick="selectIcon('fi fi-us')">fi fi-us (USA)</span>
+                            <span class="icon-suggestion" onclick="selectIcon('fi fi-gb')">fi fi-gb (UK)</span>
+                            <span class="icon-suggestion" onclick="selectIcon('fi fi-de')">fi fi-de (Germany)</span>
+                        </div>
+                    `;
+                    break;
+                case 'emojis':
+                    placeholder = '🏛️';
+                    suggestions = `
+                        <div class="mb-1"><span class="text-muted small fw-bold">Emojis:</span></div>
+                        <div class="d-flex flex-wrap">
+                            <span class="icon-suggestion" onclick="selectIcon('🏛️')">🏛️</span>
+                            <span class="icon-suggestion" onclick="selectIcon('🏖️')">🏖️</span>
+                            <span class="icon-suggestion" onclick="selectIcon('🏝️')">🏝️</span>
+                            <span class="icon-suggestion" onclick="selectIcon('🗿')">🗿</span>
+                            <span class="icon-suggestion" onclick="selectIcon('🕌')">🕌</span>
+                            <span class="icon-suggestion" onclick="selectIcon('⛰️')">⛰️</span>
+                            <span class="icon-suggestion" onclick="selectIcon('🌋')">🌋</span>
+                            <span class="icon-suggestion" onclick="selectIcon('🐪')">🐪</span>
+                        </div>
+                    `;
+                    break;
+            }
+
+            iconInput.placeholder = placeholder;
+            suggestionsContainer.innerHTML = suggestions;
+        };
+    </script>
+    @endscript
 
 </div>
 
