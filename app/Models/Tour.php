@@ -107,6 +107,14 @@ class Tour extends Model
         return $this->belongsTo(Media::class, 'featured_image_id');
     }
 
+    /**
+     * Get the parent target model (Poi or Event).
+     */
+    public function target(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
 
     /**
      * Get difficulty level label.
