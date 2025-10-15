@@ -29,15 +29,13 @@ class TourForm extends Component
     {
         return [
             'tour.tour_operator_id' => 'required|exists:tour_operators,id',
-            //'tour.type' => 'required|string',
             'tour.target_id' => 'nullable|integer',
             'tour.target_type' => 'nullable|string',
-            'tour.start_date' => 'required|date',
+            'tour.start_date' => 'nullable|date',
             'tour.end_date' => 'nullable|date|after_or_equal:tour.start_date',
-            'tour.start_time' => 'nullable|date_format:H:i',
-            'tour.end_time' => 'nullable|date_format:H:i',
+            'tour.start_time' => 'nullable',
+            'tour.end_time' => 'nullable',
             'tour.price' => 'required|numeric|min:0',
-            //'tour.currency' => 'required|string|size:3',
             'tour.max_participants' => 'nullable|integer|min:1',
             'tour.difficulty_level' => 'required|in:easy,moderate,difficult,expert',
             'tour.status' => 'required|in:active,suspended,archived',
@@ -46,14 +44,28 @@ class TourForm extends Component
             'tour.meeting_point_address' => 'nullable|string|max:255',
             'tour.cancellation_policy' => 'nullable|string',
             'featuredImageId' => 'nullable|exists:media,id',
-            'translations.*.title' => 'string|max:255',
-            'translations.*.description' => 'string',
+            'translations.fr.title' => 'required|string|max:255',
+            'translations.fr.description' => 'required|string',
+            'translations.en.title' => 'nullable|string|max:255',
+            'translations.en.description' => 'nullable|string',
         ];
     }
 
     public function mount(Tour $tour = null)
     {
         $this->tour = $tour ?? new Tour();
+
+        // Initialiser les valeurs par défaut pour un nouveau tour
+        if (!$this->tour->exists) {
+            $this->tour->status = 'active';
+            $this->tour->difficulty_level = 'easy';
+            $this->tour->is_featured = false;
+            $this->tour->weather_dependent = false;
+            $this->tour->currency = 'DJF';
+            $this->tour->price = 0;
+            $this->tour->type = 'cultural'; // Type par défaut
+        }
+
         $this->tourOperators = TourOperator::all();
         $this->pois = Poi::all();
         $this->events = Event::all();
@@ -130,23 +142,37 @@ class TourForm extends Component
     {
         $this->validate();
 
+        // Générer le slug s'il est vide
         if (empty($this->tour->slug)) {
             $this->tour->slug = Str::slug($this->translations['fr']['title'] ?? 'tour-' . uniqid());
         }
 
-        $this->tour->featured_image_id = $this->featuredImageId;
-        $this->tour->save();
-
-        foreach ($this->translations as $locale => $data) {
-            $this->tour->translations()->updateOrCreate(
-                ['locale' => $locale],
-                [
-                    'title' => $data['title'] ?? '',
-                    'description' => $data['description'] ?? ''
-                ]
-            );
+        // S'assurer que currency est défini
+        if (empty($this->tour->currency)) {
+            $this->tour->currency = 'DJF';
         }
 
+        // Définir l'image principale
+        $this->tour->featured_image_id = $this->featuredImageId;
+
+        // Sauvegarder le tour
+        $this->tour->save();
+
+        // Sauvegarder les traductions
+        foreach ($this->translations as $locale => $data) {
+            // Ne sauvegarder que si au moins le titre est rempli
+            if (!empty($data['title'])) {
+                $this->tour->translations()->updateOrCreate(
+                    ['locale' => $locale],
+                    [
+                        'title' => $data['title'] ?? '',
+                        'description' => $data['description'] ?? ''
+                    ]
+                );
+            }
+        }
+
+        // Synchroniser les médias de la galerie
         $this->tour->media()->sync($this->selectedMedia);
 
         session()->flash('success', 'Tour sauvegardé avec succès.');
