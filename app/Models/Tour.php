@@ -56,16 +56,94 @@ class Tour extends Model
         'requirements' => 'array',
     ];
 
+    
     /**
-     * Get all reservations for this tour.
+     * Boot the model.
      */
-    public function reservations()
+    protected static function boot()
     {
-        return $this->morphMany(Reservation::class, 'reservable');
+        parent::boot();
+
+        static::creating(function ($tour) {
+            // Générer un slug si vide
+            if (empty($tour->slug)) {
+                $tour->slug = 'tour-' . uniqid();
+            }
+        });
     }
 
     /**
-     * Get the tour operator that owns the tour.
+     * Mettre à jour le slug basé sur le titre de la traduction française
+     */
+    public function updateSlugFromTranslation()
+    {
+        $translation = $this->translations()->where('locale', 'fr')->first();
+        if ($translation && $translation->title) {
+            $slug = Str::slug($translation->title);
+            // Assurer l'unicité du slug
+            $count = 1;
+            $originalSlug = $slug;
+            while (self::where('slug', $slug)->where('id', '!=', $this->id)->exists()) {
+                $slug = $originalSlug . '-' . $count;
+                $count++;
+            }
+            $this->update(['slug' => $slug]);
+        }
+    }
+
+    /**
+     * Get all translations.
+     */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(TourTranslation::class, 'tour_id');
+    }
+
+    /**
+     * Get translation for specific locale.
+     */
+    public function translation($locale = null)
+    {
+        $locale = $locale ?: app()->getLocale();
+
+        return $this->translations()
+                    ->where('locale', $locale)
+                    ->first()
+                ?? $this->translations()
+                      ->where('locale', config('app.fallback_locale'))
+                      ->first();
+    }
+
+    /**
+     * Translated attributes accessors.
+     */
+    public function getTitleAttribute()
+    {
+        return $this->translation() ? $this->translation()->title : '';
+    }
+
+    public function getDescriptionAttribute()
+    {
+        return $this->translation() ? $this->translation()->description : '';
+    }
+
+    public function getShortDescriptionAttribute()
+    {
+        return $this->translation() ? $this->translation()->short_description : '';
+    }
+
+    public function getItineraryAttribute()
+    {
+        return $this->translation() ? $this->translation()->itinerary : '';
+    }
+
+    public function getMeetingPointDescriptionAttribute()
+    {
+        return $this->translation() ? $this->translation()->meeting_point_description : '';
+    }
+
+    /**
+     * Get the tour operator.
      */
     public function tourOperator(): BelongsTo
     {
@@ -73,30 +151,29 @@ class Tour extends Model
     }
 
     /**
-     * Get the translations for the tour.
+     * Get the target (POI or Event).
      */
-    public function translations(): HasMany
+    public function target(): MorphTo
     {
-        return $this->hasMany(TourTranslation::class);
+        return $this->morphTo();
+    } 
+
+    /**
+     * Get active schedules.
+     */
+    public function activeSchedules(): HasMany
+    {
+        return $this->schedules()->where('status', 'available')
+                    ->where('start_date', '>=', now()->toDateString());
     }
 
     /**
-     * Get the translation for a specific locale.
+     * Get upcoming schedules.
      */
-    public function translation($locale = null)
+    public function upcomingSchedules(): HasMany
     {
-        $locale = $locale ?? app()->getLocale();
-        return $this->translations->where('locale', $locale)->first()
-            ?? $this->translations->where('locale', config('app.fallback_locale', 'fr'))->first();
-    }
-
-    /**
-     * Get the media associated with the tour.
-     */
-    public function media(): BelongsToMany
-    {
-        return $this->belongsToMany(Media::class, 'media_tour')
-            ->withTimestamps();
+        return $this->schedules()->where('start_date', '>=', now()->toDateString())
+                    ->orderBy('start_date');
     }
 
     /**
@@ -108,26 +185,91 @@ class Tour extends Model
     }
 
     /**
-     * Get the parent target model (Poi or Event).
+     * Get the media (images) for this tour.
      */
-    public function target(): MorphTo
+    public function media(): BelongsToMany
     {
-        return $this->morphTo();
+        return $this->belongsToMany(Media::class, 'media_tour')
+                    ->withPivot('order')
+                    ->orderBy('order');
     }
 
+    /**
+     * Get all reservations for this tour.
+     */
+    public function reservations()
+    {
+        return $this->morphMany(Reservation::class, 'reservable');
+    }
 
     /**
-     * Get difficulty level label.
+     * Get confirmed reservations.
      */
-    public function getDifficultyLabelAttribute(): string
+    public function confirmedReservations()
     {
-        return match($this->difficulty_level) {
-            'easy' => 'Facile',
-            'moderate' => 'Modéré',
-            'difficult' => 'Difficile',
-            'expert' => 'Expert',
-            default => 'Non spécifié'
-        };
+        return $this->reservations()->confirmed();
+    }
+
+    /**
+     * Scopes
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    public function scopeByType($query, string $type)
+    {
+        return $query->where('type', $type);
+    }
+
+    public function scopeByDifficulty($query, string $difficulty)
+    {
+        return $query->where('difficulty_level', $difficulty);
+    }
+
+    public function scopeByOperator($query, int $operatorId)
+    {
+        return $query->where('tour_operator_id', $operatorId);
+    }
+
+    public function scopeInPriceRange($query, ?float $minPrice = null, ?float $maxPrice = null)
+    {
+        if ($minPrice !== null) {
+            $query->where('price', '>=', $minPrice);
+        }
+        if ($maxPrice !== null) {
+            $query->where('price', '<=', $maxPrice);
+        }
+        return $query;
+    }
+
+    public function scopeByDuration($query, ?int $maxHours = null, ?int $maxDays = null)
+    {
+        if ($maxHours !== null) {
+            $query->where('duration_hours', '<=', $maxHours);
+        }
+        if ($maxDays !== null) {
+            $query->where('duration_days', '<=', $maxDays);
+        }
+        return $query;
+    }
+
+    public function scopeNearby($query, $latitude, $longitude, $radius = 50)
+    {
+        return $query->selectRaw("
+                *,
+                (6371 * acos(cos(radians(?)) * cos(radians(meeting_point_latitude)) * cos(radians(meeting_point_longitude) - radians(?)) + sin(radians(?)) * sin(radians(meeting_point_latitude)))) AS distance
+            ", [$latitude, $longitude, $latitude])
+            ->whereNotNull('meeting_point_latitude')
+            ->whereNotNull('meeting_point_longitude')
+            ->having('distance', '<=', $radius)
+            ->orderBy('distance');
     }
 
     /**
@@ -139,7 +281,7 @@ class Tour extends Model
 
         // Calculer la durée en jours basée sur les dates
         if ($this->start_date && $this->end_date) {
-            $days = $this->start_date->diffInDays($this->end_date) + 1; // +1 pour inclure le jour de f>
+            $days = $this->start_date->diffInDays($this->end_date) + 1; // +1 pour inclure le jour de fin
             if ($days > 0) {
                 $parts[] = $days . ' jour' . ($days > 1 ? 's' : '');
             }
@@ -171,6 +313,111 @@ class Tour extends Model
         }
 
         return $this->start_date->format('d/m/Y') . ' - ' . $this->end_date->format('d/m/Y');
+    }
+
+    public function getFormattedPriceAttribute(): string
+    {
+        if ($this->price == 0) {
+            return 'Gratuit';
+        }
+
+        return number_format($this->price, 0, ',', ' ') . ' ' . ($this->currency ?? 'DJF');
+    }
+
+    public function getIsFreeAttribute(): bool
+    {
+        return $this->price == 0;
+    }
+
+    public function getHasAgeRestrictionsAttribute(): bool
+    {
+        return $this->age_restriction_min > 0 || $this->age_restriction_max > 0;
+    }
+
+    public function getAgeRestrictionsTextAttribute(): string
+    {
+        if (!$this->has_age_restrictions) {
+            return 'Tous âges';
+        }
+
+        $parts = [];
+        if ($this->age_restriction_min > 0) {
+            $parts[] = "à partir de {$this->age_restriction_min} ans";
+        }
+        if ($this->age_restriction_max > 0) {
+            $parts[] = "jusqu'à {$this->age_restriction_max} ans";
+        }
+
+        return implode(', ', $parts);
+    }
+
+    public function getNextAvailableDateAttribute()
+    {
+        $nextSchedule = $this->activeSchedules()->orderBy('start_date')->first();
+        return $nextSchedule ? $nextSchedule->start_date : null;
+    }
+
+    public function getTotalSpotsAttribute(): int
+    {
+        return $this->schedules()->sum('available_spots');
+    }
+
+    public function getBookedSpotsAttribute(): int
+    {
+        return $this->schedules()->sum('booked_spots');
+    }
+
+    public function getAvailableSpotsAttribute(): int
+    {
+        return max(0, $this->total_spots - $this->booked_spots);
+    }
+
+    /**
+     * Methods
+     */
+    public function incrementViews()
+    {
+        $this->increment('views_count');
+    }
+
+    public function isAvailableForBooking(): bool
+    {
+        return $this->status === 'active' &&
+               $this->activeSchedules()->exists();
+    }
+
+    public function hasAvailableSpots(): bool
+    {
+        return $this->activeSchedules()
+                    ->whereRaw('available_spots > booked_spots')
+                    ->exists();
+    }
+
+    public function canBeBookedBy($user = null): bool
+    {
+        if (!$this->isAvailableForBooking()) {
+            return false;
+        }
+
+        if (!$this->hasAvailableSpots()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get difficulty level label.
+     */
+    public function getDifficultyLabelAttribute(): string
+    {
+        return match($this->difficulty_level) {
+            'easy' => 'Facile',
+            'moderate' => 'Modéré',
+            'difficult' => 'Difficile',
+            'expert' => 'Expert',
+            default => 'Non spécifié'
+        };
     }
 
     /**
