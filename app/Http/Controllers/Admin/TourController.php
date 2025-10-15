@@ -52,8 +52,7 @@ class TourController extends Controller
         $tour = Tour::with([
             'translations',
             'tourOperator.translations',
-            'target.translations',
-            'schedules' => function($query) {
+            'target.translations' => function($query) {
                 $query->orderBy('start_date');
             }
         ])->findOrFail($id);

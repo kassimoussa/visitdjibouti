@@ -144,7 +144,7 @@
                 @endif
 
                 <!-- Créneaux -->
-                <div class="card shadow-sm mb-4">
+                {{-- <div class="card shadow-sm mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Créneaux ({{ $tour->schedules->count() }})</h5>
                         <small class="text-muted">{{ $tour->schedules->where('status', 'available')->count() }} disponibles</small>
@@ -185,7 +185,7 @@
                             <p class="text-muted mb-0">Aucun créneau défini pour ce tour.</p>
                         @endif
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <!-- Informations complémentaires -->
