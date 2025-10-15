@@ -93,18 +93,6 @@
                                 @error('end_date') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Heure de début</label>
-                                <input type="time" class="form-control" wire:model="start_time">
-                                @error('start_time') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Heure de fin</label>
-                                <input type="time" class="form-control" wire:model="end_time">
-                                @error('end_time') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
-                        </div>
                         <div class="mb-3">
                             <label class="form-label">Adresse du point de rendez-vous</label>
                             <input type="text" class="form-control" wire:model="meeting_point_address">

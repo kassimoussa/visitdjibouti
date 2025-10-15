@@ -22,8 +22,6 @@ class TourForm extends Component
     public $target_type;
     public $start_date;
     public $end_date;
-    public $start_time;
-    public $end_time;
     public $price = 0;
     public $currency = 'DJF';
     public $max_participants;
@@ -110,7 +108,7 @@ class TourForm extends Component
             // Fill properties from the model
             $this->fill($tour->only([
                 'tour_operator_id', 'target_id', 'target_type', 'start_date', 'end_date',
-                'start_time', 'end_time', 'price', 'currency', 'max_participants',
+                'price', 'currency', 'max_participants',
                 'difficulty_level', 'status', 'is_featured', 'weather_dependent',
                 'meeting_point_address', 'cancellation_policy', 'slug'
             ]));
@@ -122,8 +120,6 @@ class TourForm extends Component
             // Format dates and times
             $this->start_date = $tour->start_date ? $tour->start_date->format('Y-m-d') : null;
             $this->end_date = $tour->end_date ? $tour->end_date->format('Y-m-d') : null;
-            $this->start_time = $tour->start_time ? $tour->start_time->format('H:i') : null;
-            $this->end_time = $tour->end_time ? $tour->end_time->format('H:i') : null;
 
             foreach ($tour->translations as $translation) {
                 if (isset($this->translations[$translation->locale])) {
@@ -194,8 +190,6 @@ class TourForm extends Component
             'target_type' => $this->target_type,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
-            'start_time' => $this->start_time,
-            'end_time' => $this->end_time,
             'price' => $this->price,
             'currency' => $this->currency,
             'max_participants' => $this->max_participants,

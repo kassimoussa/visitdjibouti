@@ -23,8 +23,6 @@ class Tour extends Model
         'target_type',
         'start_date',
         'end_date',
-        'start_time',
-        'end_time',
         'price',
         'currency',
         'max_participants',
@@ -46,8 +44,6 @@ class Tour extends Model
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
         'price' => 'decimal:2',
         'max_participants' => 'integer',
         'current_participants' => 'integer',
