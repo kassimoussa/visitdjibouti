@@ -131,6 +131,49 @@ class Tour extends Model
     }
 
     /**
+     * Computed attributes
+     */
+    public function getFormattedDurationAttribute(): string
+    {
+        $parts = [];
+
+        // Calculer la durée en jours basée sur les dates
+        if ($this->start_date && $this->end_date) {
+            $days = $this->start_date->diffInDays($this->end_date) + 1; // +1 pour inclure le jour de f>
+            if ($days > 0) {
+                $parts[] = $days . ' jour' . ($days > 1 ? 's' : '');
+            }
+        }
+
+        if ($this->duration_hours > 0) {
+            $parts[] = $this->duration_hours . ' heure' . ($this->duration_hours > 1 ? 's' : '');
+        }
+
+        return implode(' ', $parts) ?: 'Durée non spécifiée';
+    }
+
+    public function getDurationInDaysAttribute(): int
+    {
+        if ($this->start_date && $this->end_date) {
+            return $this->start_date->diffInDays($this->end_date) + 1;
+        }
+        return 0;
+    }
+
+    public function getFormattedDateRangeAttribute(): string
+    {
+        if (!$this->start_date) {
+            return 'Dates non définies';
+        }
+
+        if (!$this->end_date || $this->start_date->eq($this->end_date)) {
+            return $this->start_date->format('d/m/Y');
+        }
+
+        return $this->start_date->format('d/m/Y') . ' - ' . $this->end_date->format('d/m/Y');
+    }
+
+    /**
      * Get type label.
      */
     public function getTypeLabelAttribute(): string
