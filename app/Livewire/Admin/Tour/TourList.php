@@ -57,7 +57,7 @@ class TourList extends Component
 
     public function render()
     {
-        $query = Tour::with(['tourOperator.translations', 'target', 'translations', 'schedules']);
+        $query = Tour::with(['tourOperator.translations', 'target', 'translations']);
 
         // Apply filters
         if (!empty($this->search)) {
