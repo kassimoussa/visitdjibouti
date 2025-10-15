@@ -68,7 +68,48 @@ class Tour extends Model
         return $this->morphMany(Reservation::class, 'reservable');
     }
 
-    // ... (Le reste du modèle, en supprimant les méthodes liées aux schedules)
+    /**
+     * Get the tour operator that owns the tour.
+     */
+    public function tourOperator(): BelongsTo
+    {
+        return $this->belongsTo(TourOperator::class);
+    }
+
+    /**
+     * Get the translations for the tour.
+     */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(TourTranslation::class);
+    }
+
+    /**
+     * Get the translation for a specific locale.
+     */
+    public function translation($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        return $this->translations->where('locale', $locale)->first()
+            ?? $this->translations->where('locale', config('app.fallback_locale', 'fr'))->first();
+    }
+
+    /**
+     * Get the media associated with the tour.
+     */
+    public function media(): BelongsToMany
+    {
+        return $this->belongsToMany(Media::class, 'media_tour')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the featured image.
+     */
+    public function featuredImage(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'featured_image_id');
+    }
 
 
     /**
