@@ -89,8 +89,7 @@
                                 <th>Type</th>
                                 <th>Difficulté</th>
                                 <th>Prix</th>
-                                <th>Statut</th>
-                                <th>Créneaux</th>
+                                <th>Statut</th> 
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -144,13 +143,7 @@
                                             @else bg-secondary @endif">
                                             {{ ucfirst($tour->status) }}
                                         </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-primary">{{ $tour->schedules->count() }}</span>
-                                        @if($tour->schedules->where('status', 'available')->count() > 0)
-                                            <small class="text-success d-block">{{ $tour->schedules->where('status', 'available')->count() }} actifs</small>
-                                        @endif
-                                    </td>
+                                    </td> 
                                     <td>
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('tours.show', $tour) }}"
