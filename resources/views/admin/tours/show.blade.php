@@ -80,13 +80,13 @@
                                     </dd>
 
                                     <dt class="col-sm-4">Prix:</dt>
-                                    <dd class="col-sm-8">{{ $tour->price }}</dd>
+                                    <dd class="col-sm-8">{{ $tour->formatted_price }}</dd>
                                 </dl>
                             </div>
                             <div class="col-md-6">
                                 <dl class="row">
                                     <dt class="col-sm-4">Dates:</dt>
-                                    <dd class="col-sm-8">{{ $tour->start_date}}  à  {{ $tour->end_date }}</dd>
+                                    <dd class="col-sm-8">{{ $tour->formatted_date_range }}</dd>
 
                                     <dt class="col-sm-4">Durée:</dt>
                                     <dd class="col-sm-8">{{ $tour->formatted_duration }}</dd>
