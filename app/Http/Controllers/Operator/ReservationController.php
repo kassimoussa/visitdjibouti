@@ -365,4 +365,56 @@ class ReservationController extends Controller
             default => ucfirst($status)
         };
     }
+
+    public function bulkConfirm(Request $request): RedirectResponse
+    {
+        $user = Auth::guard('operator')->user();
+        $ids = $request->input('ids', []);
+        $reservations = Reservation::whereIn('id', $ids)->get();
+
+        foreach ($reservations as $reservation) {
+            $this->verifyReservationAccess($reservation, $user);
+            if ($reservation->status === 'pending') {
+                $reservation->confirm();
+            }
+        }
+
+        return redirect()
+            ->route('operator.reservations.index')
+            ->with('success', 'Réservations sélectionnées confirmées avec succès.');
+    }
+
+    public function updateNotes(Request $request, Reservation $reservation): RedirectResponse
+    {
+        $user = Auth::guard('operator')->user();
+        $this->verifyReservationAccess($reservation, $user);
+
+        $request->validate([
+            'notes' => 'nullable|string',
+        ]);
+
+        $reservation->update(['notes' => $request->notes]);
+
+        return redirect()
+            ->route('operator.reservations.show', $reservation)
+            ->with('success', 'Notes mises à jour avec succès.');
+    }
+
+    public function checkIn(Request $request, Reservation $reservation): RedirectResponse
+    {
+        $user = Auth::guard('operator')->user();
+        $this->verifyReservationAccess($reservation, $user);
+
+        if ($reservation->status !== 'confirmed') {
+            return redirect()
+                ->route('operator.reservations.show', $reservation)
+                ->with('error', 'Seuls les participants avec une réservation confirmée peuvent être enregistrés.');
+        }
+
+        $reservation->update(['status' => 'completed']);
+
+        return redirect()
+            ->route('operator.reservations.show', $reservation)
+            ->with('success', 'Participant enregistré avec succès.');
+    }
 }
