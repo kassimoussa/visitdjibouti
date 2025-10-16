@@ -7,6 +7,7 @@ use App\Models\Tour;
 use App\Models\TourReservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class TourReservationController extends Controller
@@ -58,35 +59,63 @@ class TourReservationController extends Controller
         }
 
         $validatedData = $validator->validated();
+        $requestedSpots = $validatedData['number_of_people'];
 
-        // Placeholder for tour availability logic
-        // You might want to add checks here, e.g., if the tour is active,
-        // if it has a max capacity and if that capacity is reached.
-        // For now, we just check if the tour exists.
+        try {
+            $tourReservation = DB::transaction(function () use ($tour, $validatedData, $user, $requestedSpots) {
+                // Re-fetch the tour with a pessimistic lock to prevent race conditions
+                $tour = Tour::lockForUpdate()->findOrFail($tour->id);
 
-        $reservationData = [
-            'tour_id' => $tour->id,
-            'number_of_people' => $validatedData['number_of_people'],
-            'notes' => $validatedData['notes'] ?? null,
-            'status' => 'pending',
-        ];
+                if ($tour->available_spots < $requestedSpots) {
+                    // Not enough spots, so we throw an exception to automatically rollback the transaction
+                    // and it will be caught by the outer catch block.
+                    throw new \Exception('Not enough available spots for the number of people requested.');
+                }
 
-        if ($user) {
-            $reservationData['app_user_id'] = $user->id;
-        } else {
-            $reservationData['guest_name'] = $validatedData['guest_name'];
-            $reservationData['guest_email'] = $validatedData['guest_email'];
-            $reservationData['guest_phone'] = $validatedData['guest_phone'] ?? null;
+                $reservationData = [
+                    'tour_id' => $tour->id,
+                    'number_of_people' => $requestedSpots,
+                    'notes' => $validatedData['notes'] ?? null,
+                    'status' => 'pending',
+                ];
+
+                if ($user) {
+                    $reservationData['app_user_id'] = $user->id;
+                } else {
+                    $reservationData['guest_name'] = $validatedData['guest_name'];
+                    $reservationData['guest_email'] = $validatedData['guest_email'];
+                    $reservationData['guest_phone'] = $validatedData['guest_phone'] ?? null;
+                }
+
+                $tourReservation = TourReservation::create($reservationData);
+
+                // Increment the participants count
+                $tour->increment('current_participants', $requestedSpots);
+
+                return $tourReservation;
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tour reservation request sent successfully. It is pending confirmation from the operator.',
+                'reservation' => $tourReservation,
+            ], 201);
+
+        } catch (\Exception $e) {
+            if ($e->getMessage() === 'Not enough available spots for the number of people requested.') {
+                 return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'available_spots' => $tour->refresh()->available_spots,
+                ], 422);
+            }
+
+            // For other unexpected errors
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred while processing your reservation.',
+            ], 500);
         }
-
-        $tourReservation = TourReservation::create($reservationData);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Tour reservation request sent successfully. It is pending confirmation from the operator.',
-            'reservation' => $tourReservation,
-        ], 201);
-
     }
 
     /**
