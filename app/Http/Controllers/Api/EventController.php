@@ -275,10 +275,13 @@ class EventController extends Controller
 
             $reservation = Reservation::create($reservationData);
 
+            // For both free and paid events, we add participants now.
+            // The status will determine if it's a confirmed spot or a pending one.
+            $event->addParticipant($participants_count);
+
             // If free event, auto-confirm reservation
             if ($event->price == 0) {
                 $reservation->confirm();
-                $event->addParticipant();
             }
 
             DB::commit();
@@ -337,7 +340,7 @@ class EventController extends Controller
             ]);
 
             $reservation->cancel($request->get('reason'));
-            $event->removeParticipant();
+            $event->removeParticipant($reservation->number_of_people);
 
             return response()->json([
                 'success' => true,

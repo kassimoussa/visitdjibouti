@@ -346,21 +346,19 @@ class Event extends Model
     }
 
     /**
-     * Add a participant to the event.
+     * Add a specific number of participants to the event.
      */
-    public function addParticipant()
+    public function addParticipant(int $count = 1)
     {
-        $this->increment('current_participants');
+        $this->increment('current_participants', $count);
     }
 
     /**
-     * Remove a participant from the event.
+     * Remove a specific number of participants from the event.
      */
-    public function removeParticipant()
+    public function removeParticipant(int $count = 1)
     {
-        if ($this->current_participants > 0) {
-            $this->decrement('current_participants');
-        }
+        $this->decrement('current_participants', $count);
     }
 
     /**
