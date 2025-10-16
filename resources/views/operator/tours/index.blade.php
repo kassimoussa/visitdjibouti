@@ -75,7 +75,7 @@
 
     <!-- Statistics Row -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="stats-card small">
                 <div class="stats-icon primary">
                     <i class="fas fa-route"></i>
@@ -84,7 +84,7 @@
                 <p>Total Tours</p>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="stats-card small">
                 <div class="stats-icon success">
                     <i class="fas fa-check-circle"></i>
@@ -93,16 +93,7 @@
                 <p>Actifs</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stats-card small">
-                <div class="stats-icon warning">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
-                <h4>{{ $statistics['with_schedules'] }}</h4>
-                <p>Avec Horaires</p>
-            </div>
-        </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="stats-card small">
                 <div class="stats-icon danger">
                     <i class="fas fa-times-circle"></i>
@@ -132,7 +123,7 @@
                                 <th>Durée & Prix</th>
                                 <th>Région</th>
                                 <th>Statut</th>
-                                <th>Horaires</th>
+                                <th>Participants</th>
                                 <th>Réservations</th>
                                 <th>Actions</th>
                             </tr>
@@ -185,10 +176,15 @@
                                     </td>
                                     <td>
                                         <div class="text-center">
-                                            <strong>{{ $tour->schedules()->count() }}</strong>
+                                            <strong>{{ $tour->current_participants ?? 0 }}</strong>
+                                            <span class="text-muted">/ {{ $tour->max_participants ?? '∞' }}</span>
                                             <br>
                                             <small class="text-muted">
-                                                {{ $tour->schedules()->where('status', 'active')->count() }} actifs
+                                                @if($tour->max_participants)
+                                                    {{ round(($tour->current_participants / $tour->max_participants) * 100) }}% rempli
+                                                @else
+                                                    capacité illimitée
+                                                @endif
                                             </small>
                                         </div>
                                     </td>
@@ -197,7 +193,7 @@
                                             <strong>{{ $tour->reservations()->count() }}</strong>
                                             <br>
                                             <small class="text-muted">
-                                                réservations
+                                                {{ $tour->confirmedReservations()->count() }} confirmées
                                             </small>
                                         </div>
                                     </td>
