@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Operator;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tour;
-use App\Models\TourSchedule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class TourController extends Controller
@@ -83,10 +83,8 @@ class TourController extends Controller
             'media',
             'tourOperator.translations',
             'target.translations',
+            'reservations',
         ]);
-
-        // Get upcoming schedules
-        $upcomingSchedules = collect(); // Empty collection
 
         // Get reservation statistics
         $reservationStats = [
@@ -95,7 +93,7 @@ class TourController extends Controller
             'pending' => $tour->reservations()->where('status', 'pending')->count(),
         ];
 
-        return view('operator.tours.show', compact('tour', 'upcomingSchedules', 'reservationStats', 'user'));
+        return view('operator.tours.show', compact('tour', 'reservationStats', 'user'));
     }
 
     /**
@@ -116,8 +114,7 @@ class TourController extends Controller
         $user = Auth::guard('operator')->user();
 
         $validated = $request->validate([
-            'status' => 'required|in:active,inactive,draft',
-            'type' => 'required|string',
+            'status' => 'required|in:active,inactive,draft', 
             'price' => 'nullable|numeric|min:0',
             'max_participants' => 'nullable|integer|min:1',
             'translations' => 'required|array',
@@ -127,8 +124,7 @@ class TourController extends Controller
 
         $tour = $user->tourOperator->tours()->create([
             'slug' => Str::slug($validated['translations']['fr']['title'] ?? 'tour-' . uniqid()),
-            'status' => $validated['status'],
-            'type' => $validated['type'],
+            'status' => $validated['status'], 
             'price' => $validated['price'],
             'max_participants' => $validated['max_participants'],
             'current_participants' => 0,
@@ -252,24 +248,12 @@ class TourController extends Controller
             'total_tours' => $toursQuery->count(),
             'active_tours' => $toursQuery->where('status', 'active')->count(),
             'inactive_tours' => $toursQuery->where('status', 'inactive')->count(),
-            'tours_with_schedules' => $toursQuery->whereHas('schedules')->count(),
-        ];
-
-        // Schedules statistics
-        $schedulesQuery = TourSchedule::whereHas('tour', function ($q) use ($user) {
-            $q->where('tour_operator_id', $user->tour_operator_id);
-        })->whereBetween('start_date', [$dateFrom, $dateTo]);
-
-        $scheduleStats = [
-            'total_schedules' => $schedulesQuery->count(),
-            'available_schedules' => $schedulesQuery->where('status', 'available')->count(),
-            'completed_schedules' => $schedulesQuery->where('status', 'completed')->count(),
-            'cancelled_schedules' => $schedulesQuery->where('status', 'cancelled')->count(),
+            'draft_tours' => $toursQuery->where('status', 'draft')->count(),
         ];
 
         // Reservations statistics
-        $reservationsQuery = \App\Models\Reservation::where('reservable_type', TourSchedule::class)
-            ->whereHas('reservable.tour', function ($q) use ($user) {
+        $reservationsQuery = \App\Models\Reservation::where('reservable_type', Tour::class)
+            ->whereHas('reservable', function ($q) use ($user) {
                 $q->where('tour_operator_id', $user->tour_operator_id);
             })
             ->whereBetween('created_at', [$dateFrom, $dateTo]);
@@ -294,7 +278,6 @@ class TourController extends Controller
 
         return view('operator.tours.reports', compact(
             'tourStats',
-            'scheduleStats',
             'reservationStats',
             'popularTours',
             'dateFrom',

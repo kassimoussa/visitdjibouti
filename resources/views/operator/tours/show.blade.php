@@ -41,27 +41,6 @@
                 <i class="fas fa-edit me-2"></i>
                 Modifier
             </a>
-            <div class="dropdown">
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-ellipsis-v me-2"></i>
-                    Actions
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="fas fa-calendar-plus me-2"></i>
-                            Ajouter un horaire
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item" href="#" target="_blank">
-                            <i class="fas fa-external-link-alt me-2"></i>
-                            Voir sur le site public
-                        </a>
-                    </li>
-                </ul>
-            </div>
         </div>
     </div>
 
@@ -198,67 +177,52 @@
                 </div>
             </div>
 
-            <!-- Upcoming Schedules -->
+            <!-- Recent Reservations -->
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5>
-                        <i class="fas fa-calendar-alt me-2"></i>
-                        Horaires à venir
+                        <i class="fas fa-calendar-check me-2"></i>
+                        Réservations Récentes
                     </h5>
-                    <a href="#" class="btn btn-sm btn-primary">
-                        <i class="fas fa-plus me-1"></i>
-                        Ajouter un horaire
+                    <a href="{{ route('operator.reservations.index', ['tour_id' => $tour->id]) }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-list me-1"></i>
+                        Voir toutes
                     </a>
                 </div>
                 <div class="card-body">
-                    @if($upcomingSchedules->count() > 0)
+                    @if($tour->reservations()->count() > 0)
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Heure</th>
-                                        <th>Places</th>
-                                        <th>Réservations</th>
+                                        <th>Client</th>
+                                        <th>Participants</th>
+                                        <th>Date réservation</th>
                                         <th>Statut</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($upcomingSchedules as $schedule)
+                                    @foreach($tour->reservations()->latest()->take(5)->get() as $reservation)
                                         <tr>
-                                            <td>{{ $schedule->start_date->format('d/m/Y') }}</td>
                                             <td>
-                                                @if($schedule->start_time)
-                                                    {{ $schedule->start_time->format('H:i') }}
-                                                @else
-                                                    <span class="text-muted">--:--</span>
-                                                @endif
+                                                {{ $reservation->customer_name ?? $reservation->appUser->name ?? 'N/A' }}
                                             </td>
                                             <td>
                                                 <span class="badge bg-secondary">
-                                                    {{ $schedule->available_spots }}
+                                                    {{ $reservation->number_of_people }}
+                                                </span>
+                                            </td>
+                                            <td>{{ $reservation->created_at->format('d/m/Y H:i') }}</td>
+                                            <td>
+                                                <span class="badge status-{{ $reservation->status }}">
+                                                    {{ ucfirst($reservation->status) }}
                                                 </span>
                                             </td>
                                             <td>
-                                                <span class="badge bg-primary">
-                                                    {{ $schedule->booked_spots }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span class="badge status-{{ $schedule->status }}">
-                                                    {{ ucfirst($schedule->status) }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="#" class="btn btn-outline-primary" title="Voir">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="#" class="btn btn-outline-warning" title="Modifier">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                </div>
+                                                <a href="{{ route('operator.reservations.show', $reservation) }}" class="btn btn-sm btn-outline-primary" title="Voir">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -267,13 +231,9 @@
                         </div>
                     @else
                         <div class="text-center py-5">
-                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Aucun horaire à venir</h5>
-                            <p class="text-muted mb-4">Créez des horaires pour permettre les réservations</p>
-                            <a href="#" class="btn btn-primary">
-                                <i class="fas fa-plus me-2"></i>
-                                Créer un horaire
-                            </a>
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucune réservation</h5>
+                            <p class="text-muted mb-0">Les réservations pour ce tour apparaîtront ici</p>
                         </div>
                     @endif
                 </div>
@@ -292,33 +252,31 @@
                 </div>
                 <div class="card-body">
                     <div class="row text-center">
-                        <div class="col-6 border-end">
-                            <h3 class="text-primary mb-1">{{ $tour->schedules->count() }}</h3>
-                            <small class="text-muted">Horaires</small>
-                        </div>
-                        <div class="col-6">
+                        <div class="col-4">
                             <h3 class="text-success mb-1">{{ $reservationStats['total'] ?? 0 }}</h3>
-                            <small class="text-muted">Réservations</small>
+                            <small class="text-muted">Réservations Totales</small>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="text-primary mb-1">{{ $reservationStats['confirmed'] ?? 0 }}</h3>
+                            <small class="text-muted">Confirmées</small>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="text-warning mb-1">{{ $reservationStats['pending'] ?? 0 }}</h3>
+                            <small class="text-muted">En attente</small>
                         </div>
                     </div>
                     <hr>
                     <div class="row text-center">
-                        <div class="col-4">
-                            <div class="text-primary">
-                                <strong>{{ $reservationStats['confirmed'] ?? 0 }}</strong>
-                                <br><small>Confirmées</small>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="text-warning">
-                                <strong>{{ $reservationStats['pending'] ?? 0 }}</strong>
-                                <br><small>En attente</small>
-                            </div>
-                        </div>
-                        <div class="col-4">
+                        <div class="col-6 border-end">
                             <div class="text-info">
-                                <strong>{{ $tour->views_count ?? 0 }}</strong>
-                                <br><small>Vues</small>
+                                <strong>{{ $tour->current_participants ?? 0 }}</strong>
+                                <br><small>Participants Actuels</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-secondary">
+                                <strong>{{ $tour->max_participants ?? '∞' }}</strong>
+                                <br><small>Capacité Max</small>
                             </div>
                         </div>
                     </div>
