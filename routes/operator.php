@@ -60,7 +60,10 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
     Route::prefix('tours')->name('tours.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Operator\TourController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Operator\TourController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Operator\TourController::class, 'store'])->name('store');
         Route::get('/{tour}', [\App\Http\Controllers\Operator\TourController::class, 'show'])->name('show');
+        Route::get('/{tour}/edit', [\App\Http\Controllers\Operator\TourController::class, 'edit'])->name('edit');
+        Route::put('/{tour}', [\App\Http\Controllers\Operator\TourController::class, 'update'])->name('update');
     });
 
     // Routes pour le profil

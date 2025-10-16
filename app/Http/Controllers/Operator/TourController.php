@@ -60,9 +60,6 @@ class TourController extends Controller
             'total' => $user->managedTours()->count(),
             'active' => $user->managedTours()->where('status', 'active')->count(),
             'inactive' => $user->managedTours()->where('status', 'inactive')->count(),
-            'with_schedules' => $user->managedTours()
-                ->whereHas('activeSchedules')
-                ->count(),
         ];
 
         return view('operator.tours.index', compact('tours', 'statistics', 'user'));
@@ -86,15 +83,10 @@ class TourController extends Controller
             'media',
             'tourOperator.translations',
             'target.translations',
-            'schedules',
         ]);
 
         // Get upcoming schedules
-        $upcomingSchedules = $tour->schedules()
-            ->where('start_date', '>=', now()->toDateString())
-            ->orderBy('start_date')
-            ->limit(10)
-            ->get();
+        $upcomingSchedules = collect(); // Empty collection
 
         // Get reservation statistics
         $reservationStats = [
@@ -105,6 +97,54 @@ class TourController extends Controller
 
         return view('operator.tours.show', compact('tour', 'upcomingSchedules', 'reservationStats', 'user'));
     }
+
+    /**
+     * Show the form for creating a new tour.
+     */
+    public function create(): View
+    {
+        $user = Auth::guard('operator')->user();
+        return view('operator.tours.create', compact('user'));
+    }
+
+
+    /**
+     * Store a newly created tour in storage.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $user = Auth::guard('operator')->user();
+
+        $validated = $request->validate([
+            'status' => 'required|in:active,inactive,draft',
+            'type' => 'required|string',
+            'price' => 'nullable|numeric|min:0',
+            'max_participants' => 'nullable|integer|min:1',
+            'translations' => 'required|array',
+            'translations.*.title' => 'required|string|max:255',
+            'translations.*.description' => 'required|string',
+        ]);
+
+        $tour = $user->tourOperator->tours()->create([
+            'slug' => Str::slug($validated['translations']['fr']['title'] ?? 'tour-' . uniqid()),
+            'status' => $validated['status'],
+            'type' => $validated['type'],
+            'price' => $validated['price'],
+            'max_participants' => $validated['max_participants'],
+            'current_participants' => 0,
+        ]);
+
+        foreach ($validated['translations'] as $locale => $translationData) {
+            $tour->translations()->create(
+                array_merge($translationData, ['locale' => $locale])
+            );
+        }
+
+        return redirect()
+            ->route('operator.tours.show', $tour)
+            ->with('success', 'Tour créé avec succès.');
+    }
+
 
     /**
      * Update the specified tour.
@@ -176,9 +216,9 @@ class TourController extends Controller
     }
 
     /**
-     * Display tour schedules.
+     * Show the form for editing the specified tour.
      */
-    public function schedules(Request $request, Tour $tour): View
+    public function edit(Tour $tour): View
     {
         $user = Auth::guard('operator')->user();
 
@@ -187,139 +227,13 @@ class TourController extends Controller
             abort(403, 'Vous n\'avez pas accès à ce tour.');
         }
 
-        $query = $tour->schedules()->with(['tour.translations']);
+        $tour->load(['translations', 'featuredImage']);
 
-        // Filters
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('date_from')) {
-            $query->where('start_date', '>=', $request->date_from);
-        }
-
-        if ($request->filled('date_to')) {
-            $query->where('end_date', '<=', $request->date_to);
-        }
-
-        // Sort
-        $sortBy = $request->get('sort_by', 'start_date');
-        $sortOrder = $request->get('sort_order', 'asc');
-        $query->orderBy($sortBy, $sortOrder);
-
-        $schedules = $query->paginate(20)->withQueryString();
-
-        return view('operator.tours.schedules', compact('tour', 'schedules'));
+        return view('operator.tours.edit', compact('tour', 'user'));
     }
 
-    /**
-     * Create a new tour schedule.
-     */
-    public function createSchedule(Request $request, Tour $tour): RedirectResponse
-    {
-        $user = Auth::guard('operator')->user();
 
-        // Verify the tour belongs to this operator
-        if ($tour->tour_operator_id !== $user->tour_operator_id) {
-            abort(403, 'Vous n\'avez pas accès à ce tour.');
-        }
 
-        $validated = $request->validate([
-            'start_date' => 'required|date|after_or_equal:today',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'start_time' => 'nullable|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i|after:start_time',
-            'available_spots' => 'required|integer|min:1',
-            'guide_name' => 'nullable|string|max:255',
-            'guide_contact' => 'nullable|string|max:255',
-            'guide_languages' => 'nullable|array',
-            'guide_languages.*' => 'string|in:fr,en,ar,es,it,de',
-            'special_notes' => 'nullable|string',
-            'price_override' => 'nullable|numeric|min:0',
-            'meeting_point_override' => 'nullable|string|max:500',
-            'cancellation_deadline' => 'nullable|date|before:start_date',
-        ]);
-
-        $validated['tour_id'] = $tour->id;
-        $validated['booked_spots'] = 0;
-        $validated['status'] = 'available';
-        $validated['created_by_admin_id'] = null; // Created by operator
-
-        TourSchedule::create($validated);
-
-        return redirect()
-            ->route('operator.tours.schedules.index', $tour)
-            ->with('success', 'Calendrier créé avec succès.');
-    }
-
-    /**
-     * Update a tour schedule.
-     */
-    public function updateSchedule(Request $request, Tour $tour, TourSchedule $schedule): RedirectResponse
-    {
-        $user = Auth::guard('operator')->user();
-
-        // Verify the tour belongs to this operator
-        if ($tour->tour_operator_id !== $user->tour_operator_id || $schedule->tour_id !== $tour->id) {
-            abort(403, 'Vous n\'avez pas accès à ce calendrier.');
-        }
-
-        $validated = $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'start_time' => 'nullable|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i|after:start_time',
-            'available_spots' => 'required|integer|min:'.$schedule->booked_spots,
-            'status' => 'required|in:available,full,cancelled,completed',
-            'guide_name' => 'nullable|string|max:255',
-            'guide_contact' => 'nullable|string|max:255',
-            'guide_languages' => 'nullable|array',
-            'guide_languages.*' => 'string|in:fr,en,ar,es,it,de',
-            'special_notes' => 'nullable|string',
-            'price_override' => 'nullable|numeric|min:0',
-            'meeting_point_override' => 'nullable|string|max:500',
-            'cancellation_deadline' => 'nullable|date|before:start_date',
-        ]);
-
-        $schedule->update($validated);
-
-        return redirect()
-            ->route('operator.tours.schedules.index', $tour)
-            ->with('success', 'Calendrier mis à jour avec succès.');
-    }
-
-    /**
-     * Delete a tour schedule.
-     */
-    public function deleteSchedule(Tour $tour, TourSchedule $schedule): RedirectResponse
-    {
-        $user = Auth::guard('operator')->user();
-
-        // Verify the tour belongs to this operator
-        if ($tour->tour_operator_id !== $user->tour_operator_id || $schedule->tour_id !== $tour->id) {
-            abort(403, 'Vous n\'avez pas accès à ce calendrier.');
-        }
-
-        // Check if there are confirmed reservations
-        if ($schedule->confirmedReservations()->exists()) {
-            return redirect()
-                ->route('operator.tours.schedules.index', $tour)
-                ->with('error', 'Impossible de supprimer un calendrier avec des réservations confirmées.');
-        }
-
-        // Cancel pending reservations
-        $schedule->pendingReservations()->update([
-            'status' => 'cancelled',
-            'cancellation_reason' => 'Calendrier supprimé par l\'opérateur',
-            'cancelled_at' => now(),
-        ]);
-
-        $schedule->delete();
-
-        return redirect()
-            ->route('operator.tours.schedules.index', $tour)
-            ->with('success', 'Calendrier supprimé avec succès.');
-    }
 
     /**
      * Get reports for tours.
