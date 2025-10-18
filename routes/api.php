@@ -284,3 +284,43 @@ Route::middleware(['auth:operator-api'])->prefix('operator')->name('operator.api
     //             ->name('tour-operator.update'); // Mise à jour de l'opérateur touristique
     //     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Debug Routes (only for development)
+|--------------------------------------------------------------------------
+*/
+if (config('app.debug')) {
+    Route::get('/debug/tour-reservations', function () {
+        $debug = [];
+
+        // Check if table exists
+        $debug['table_exists'] = \Illuminate\Support\Facades\Schema::hasTable('tour_reservations');
+
+        if ($debug['table_exists']) {
+            $debug['columns'] = \Illuminate\Support\Facades\Schema::getColumnListing('tour_reservations');
+        }
+
+        // Check tours table
+        $debug['tours_table_exists'] = \Illuminate\Support\Facades\Schema::hasTable('tours');
+        if ($debug['tours_table_exists']) {
+            $debug['tours_columns'] = \Illuminate\Support\Facades\Schema::getColumnListing('tours');
+            $debug['tour_1_exists'] = \App\Models\Tour::where('id', 1)->exists();
+
+            if ($debug['tour_1_exists']) {
+                $tour = \App\Models\Tour::find(1);
+                $debug['tour_1_data'] = [
+                    'id' => $tour->id,
+                    'max_participants' => $tour->max_participants,
+                    'current_participants' => $tour->current_participants ?? 'NULL',
+                    'status' => $tour->status,
+                ];
+            }
+        }
+
+        // Check app_users table
+        $debug['app_users_table_exists'] = \Illuminate\Support\Facades\Schema::hasTable('app_users');
+
+        return response()->json($debug);
+    });
+}

@@ -110,10 +110,20 @@ class TourReservationController extends Controller
                 ], 422);
             }
 
+            // Log the error for debugging
+            \Log::error('Tour reservation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'tour_id' => $tour->id,
+                'user_id' => $user?->id,
+            ]);
+
             // For other unexpected errors
             return response()->json([
                 'success' => false,
                 'message' => 'An unexpected error occurred while processing your reservation.',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+                'trace' => config('app.debug') ? $e->getTraceAsString() : null,
             ], 500);
         }
     }
