@@ -180,11 +180,11 @@ class Tour extends Model
     }
 
     /**
-     * Get all reservations for this tour.
+     * Get all reservations for this tour (new system).
      */
-    public function reservations()
+    public function reservations(): HasMany
     {
-        return $this->morphMany(Reservation::class, 'reservable');
+        return $this->hasMany(TourReservation::class, 'tour_id');
     }
 
     /**
@@ -192,7 +192,7 @@ class Tour extends Model
      */
     public function confirmedReservations()
     {
-        return $this->reservations()->confirmed();
+        return $this->reservations()->where('status', 'confirmed');
     }
 
     /**

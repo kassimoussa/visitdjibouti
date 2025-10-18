@@ -184,7 +184,7 @@
                         <i class="fas fa-calendar-check me-2"></i>
                         Réservations Récentes
                     </h5>
-                    <a href="{{ route('operator.reservations.index', ['tour_id' => $tour->id]) }}" class="btn btn-sm btn-primary">
+                    <a href="{{ route('operator.tour-reservations.index', ['tour_id' => $tour->id]) }}" class="btn btn-sm btn-primary">
                         <i class="fas fa-list me-1"></i>
                         Voir toutes
                     </a>
@@ -206,7 +206,7 @@
                                     @foreach($tour->reservations()->latest()->take(5)->get() as $reservation)
                                         <tr>
                                             <td>
-                                                {{ $reservation->customer_name ?? $reservation->appUser->name ?? 'N/A' }}
+                                                {{ $reservation->appUser->name ?? $reservation->guest_name ?? 'N/A' }}
                                             </td>
                                             <td>
                                                 <span class="badge bg-secondary">
@@ -215,12 +215,30 @@
                                             </td>
                                             <td>{{ $reservation->created_at->format('d/m/Y H:i') }}</td>
                                             <td>
-                                                <span class="badge status-{{ $reservation->status }}">
-                                                    {{ ucfirst($reservation->status) }}
+                                                @php
+                                                    $statusBadge = match($reservation->status) {
+                                                        'pending' => 'bg-warning',
+                                                        'confirmed' => 'bg-success',
+                                                        'completed' => 'bg-info',
+                                                        'cancelled_by_user' => 'bg-danger',
+                                                        'cancelled_by_operator' => 'bg-secondary',
+                                                        default => 'bg-secondary'
+                                                    };
+                                                    $statusLabel = match($reservation->status) {
+                                                        'pending' => 'En attente',
+                                                        'confirmed' => 'Confirmé',
+                                                        'completed' => 'Terminé',
+                                                        'cancelled_by_user' => 'Annulé',
+                                                        'cancelled_by_operator' => 'Annulé',
+                                                        default => $reservation->status
+                                                    };
+                                                @endphp
+                                                <span class="badge {{ $statusBadge }}">
+                                                    {{ $statusLabel }}
                                                 </span>
                                             </td>
                                             <td>
-                                                <a href="{{ route('operator.reservations.show', $reservation) }}" class="btn btn-sm btn-outline-primary" title="Voir">
+                                                <a href="{{ route('operator.tour-reservations.show', $reservation) }}" class="btn btn-sm btn-outline-primary" title="Voir">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                             </td>

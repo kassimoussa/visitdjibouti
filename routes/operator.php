@@ -74,6 +74,17 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
         Route::put('/{tour}', [\App\Http\Controllers\Operator\TourController::class, 'update'])->name('update');
     });
 
+    // Routes pour les réservations de tours
+    Route::prefix('tour-reservations')->name('tour-reservations.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Operator\TourReservationController::class, 'index'])->name('index');
+        Route::get('/{reservation}', [\App\Http\Controllers\Operator\TourReservationController::class, 'show'])->name('show');
+        Route::patch('/{reservation}/confirm', [\App\Http\Controllers\Operator\TourReservationController::class, 'confirm'])->name('confirm');
+        Route::patch('/{reservation}/cancel', [\App\Http\Controllers\Operator\TourReservationController::class, 'cancel'])->name('cancel');
+        Route::post('/bulk-confirm', [\App\Http\Controllers\Operator\TourReservationController::class, 'bulkConfirm'])->name('bulk-confirm');
+        Route::post('/{reservation}/update-notes', [\App\Http\Controllers\Operator\TourReservationController::class, 'updateNotes'])->name('update-notes');
+        Route::post('/{reservation}/check-in', [\App\Http\Controllers\Operator\TourReservationController::class, 'checkIn'])->name('check-in');
+    });
+
     // Routes pour le profil
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Operator\ProfileController::class, 'show'])->name('show');
