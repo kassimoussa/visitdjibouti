@@ -155,7 +155,7 @@ class TourController extends Controller
         }
 
         $validated = $request->validate([
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|in:active,inactive,draft',
             'price' => 'nullable|numeric|min:0',
             'max_participants' => 'nullable|integer|min:1',
             'min_participants' => 'nullable|integer|min:1',

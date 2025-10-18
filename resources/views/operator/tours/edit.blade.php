@@ -96,23 +96,6 @@
                     <div class="card-body">
                         <div class="row">
                              <div class="col-md-6 mb-4">
-                                <label for="type" class="form-label">Type de Tour *</label>
-                                <select class="form-control @error('type') is-invalid @enderror" id="type" name="type" required>
-                                    <option value="">Sélectionner un type</option>
-                                    <option value="poi" {{ old('type', $tour->type) == 'poi' ? 'selected' : '' }}>Visite de site</option>
-                                    <option value="event" {{ old('type', $tour->type) == 'event' ? 'selected' : '' }}>Accompagnement événement</option>
-                                    <option value="mixed" {{ old('type', $tour->type) == 'mixed' ? 'selected' : '' }}>Circuit mixte</option>
-                                    <option value="cultural" {{ old('type', $tour->type) == 'cultural' ? 'selected' : '' }}>Culturel</option>
-                                    <option value="adventure" {{ old('type', $tour->type) == 'adventure' ? 'selected' : '' }}>Aventure</option>
-                                    <option value="nature" {{ old('type', $tour->type) == 'nature' ? 'selected' : '' }}>Nature</option>
-                                    <option value="gastronomic" {{ old('type', $tour->type) == 'gastronomic' ? 'selected' : '' }}>Gastronomique</option>
-                                </select>
-                                @error('type')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                             <div class="col-md-6 mb-4">
                                 <label for="difficulty_level" class="form-label">Niveau de difficulté</label>
                                 <select class="form-control @error('difficulty_level') is-invalid @enderror" id="difficulty_level" name="difficulty_level">
                                     <option value="easy" {{ old('difficulty_level', $tour->difficulty_level) == 'easy' ? 'selected' : '' }}>Facile</option>

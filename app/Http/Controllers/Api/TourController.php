@@ -22,9 +22,7 @@ class TourController extends Controller
             $query = Tour::active()
                 ->with([
                     'tourOperator.translations',
-                    'translations' => function ($q) {
-                        $q->orderBy('start_date')->limit(3);
-                    },
+                    'translations',
                 ]);
 
             // Search by title or description

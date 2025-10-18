@@ -110,6 +110,7 @@ Route::prefix('tours')->group(function () {
 
 });
 
+// Routes publiques pour les réservations de tours
 Route::prefix('tour-reservations')->group(function () {
     Route::get('/{}', [TourReservationController::class, 'index']); // User's tour reservations
     Route::post('/{tour}/register', [TourReservationController::class, 'store']);  // Réserver un tour
