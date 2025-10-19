@@ -175,7 +175,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="text-center">
+                                        <div class="text-start">
                                             <strong>{{ $tour->current_participants ?? 0 }}</strong>
                                             <span class="text-muted">/ {{ $tour->max_participants ?? '∞' }}</span>
                                             <br>
