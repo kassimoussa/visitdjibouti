@@ -80,16 +80,6 @@
         </div>
     </div>
 
-    <!-- DEBUG INFO (À SUPPRIMER APRÈS) -->
-    <div class="alert alert-info">
-        <strong>Debug Info:</strong><br>
-        Total réservations dans query: {{ $reservations->total() }}<br>
-        User ID: {{ Auth::guard('operator')->user()->id }}<br>
-        Tour Operator ID: {{ Auth::guard('operator')->user()->tour_operator_id ?? 'NULL' }}<br>
-        Nombre de tours de cet opérateur: {{ $tours->count() }}<br>
-        IDs des tours: {{ $tours->pluck('id')->implode(', ') ?: 'Aucun' }}
-    </div>
-
     <!-- Statistics Row -->
     <div class="row mb-4">
         <div class="col-md-3">

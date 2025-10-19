@@ -74,11 +74,21 @@
                         @endif
 
                         @if(Auth::guard('operator')->user()->canViewReservations())
-                        <li class="{{ request()->routeIs('operator.reservations.*') ? 'active' : '' }}">
+                        <li class="{{ request()->routeIs('operator.reservations.*') && !request()->routeIs('operator.tour-reservations.*') ? 'active' : '' }}">
                             <a href="{{ route('operator.reservations.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Réservations">
-                                <i class="fas fa-ticket-alt"></i>
-                                <span>Réservations</span>
+                                title="Réservations Événements">
+                                <i class="fas fa-calendar-check"></i>
+                                <span>Rés. Événements</span>
+                            </a>
+                        </li>
+                        @endif
+
+                        @if(Auth::guard('operator')->user()->canManageTours())
+                        <li class="{{ request()->routeIs('operator.tour-reservations.*') ? 'active' : '' }}">
+                            <a href="{{ route('operator.tour-reservations.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Réservations Tours">
+                                <i class="fas fa-clipboard-list"></i>
+                                <span>Rés. Tours</span>
                             </a>
                         </li>
                         @endif

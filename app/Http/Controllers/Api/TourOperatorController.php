@@ -128,12 +128,6 @@ class TourOperatorController extends Controller
                 'pois.translations',
                 'tours.translations',
                 'tours.featuredImage',
-                'tours.schedules' => function ($query) {
-                    $query->where('status', 'available')
-                        ->where('start_date', '>=', now()->toDateString())
-                        ->orderBy('start_date')
-                        ->limit(5);
-                },
             ]);
 
             $tourOperator = is_numeric($identifier)
@@ -315,10 +309,9 @@ class TourOperatorController extends Controller
                             'thumbnail_url' => $tour->featuredImage->thumbnail_url,
                             'alt_text' => $tour->featuredImage->alt_text,
                         ] : null,
-                        'next_available_date' => $tour->next_available_date ? $tour->next_available_date->format('Y-m-d') : null,
-                        'upcoming_schedules_count' => $tour->schedules->count(),
                         'available_spots' => $tour->available_spots,
-                        'has_available_schedules' => $tour->schedules->count() > 0,
+                        'current_participants' => $tour->current_participants ?? 0,
+                        'is_available_for_booking' => $tour->isAvailableForBooking(),
                     ];
                 })->values(),
                 'tours_count' => $tourOperator->tours->where('status', 'active')->count(),

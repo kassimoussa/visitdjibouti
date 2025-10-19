@@ -299,43 +299,27 @@ if (config('app.debug')) {
 
         if ($debug['table_exists']) {
             $debug['columns'] = \Illuminate\Support\Facades\Schema::getColumnListing('tour_reservations');
-
-            // Get all tour reservations
-            $debug['reservations_count'] = \App\Models\TourReservation::count();
-            $debug['reservations'] = \App\Models\TourReservation::with(['tour', 'appUser'])->get()->map(function($r) {
-                return [
-                    'id' => $r->id,
-                    'tour_id' => $r->tour_id,
-                    'tour_operator_id' => $r->tour ? $r->tour->tour_operator_id : null,
-                    'app_user_id' => $r->app_user_id,
-                    'guest_name' => $r->guest_name,
-                    'status' => $r->status,
-                    'number_of_people' => $r->number_of_people,
-                ];
-            });
         }
 
         // Check tours table
         $debug['tours_table_exists'] = \Illuminate\Support\Facades\Schema::hasTable('tours');
         if ($debug['tours_table_exists']) {
-            $debug['tours_count'] = \App\Models\Tour::count();
-            $debug['tours'] = \App\Models\Tour::get()->map(function($t) {
-                return [
-                    'id' => $t->id,
-                    'tour_operator_id' => $t->tour_operator_id,
-                    'status' => $t->status,
-                    'max_participants' => $t->max_participants,
-                    'current_participants' => $t->current_participants,
+            $debug['tours_columns'] = \Illuminate\Support\Facades\Schema::getColumnListing('tours');
+            $debug['tour_1_exists'] = \App\Models\Tour::where('id', 1)->exists();
+
+            if ($debug['tour_1_exists']) {
+                $tour = \App\Models\Tour::find(1);
+                $debug['tour_1_data'] = [
+                    'id' => $tour->id,
+                    'max_participants' => $tour->max_participants,
+                    'current_participants' => $tour->current_participants ?? 'NULL',
+                    'status' => $tour->status,
                 ];
-            });
+            }
         }
 
-        // Check tour operators
-        $debug['tour_operators'] = \App\Models\TourOperator::get()->map(function($to) {
-            return [
-                'id' => $to->id,
-            ];
-        });
+        // Check app_users table
+        $debug['app_users_table_exists'] = \Illuminate\Support\Facades\Schema::hasTable('app_users');
 
         return response()->json($debug);
     });
