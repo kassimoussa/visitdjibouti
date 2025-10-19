@@ -189,7 +189,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="text-center">
+                                        <div class="text-start">
                                             <strong>{{ $tour->reservations()->count() }}</strong>
                                             <br>
                                             <small class="text-muted">
