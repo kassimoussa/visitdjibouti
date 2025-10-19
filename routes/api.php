@@ -166,7 +166,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Routes protégées pour les réservations de tours (nouveau système)
     Route::prefix('tour-reservations')->group(function () {
-    Route::get('/{}', [TourReservationController::class, 'index']); // User's tour reservations
+        Route::get('/', [TourReservationController::class, 'index']); // User's tour reservations
         Route::patch('/{reservation}/cancel', [TourReservationController::class, 'cancel']);
         Route::patch('/{reservation}', [TourReservationController::class, 'update']);
     });
