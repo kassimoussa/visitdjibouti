@@ -112,7 +112,7 @@ Route::prefix('tours')->group(function () {
 
 // Routes publiques pour les réservations de tours
 Route::prefix('tour-reservations')->group(function () {
-    Route::get('/{}', [TourReservationController::class, 'index']); // User's tour reservations
+    Route::get('/{reservation}', [TourReservationController::class, 'show']);
     Route::post('/{tour}/register', [TourReservationController::class, 'store']);  // Réserver un tour
 });
 
@@ -166,7 +166,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Routes protégées pour les réservations de tours (nouveau système)
     Route::prefix('tour-reservations')->group(function () {
-        Route::get('/{reservation}', [TourReservationController::class, 'show']);
+    Route::get('/{}', [TourReservationController::class, 'index']); // User's tour reservations
         Route::patch('/{reservation}/cancel', [TourReservationController::class, 'cancel']);
         Route::patch('/{reservation}', [TourReservationController::class, 'update']);
     });
