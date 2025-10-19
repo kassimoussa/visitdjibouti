@@ -71,10 +71,10 @@ class TourReservationController extends Controller
         // Statistics
         $statistics = [
             'total' => TourReservation::whereIn('tour_id', $tourIds)->count(),
-            'confirmed' => TourReservation::whereIn('tour_id', $tourIds)->where('status', 'confirmed')->count(),
+            'confirmed' => TourReservation::whereIn('tour_id', $tourIds)->where('status', 'completed')->count(),
             'pending' => TourReservation::whereIn('tour_id', $tourIds)->where('status', 'pending')->count(),
             'cancelled' => TourReservation::whereIn('tour_id', $tourIds)->whereIn('status', ['cancelled_by_user', 'cancelled_by_operator'])->count(),
-            'total_participants' => TourReservation::whereIn('tour_id', $tourIds)->where('status', 'confirmed')->sum('number_of_people'),
+            'total_participants' => TourReservation::whereIn('tour_id', $tourIds)->where('status', 'completed')->sum('number_of_people'),
         ];
 
         return view('operator.tour-reservations.index', compact('reservations', 'statistics', 'tours'));
@@ -188,7 +188,7 @@ class TourReservationController extends Controller
         $user = Auth::guard('operator')->user();
         $this->verifyReservationAccess($reservation, $user);
 
-        if ($reservation->status !== 'confirmed') {
+        if ($reservation->status !== 'completed') {
             return redirect()
                 ->route('operator.tour-reservations.show', $reservation)
                 ->with('error', 'Seules les réservations confirmées peuvent être marquées comme terminées.');
@@ -214,7 +214,7 @@ class TourReservationController extends Controller
         foreach ($reservations as $reservation) {
             $this->verifyReservationAccess($reservation, $user);
             if ($reservation->status === 'pending') {
-                $reservation->update(['status' => 'confirmed']);
+                $reservation->update(['status' => 'completed']);
             }
         }
 
