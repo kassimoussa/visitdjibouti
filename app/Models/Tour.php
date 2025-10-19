@@ -192,7 +192,7 @@ class Tour extends Model
      */
     public function confirmedReservations()
     {
-        return $this->reservations()->where('status', 'confirmed');
+        return $this->reservations()->where('status', 'completed');
     }
 
     /**
