@@ -513,7 +513,7 @@ class TourController extends Controller
                 'id' => $tour->tourOperator->id,
                 'name' => $tour->tourOperator->getTranslatedName($locale),
                 'slug' => $tour->tourOperator->slug,
-                'logo' => $tour->tourOperator->logo(),
+                'logo' => $tour->tourOperator->logo,
             ],
             'featured_image' => $tour->featuredImage ? [
                 'id' => $tour->featuredImage->id,
@@ -598,7 +598,7 @@ class TourController extends Controller
                     'id' => $operator->id,
                     'name' => $operator->getTranslatedName($locale),
                     'slug' => $operator->slug,
-                    'logo' => $operator->logo()
+                    'logo' => $operator->logo
                 ];
             })
             ->toArray();
