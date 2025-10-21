@@ -150,6 +150,7 @@ class TourController extends Controller
             $query = Tour::active()
                 ->with([
                     'tourOperator.translations',
+                    'tourOperator.logo',
                     'translations',
                     'featuredImage',
                     'media',
