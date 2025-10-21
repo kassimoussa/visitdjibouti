@@ -513,7 +513,7 @@ class TourController extends Controller
                 'id' => $tour->tourOperator->id,
                 'name' => $tour->tourOperator->getTranslatedName($locale),
                 'slug' => $tour->tourOperator->slug,
-                'logo' => $tour->tourOperator->logo,
+                'logo' => $tour->tourOperator->logo->path,
             ],
             'featured_image' => $tour->featuredImage ? [
                 'id' => $tour->featuredImage->id,
