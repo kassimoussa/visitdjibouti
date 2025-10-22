@@ -274,12 +274,12 @@
                                 <span>Réservations</span>
                             </a>
                         </li>
-                        <li class="{{ request()->is('reviews*') ? 'active' : '' }}">
+                        {{-- <li class="{{ request()->is('reviews*') ? 'active' : '' }}">
                             <a href="#" class="coming-soon-link" data-feature="Avis & Commentaires" data-icon="fas fa-comments" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Avis & Commentaires">
                                 <i class="fas fa-comments"></i>
                                 <span>Avis & Commentaires</span>
-                            </a>
+                            < --}}/a>
                         </li>
                     </ul>
                 </div>
@@ -301,13 +301,13 @@
                                 <span>Utilisateurs Mobiles</span>
                             </a>
                         </li>
-                        <li class="{{ request()->is('stats*') ? 'active' : '' }}">
+                       {{--  <li class="{{ request()->is('stats*') ? 'active' : '' }}">
                             <a href="#" class="coming-soon-link" data-feature="Statistiques" data-icon="fas fa-chart-line" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Statistiques">
                                 <i class="fas fa-chart-line"></i>
                                 <span>Statistiques</span>
                             </a>
-                        </li>
+                        </li> --}}
                         <li class="{{ request()->is('settings*') ? 'active' : '' }}">
                             <a href="{{ route('settings.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Paramètres">

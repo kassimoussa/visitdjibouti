@@ -126,6 +126,7 @@ class TourOperatorController extends Controller
                     $query->orderByPivot('order');
                 },
                 'pois.translations',
+                'pois.featuredImage',
                 'tours.translations',
                 'tours.featuredImage',
             ]);
@@ -272,6 +273,11 @@ class TourOperatorController extends Controller
                         'slug' => $poi->slug,
                         'name' => $translation->name ?? '',
                         'region' => $poi->region,
+                        'featured_image' => $poi->featuredImage ? [
+                            'url' => $poi->featuredImage->url,
+                            'thumbnail_url' => $poi->featuredImage->thumbnail_url,
+                            'alt_text' => $poi->featuredImage->alt_text,
+                        ] : null,
                         'pivot' => [
                             'service_type' => $poi->pivot->service_type ?? 'guide',
                             'service_type_label' => $this->getServiceTypeLabel($poi->pivot->service_type ?? 'guide', $locale),

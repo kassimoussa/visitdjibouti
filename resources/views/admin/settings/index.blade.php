@@ -53,7 +53,7 @@
                 Général
             </button>
         </li>
-        <li class="nav-item" role="presentation">
+        {{-- <li class="nav-item" role="presentation">
             <button class="nav-link" 
                     id="appearance-tab" 
                     data-bs-toggle="tab" 
@@ -104,7 +104,7 @@
                 <i class="fas fa-shield-alt me-2"></i>
                 Sécurité
             </button>
-        </li>
+        </li> --}}
     </ul>
 
     <!-- Contenu des onglets -->
