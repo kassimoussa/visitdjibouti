@@ -74,6 +74,13 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
         Route::put('/{tour}', [\App\Http\Controllers\Operator\TourController::class, 'update'])->name('update');
     });
 
+    // Routes pour les médias
+    Route::prefix('media')->name('media.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Operator\MediaController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Operator\MediaController::class, 'create'])->name('create');
+        Route::get('/{id}/edit', [\App\Http\Controllers\Operator\MediaController::class, 'edit'])->name('edit');
+    });
+
     // Routes pour les réservations de tours
     Route::prefix('tour-reservations')->name('tour-reservations.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Operator\TourReservationController::class, 'index'])->name('index');

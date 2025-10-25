@@ -73,6 +73,14 @@
                         </li>
                         @endif
 
+                        <li class="{{ request()->routeIs('operator.media.*') ? 'active' : '' }}">
+                            <a href="{{ route('operator.media.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Bibliothèque de Médias">
+                                <i class="fas fa-images"></i>
+                                <span>Médias</span>
+                            </a>
+                        </li>
+
                         @if(Auth::guard('operator')->user()->canViewReservations())
                         <li class="{{ request()->routeIs('operator.reservations.*') && !request()->routeIs('operator.tour-reservations.*') ? 'active' : '' }}">
                             <a href="{{ route('operator.reservations.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
