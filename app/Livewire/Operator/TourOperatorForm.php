@@ -73,9 +73,14 @@ class TourOperatorForm extends Component
         ];
 
         if ($this->tourOperator) {
-            $this->fill($this->tourOperator->only([
-                'phones', 'emails', 'website', 'address', 'latitude', 'longitude', 'logo_id',
-            ]));
+            // Charger les données
+            $this->phones = $this->tourOperator->phones ?? [];
+            $this->emails = $this->tourOperator->emails ?? [];
+            $this->website = $this->tourOperator->website;
+            $this->address = $this->tourOperator->address;
+            $this->latitude = $this->tourOperator->latitude;
+            $this->longitude = $this->tourOperator->longitude;
+            $this->logo_id = $this->tourOperator->logo_id;
 
             // Charger les traductions
             foreach ($this->tourOperator->translations as $translation) {
@@ -86,10 +91,14 @@ class TourOperatorForm extends Component
                     ];
                 }
             }
+        }
 
-            // Convertir null en tableaux vides pour phones et emails
-            $this->phones = $this->phones ?? [];
-            $this->emails = $this->emails ?? [];
+        // S'assurer que phones et emails sont toujours des tableaux
+        if (!is_array($this->phones)) {
+            $this->phones = [];
+        }
+        if (!is_array($this->emails)) {
+            $this->emails = [];
         }
     }
 

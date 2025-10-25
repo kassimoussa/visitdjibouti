@@ -31,6 +31,8 @@ class TourOperator extends Model
         'featured' => 'boolean',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'phones' => 'array',
+        'emails' => 'array',
     ];
 
     /**
