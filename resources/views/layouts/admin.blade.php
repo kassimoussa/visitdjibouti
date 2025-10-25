@@ -279,8 +279,8 @@
                                 title="Avis & Commentaires">
                                 <i class="fas fa-comments"></i>
                                 <span>Avis & Commentaires</span>
-                            < --}}/a>
-                        </li>
+                            /a>
+                        </li>< --}}
                     </ul>
                 </div>
 
