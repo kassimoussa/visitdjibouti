@@ -5,12 +5,30 @@
 
 @section('content')
 <div class="fade-in">
+    <!-- Messages flash -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
             <h2 class="mb-1">{{ $tourOperator->getTranslatedName(session('locale', 'fr')) }}</h2>
             <p class="text-muted mb-0">Informations et paramètres de votre entreprise</p>
         </div>
+        <a href="{{ route('operator.tour-operator.edit') }}" class="btn btn-primary">
+            <i class="fas fa-edit me-2"></i>Modifier les informations
+        </a>
     </div>
 
     <div class="row">
@@ -30,8 +48,8 @@
                         <div class="col-12 mb-4">
                             <div class="d-flex align-items-center">
                                 @if($tourOperator->logo)
-                                    <img src="{{ Storage::url($tourOperator->logo) }}"
-                                         alt="Logo {{ $tourOperator->name }}"
+                                    <img src="{{ asset($tourOperator->logo->path) }}"
+                                         alt="Logo {{ $tourOperator->getTranslatedName(session('locale', 'fr')) }}"
                                          class="me-3 rounded"
                                          style="width: 100px; height: 100px; object-fit: contain; border: 1px solid #dee2e6;">
                                 @else

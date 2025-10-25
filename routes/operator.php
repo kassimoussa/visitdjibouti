@@ -100,22 +100,12 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
         Route::put('/password', [\App\Http\Controllers\Operator\ProfileController::class, 'updatePassword'])->name('password');
     });
 
-    // Route pour l'entreprise
-    Route::get('/tour-operator', function () {
-        $user = Auth::guard('operator')->user();
-        $tourOperator = $user->tourOperator;
-
-        $statistics = [
-            'total_events' => $user->managedEvents()->count(),
-            'total_reservations' => $user->managedReservations()->count(),
-            'total_tours' => $user->managedTours()->count(),
-            'total_revenue' => $user->managedReservations()
-                ->where('status', 'confirmed')
-                ->sum('payment_amount'),
-        ];
-
-        return view('operator.tour-operator.show', compact('user', 'tourOperator', 'statistics'));
-    })->name('tour-operator.show');
+    // Routes pour l'entreprise
+    Route::prefix('tour-operator')->name('tour-operator.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Operator\TourOperatorController::class, 'show'])->name('show');
+        Route::get('/edit', [\App\Http\Controllers\Operator\TourOperatorController::class, 'edit'])->name('edit');
+        Route::put('/', [\App\Http\Controllers\Operator\TourOperatorController::class, 'update'])->name('update');
+    });
 
     // Déconnexion
     Route::post('/logout', function () {
