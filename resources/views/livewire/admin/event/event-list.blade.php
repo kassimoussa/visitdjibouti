@@ -95,10 +95,43 @@
                         <table class="table table-hover mb-0">
                             <thead class="bg-light">
                                 <tr>
-                                    <th width="50">#</th>
-                                    <th>Titre</th>
+                                    <th width="50" style="cursor: pointer;" wire:click="sortBy('id')">
+                                        #
+                                        @if($sortField === 'id')
+                                            @if($sortDirection === 'asc')
+                                                <i class="fas fa-sort-up"></i>
+                                            @else
+                                                <i class="fas fa-sort-down"></i>
+                                            @endif
+                                        @else
+                                            <i class="fas fa-sort text-muted"></i>
+                                        @endif
+                                    </th>
+                                    <th style="cursor: pointer;" wire:click="sortBy('title')">
+                                        Titre
+                                        @if($sortField === 'title')
+                                            @if($sortDirection === 'asc')
+                                                <i class="fas fa-sort-up"></i>
+                                            @else
+                                                <i class="fas fa-sort-down"></i>
+                                            @endif
+                                        @else
+                                            <i class="fas fa-sort text-muted"></i>
+                                        @endif
+                                    </th>
                                     <th>Dates</th>
-                                    <th>Lieu</th>
+                                    <th style="cursor: pointer;" wire:click="sortBy('location')">
+                                        Lieu
+                                        @if($sortField === 'location')
+                                            @if($sortDirection === 'asc')
+                                                <i class="fas fa-sort-up"></i>
+                                            @else
+                                                <i class="fas fa-sort-down"></i>
+                                            @endif
+                                        @else
+                                            <i class="fas fa-sort text-muted"></i>
+                                        @endif
+                                    </th>
                                     <th>Gestionnaire</th>
                                     <th>Statut</th>
                                     <th>Participants</th>
@@ -328,6 +361,23 @@
     @push('styles')
         <!-- FullCalendar CSS -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/index.global.min.css" rel="stylesheet">
+        <style>
+            .table thead th[wire\:click] {
+                user-select: none;
+                transition: background-color 0.2s;
+            }
+
+            .table thead th[wire\:click]:hover {
+                background-color: #e9ecef !important;
+            }
+
+            .table thead th i.fa-sort,
+            .table thead th i.fa-sort-up,
+            .table thead th i.fa-sort-down {
+                font-size: 0.85em;
+                margin-left: 5px;
+            }
+        </style>
     @endpush
 
     @push('scripts')

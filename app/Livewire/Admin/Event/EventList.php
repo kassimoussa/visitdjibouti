@@ -29,6 +29,11 @@ class EventList extends Component
 
     public $currentLocale = ''; // Langue courante pour l'affichage des événements
 
+    // Tri
+    public $sortField = 'start_date'; // Champ de tri par défaut
+
+    public $sortDirection = 'desc'; // Direction de tri par défaut
+
     // Modal de suppression
     public $eventToDelete = null;
 
@@ -85,6 +90,23 @@ class EventList extends Component
 
     public function updatedDateFilter()
     {
+        $this->resetPage();
+    }
+
+    /**
+     * Gérer le tri des colonnes
+     */
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            // Inverser la direction si on clique sur la même colonne
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // Nouvelle colonne, direction ascendante par défaut
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+
         $this->resetPage();
     }
 
@@ -234,8 +256,19 @@ class EventList extends Component
             }
         }
 
-        // Tri par date de début
-        $query->orderBy('start_date', 'desc');
+        // Tri dynamique
+        if ($this->sortField === 'title') {
+            // Tri par titre (via traduction)
+            $query->leftJoin('event_translations', function ($join) use ($locale) {
+                $join->on('events.id', '=', 'event_translations.event_id')
+                    ->where('event_translations.locale', '=', $locale);
+            })
+                ->orderBy('event_translations.title', $this->sortDirection)
+                ->select('events.*');
+        } else {
+            // Tri par les autres colonnes directes
+            $query->orderBy($this->sortField, $this->sortDirection);
+        }
 
         // Pagination
         $events = $query->paginate(10);

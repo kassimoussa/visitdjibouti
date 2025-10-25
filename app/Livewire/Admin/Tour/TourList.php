@@ -21,6 +21,11 @@ class TourList extends Component
 
     public $difficultyFilter = '';
 
+    // Tri
+    public $sortField = 'created_at';
+
+    public $sortDirection = 'desc';
+
     protected $listeners = ['tourDeleted' => '$refresh'];
 
     public function updatedSearch()
@@ -45,6 +50,23 @@ class TourList extends Component
 
     public function updatedDifficultyFilter()
     {
+        $this->resetPage();
+    }
+
+    /**
+     * Gérer le tri des colonnes
+     */
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            // Inverser la direction si on clique sur la même colonne
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // Nouvelle colonne, direction ascendante par défaut
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+
         $this->resetPage();
     }
 
@@ -86,7 +108,22 @@ class TourList extends Component
             $query->where('difficulty_level', $this->difficultyFilter);
         }
 
-        $tours = $query->orderBy('created_at', 'desc')->paginate(20);
+        // Tri dynamique
+        if ($this->sortField === 'title') {
+            // Tri par titre (via traduction)
+            $locale = session('locale', 'fr');
+            $query->leftJoin('tour_translations', function ($join) use ($locale) {
+                $join->on('tours.id', '=', 'tour_translations.tour_id')
+                    ->where('tour_translations.locale', '=', $locale);
+            })
+                ->orderBy('tour_translations.title', $this->sortDirection)
+                ->select('tours.*');
+        } else {
+            // Tri par les autres colonnes directes
+            $query->orderBy($this->sortField, $this->sortDirection);
+        }
+
+        $tours = $query->paginate(20);
 
         $tourOperators = TourOperator::active()->with('translations')->get();
 

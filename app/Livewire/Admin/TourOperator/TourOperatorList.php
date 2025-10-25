@@ -19,6 +19,11 @@ class TourOperatorList extends Component
 
     public $availableLocales = ['fr', 'en'];
 
+    // Tri
+    public $sortField = 'created_at';
+
+    public $sortDirection = 'desc';
+
     protected $paginationTheme = 'bootstrap';
 
     public function render()
@@ -32,9 +37,23 @@ class TourOperatorList extends Component
             })
             ->when($this->filterFeatured !== '', function ($query) {
                 $query->where('featured', $this->filterFeatured);
+            });
+
+        // Tri dynamique
+        if ($this->sortField === 'name') {
+            // Tri par nom (via traduction)
+            $tourOperators->leftJoin('tour_operator_translations', function ($join) {
+                $join->on('tour_operators.id', '=', 'tour_operator_translations.tour_operator_id')
+                    ->where('tour_operator_translations.locale', '=', $this->filterLocale);
             })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+                ->orderBy('tour_operator_translations.name', $this->sortDirection)
+                ->select('tour_operators.*');
+        } else {
+            // Tri par les autres colonnes directes
+            $tourOperators->orderBy($this->sortField, $this->sortDirection);
+        }
+
+        $tourOperators = $tourOperators->paginate(10);
 
         return view('livewire.admin.tour-operator.tour-operator-list', [
             'tourOperators' => $tourOperators,
@@ -54,6 +73,23 @@ class TourOperatorList extends Component
 
     public function updatingFilterLocale()
     {
+        $this->resetPage();
+    }
+
+    /**
+     * Gérer le tri des colonnes
+     */
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            // Inverser la direction si on clique sur la même colonne
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // Nouvelle colonne, direction ascendante par défaut
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+
         $this->resetPage();
     }
 

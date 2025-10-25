@@ -84,18 +84,42 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>Tour</th>
+                                <th width="50" style="cursor: pointer;" wire:click="sortBy('id')">
+                                    #
+                                    @if($sortField === 'id')
+                                        @if($sortDirection === 'asc')
+                                            <i class="fas fa-sort-up"></i>
+                                        @else
+                                            <i class="fas fa-sort-down"></i>
+                                        @endif
+                                    @else
+                                        <i class="fas fa-sort text-muted"></i>
+                                    @endif
+                                </th>
+                                <th style="cursor: pointer;" wire:click="sortBy('title')">
+                                    Tour
+                                    @if($sortField === 'title')
+                                        @if($sortDirection === 'asc')
+                                            <i class="fas fa-sort-up"></i>
+                                        @else
+                                            <i class="fas fa-sort-down"></i>
+                                        @endif
+                                    @else
+                                        <i class="fas fa-sort text-muted"></i>
+                                    @endif
+                                </th>
                                 <th>Opérateur</th>
                                 <th>Type</th>
                                 <th>Difficulté</th>
                                 <th>Prix</th>
-                                <th>Statut</th> 
+                                <th>Statut</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($tours as $tour)
                                 <tr>
+                                    <td>{{ $tour->id }}</td>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             @if($tour->featuredImage)
@@ -191,4 +215,24 @@
             </div>
         </div>
     </div>
+
+    @push('styles')
+        <style>
+            .table thead th[wire\:click] {
+                user-select: none;
+                transition: background-color 0.2s;
+            }
+
+            .table thead th[wire\:click]:hover {
+                background-color: #e9ecef !important;
+            }
+
+            .table thead th i.fa-sort,
+            .table thead th i.fa-sort-up,
+            .table thead th i.fa-sort-down {
+                font-size: 0.85em;
+                margin-left: 5px;
+            }
+        </style>
+    @endpush
 </div>

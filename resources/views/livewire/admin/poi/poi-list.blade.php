@@ -121,7 +121,18 @@
                                         @endif
                                     </th>
                                     <th>Catégories</th>
-                                    <th>Région</th>
+                                    <th style="cursor: pointer;" wire:click="sortBy('region')">
+                                        Région
+                                        @if($sortField === 'region')
+                                            @if($sortDirection === 'asc')
+                                                <i class="fas fa-sort-up"></i>
+                                            @else
+                                                <i class="fas fa-sort-down"></i>
+                                            @endif
+                                        @else
+                                            <i class="fas fa-sort text-muted"></i>
+                                        @endif
+                                    </th>
                                     <th>Statut</th>
                                     <th width="180">Actions</th>
                                 </tr>
