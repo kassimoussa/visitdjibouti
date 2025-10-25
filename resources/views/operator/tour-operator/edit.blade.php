@@ -21,6 +21,6 @@
         <p class="text-muted">Mettez à jour les informations de votre entreprise.</p>
     </div>
 
-    @livewire('operator.tour-operator-form')
+    @livewire('admin.tour-operator.tour-operator-form', ['isOperatorMode' => true])
 </div>
 @endsection

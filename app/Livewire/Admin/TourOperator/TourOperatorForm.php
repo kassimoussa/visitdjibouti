@@ -13,6 +13,8 @@ class TourOperatorForm extends Component
 
     public $isEditing = false;
 
+    public $isOperatorMode = false; // True si utilisé par un opérateur (désactive is_active et featured)
+
     // Propriétés du formulaire principal
     public $phones = '';
 
@@ -89,10 +91,18 @@ class TourOperatorForm extends Component
         'longitude.between' => 'La longitude doit être entre -180 et 180.',
     ];
 
-    public function mount($tourOperatorId = null)
+    public function mount($tourOperatorId = null, $isOperatorMode = false)
     {
+        $this->isOperatorMode = $isOperatorMode;
+
         if ($tourOperatorId) {
             $this->tourOperatorId = $tourOperatorId;
+            $this->isEditing = true;
+            $this->loadTourOperator();
+        } elseif ($this->isOperatorMode) {
+            // Si mode opérateur sans ID, charger l'opérateur de l'utilisateur connecté
+            $user = \Illuminate\Support\Facades\Auth::guard('operator')->user();
+            $this->tourOperatorId = $user->tour_operator_id;
             $this->isEditing = true;
             $this->loadTourOperator();
         }
@@ -189,8 +199,12 @@ class TourOperatorForm extends Component
                 $tourOperator->media()->detach();
             }
 
-            // Rediriger vers la liste
-            return redirect()->route('tour-operators.index');
+            // Rediriger selon le mode
+            if ($this->isOperatorMode) {
+                return redirect()->route('operator.tour-operator.show');
+            } else {
+                return redirect()->route('tour-operators.index');
+            }
 
         } catch (\Exception $e) {
             session()->flash('error', 'Une erreur est survenue: '.$e->getMessage());

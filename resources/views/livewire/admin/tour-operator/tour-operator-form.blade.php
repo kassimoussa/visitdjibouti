@@ -4,11 +4,17 @@
             <div class="card-header bg-white">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
-                        {{ $isEditing ? 'Modifier l\'opérateur de tour' : 'Ajouter un nouvel opérateur de tour' }}
+                        @if($isOperatorMode)
+                            Modifier mon entreprise
+                        @else
+                            {{ $isEditing ? 'Modifier l\'opérateur de tour' : 'Ajouter un nouvel opérateur de tour' }}
+                        @endif
                     </h5>
-                    <a href="{{ route('tour-operators.index') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left"></i> Retour à la liste
-                    </a>
+                    @if(!$isOperatorMode)
+                        <a href="{{ route('tour-operators.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour à la liste
+                        </a>
+                    @endif
                 </div>
             </div>
             <div class="card-body">
@@ -176,7 +182,8 @@
                                         <div class="form-text">Exemple: "Avenue Hassan Gouled Aptidon, Djibouti"</div>
                                     </div>
 
-                                    <!-- Options -->
+                                    <!-- Options (admin seulement) -->
+                                    @if(!$isOperatorMode)
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-check">
@@ -195,6 +202,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                    @endif
                                 </div>
                             </div>
                             @endif

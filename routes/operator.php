@@ -104,7 +104,6 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
     Route::prefix('tour-operator')->name('tour-operator.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Operator\TourOperatorController::class, 'show'])->name('show');
         Route::get('/edit', [\App\Http\Controllers\Operator\TourOperatorController::class, 'edit'])->name('edit');
-        Route::put('/', [\App\Http\Controllers\Operator\TourOperatorController::class, 'update'])->name('update');
     });
 
     // Déconnexion
