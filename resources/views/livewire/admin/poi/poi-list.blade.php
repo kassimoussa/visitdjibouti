@@ -96,8 +96,30 @@
                         <table class="table table-hover mb-0">
                             <thead class="bg-light">
                                 <tr>
-                                    <th width="50">#</th>
-                                    <th>Nom</th>
+                                    <th width="50" style="cursor: pointer;" wire:click="sortBy('id')">
+                                        #
+                                        @if($sortField === 'id')
+                                            @if($sortDirection === 'asc')
+                                                <i class="fas fa-sort-up"></i>
+                                            @else
+                                                <i class="fas fa-sort-down"></i>
+                                            @endif
+                                        @else
+                                            <i class="fas fa-sort text-muted"></i>
+                                        @endif
+                                    </th>
+                                    <th style="cursor: pointer;" wire:click="sortBy('name')">
+                                        Nom
+                                        @if($sortField === 'name')
+                                            @if($sortDirection === 'asc')
+                                                <i class="fas fa-sort-up"></i>
+                                            @else
+                                                <i class="fas fa-sort-down"></i>
+                                            @endif
+                                        @else
+                                            <i class="fas fa-sort text-muted"></i>
+                                        @endif
+                                    </th>
                                     <th>Catégories</th>
                                     <th>Région</th>
                                     <th>Statut</th>
@@ -245,6 +267,26 @@
             </div>
         </div>
     @endif
+
+    @push('styles')
+        <style>
+            .table thead th[wire\:click] {
+                user-select: none;
+                transition: background-color 0.2s;
+            }
+
+            .table thead th[wire\:click]:hover {
+                background-color: #e9ecef !important;
+            }
+
+            .table thead th i.fa-sort,
+            .table thead th i.fa-sort-up,
+            .table thead th i.fa-sort-down {
+                font-size: 0.85em;
+                margin-left: 5px;
+            }
+        </style>
+    @endpush
 
     @push('scripts')
         <script>

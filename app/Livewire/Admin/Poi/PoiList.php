@@ -29,6 +29,11 @@ class PoiList extends Component
 
     public $currentLocale = ''; // Langue courante pour l'affichage des POIs
 
+    // Tri
+    public $sortField = 'updated_at'; // Champ de tri par défaut
+
+    public $sortDirection = 'desc'; // Direction de tri par défaut
+
     // Modal de suppression
     public $poiToDelete = null;
 
@@ -96,6 +101,23 @@ class PoiList extends Component
     {
         $this->resetPage();
         $this->dispatchMapUpdate();
+    }
+
+    /**
+     * Gérer le tri des colonnes
+     */
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            // Inverser la direction si on clique sur la même colonne
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // Nouvelle colonne, direction ascendante par défaut
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+
+        $this->resetPage();
     }
 
     /**
@@ -276,8 +298,19 @@ class PoiList extends Component
             $query->where('region', $this->region);
         }
 
-        // Tri par date de mise à jour
-        $query->orderBy('updated_at', 'desc');
+        // Tri dynamique
+        if ($this->sortField === 'name') {
+            // Tri par nom (via traduction)
+            $query->leftJoin('poi_translations', function ($join) use ($locale) {
+                $join->on('pois.id', '=', 'poi_translations.poi_id')
+                    ->where('poi_translations.locale', '=', $locale);
+            })
+                ->orderBy('poi_translations.name', $this->sortDirection)
+                ->select('pois.*');
+        } else {
+            // Tri par les autres colonnes directes
+            $query->orderBy($this->sortField, $this->sortDirection);
+        }
 
         // Pagination
         $pois = $query->paginate(10);
