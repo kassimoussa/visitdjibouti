@@ -5,17 +5,70 @@
 
 @section('content')
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 mb-0">{{ $tour->title }}</h1>
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h1 class="h3 mb-2">{{ $tour->title }}</h1>
+                <div class="d-flex align-items-center gap-2">
+                    {!! $tour->status_badge !!}
+                    @if($tour->is_featured)
+                        <span class="badge bg-warning"><i class="fas fa-star me-1"></i>Mis en avant</span>
+                    @endif
+                    <small class="text-muted">
+                        <i class="fas fa-eye me-1"></i>{{ number_format($tour->views_count) }} vues
+                    </small>
+                </div>
+            </div>
             <div class="btn-group">
-                <a href="{{ route('tours.edit', $tour) }}" class="btn btn-primary">
+                <a href="{{ route('tours.edit', $tour->id) }}" class="btn btn-primary">
                     <i class="fas fa-edit me-1"></i> Modifier
                 </a>
+                @if($tour->status === 'pending_approval')
+                    <a href="{{ route('tours.approvals') }}" class="btn btn-success">
+                        <i class="fas fa-check me-1"></i> Gérer l'Approbation
+                    </a>
+                @endif
                 <a href="{{ route('tours.index') }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                    <i class="fas fa-arrow-left me-1"></i> Retour
                 </a>
             </div>
         </div>
+
+        <!-- Workflow Info if operator-created -->
+        @if($tour->created_by_operator_user_id)
+        <div class="alert alert-{{ $tour->status === 'approved' ? 'success' : ($tour->status === 'rejected' ? 'danger' : 'warning') }} mb-4">
+            <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Informations du Workflow d'Approbation</h5>
+            <hr>
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>Créé par:</strong><br>
+                    {{ $tour->createdBy->name ?? 'N/A' }}<br>
+                    <small class="text-muted">{{ $tour->createdBy->email ?? '' }}</small>
+                </div>
+                <div class="col-md-3">
+                    <strong>Tour Operator:</strong><br>
+                    {{ $tour->tourOperator->name ?? 'N/A' }}
+                </div>
+                @if($tour->submitted_at)
+                <div class="col-md-3">
+                    <strong>Soumis le:</strong><br>
+                    {{ $tour->submitted_at->format('d/m/Y à H:i') }}
+                </div>
+                @endif
+                @if($tour->approved_at)
+                <div class="col-md-3">
+                    <strong>Approuvé le:</strong><br>
+                    {{ $tour->approved_at->format('d/m/Y à H:i') }}<br>
+                    <small class="text-muted">Par: {{ $tour->approvedBy->name ?? 'N/A' }}</small>
+                </div>
+                @endif
+            </div>
+            @if($tour->rejection_reason)
+                <hr>
+                <strong>Raison du rejet:</strong>
+                <p class="mb-0">{{ $tour->rejection_reason }}</p>
+            @endif
+        </div>
+        @endif
 
         <div class="row">
             <!-- Informations principales -->
@@ -96,18 +149,8 @@
                                         {{ $tour->min_participants }} - {{ $tour->max_participants ?? '∞' }}
                                     </dd>
 
-                                    <dt class="col-sm-4">Statut:</dt>
-                                    <dd class="col-sm-8">
-                                        <span class="badge
-                                            @if($tour->status === 'active') bg-success
-                                            @elseif($tour->status === 'suspended') bg-warning
-                                            @else bg-secondary @endif">
-                                            {{ ucfirst($tour->status) }}
-                                        </span>
-                                        @if($tour->is_featured)
-                                            <span class="badge bg-warning">Mis en avant</span>
-                                        @endif
-                                    </dd>
+                                    <dt class="col-sm-4">Devise:</dt>
+                                    <dd class="col-sm-8">{{ $tour->currency ?? 'DJF' }}</dd>
 
                                     <dt class="col-sm-4">Vues:</dt>
                                     <dd class="col-sm-8">{{ number_format($tour->views_count) }}</dd>

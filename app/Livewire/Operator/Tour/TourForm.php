@@ -36,7 +36,7 @@ class TourForm extends Component
 
     public $difficulty_level = 'easy';
 
-    public $status = 'active';
+    // Status is not editable by operator - always created as 'draft'
 
     public $is_featured = false;
 
@@ -75,7 +75,6 @@ class TourForm extends Component
             'price' => 'required|numeric|min:0',
             'max_participants' => 'nullable|integer|min:1',
             'difficulty_level' => 'required|in:easy,moderate,difficult,expert',
-            'status' => 'required|in:active,suspended,archived',
             'is_featured' => 'boolean',
             'weather_dependent' => 'boolean',
             'meeting_point_address' => 'nullable|string|max:255',
@@ -94,7 +93,6 @@ class TourForm extends Component
             'price.numeric' => 'Le prix doit être un nombre.',
             'price.min' => 'Le prix doit être au minimum 0.',
             'difficulty_level.required' => 'Le niveau de difficulté est requis.',
-            'status.required' => 'Le statut est requis.',
             'translations.fr.title.required' => 'Le titre en français est requis.',
             'translations.fr.description.required' => 'La description en français est requise.',
         ];
@@ -128,11 +126,11 @@ class TourForm extends Component
             $this->isEditMode = true;
             $this->tourId = $tour->id;
 
-            // Fill properties from the model
+            // Fill properties from the model (excluding status - managed by approval workflow)
             $this->fill($tour->only([
                 'tour_operator_id', 'target_id', 'target_type', 'start_date', 'end_date',
                 'price', 'currency', 'max_participants',
-                'difficulty_level', 'status', 'is_featured', 'weather_dependent',
+                'difficulty_level', 'is_featured', 'weather_dependent',
                 'meeting_point_address', 'cancellation_policy', 'slug',
             ]));
 
@@ -207,6 +205,8 @@ class TourForm extends Component
     {
         $validatedData = $this->validate();
 
+        $user = Auth::guard('operator')->user();
+
         $tourData = [
             'tour_operator_id' => $this->tour_operator_id,
             'target_id' => $this->target_id,
@@ -217,7 +217,9 @@ class TourForm extends Component
             'currency' => $this->currency,
             'max_participants' => $this->max_participants,
             'difficulty_level' => $this->difficulty_level,
-            'status' => $this->status,
+            // Status is handled by approval workflow:
+            // - New tours: created as 'draft' with created_by_operator_user_id
+            // - Updates: status changes handled in Tour model boot() method
             'is_featured' => $this->is_featured,
             'weather_dependent' => $this->weather_dependent,
             'meeting_point_address' => $this->meeting_point_address,
@@ -225,6 +227,12 @@ class TourForm extends Component
             'featured_image_id' => $this->featuredImageId,
             'slug' => $this->slug,
         ];
+
+        // For new tours, set initial status and creator
+        if (!$this->isEditMode) {
+            $tourData['status'] = 'draft';
+            $tourData['created_by_operator_user_id'] = $user->id;
+        }
 
         if (empty($tourData['slug'])) {
             $tourData['slug'] = Str::slug($this->translations['fr']['title'] ?? 'tour-'.uniqid());

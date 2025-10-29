@@ -107,14 +107,7 @@
                         <h5 class="card-title">Organisation</h5>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Statut</label>
-                            <select class="form-select" wire:model="status">
-                                <option value="active">Actif</option>
-                                <option value="suspended">Suspendu</option>
-                                <option value="archived">Archivé</option>
-                            </select>
-                        </div>
+                        {{-- Status is managed by approval workflow, not editable by operator --}}
                         <div class="mb-3">
                             <label class="form-label">Prix</label>
                             <input type="number" step="any" class="form-control" wire:model.blur="price">

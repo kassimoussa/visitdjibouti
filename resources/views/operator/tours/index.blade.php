@@ -213,12 +213,19 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="btn-group">
+                                        <div class="btn-group" role="group">
                                             <a href="{{ route('operator.tours.show', $tour) }}"
                                                class="btn btn-sm btn-outline-primary"
-                                               title="Voir les détails">
+                                               title="Voir">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+                                            @if(in_array($tour->status, ['draft', 'rejected']))
+                                                <a href="{{ route('operator.tours.edit', $tour) }}"
+                                                   class="btn btn-sm btn-outline-warning"
+                                                   title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

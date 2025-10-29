@@ -87,6 +87,45 @@
     <div class="row">
         <!-- Tour Details -->
         <div class="col-lg-8">
+            <!-- Workflow Information -->
+            @if($tour->created_by_operator_user_id)
+            <div class="card mb-4 border-{{ $tour->status === 'approved' ? 'success' : ($tour->status === 'rejected' ? 'danger' : 'warning') }}">
+                <div class="card-header bg-{{ $tour->status === 'approved' ? 'success' : ($tour->status === 'rejected' ? 'danger' : 'warning') }} bg-opacity-10">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations d'Approbation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong><i class="fas fa-user me-2 text-primary"></i>Créé par:</strong><br>
+                            <span class="ms-4">{{ $tour->createdBy->name ?? 'N/A' }}</span>
+                            @if($tour->createdBy)
+                                <br><small class="text-muted ms-4">{{ $tour->createdBy->email }}</small>
+                            @endif
+                        </div>
+                        @if($tour->submitted_at)
+                        <div class="col-md-6 mb-3">
+                            <strong><i class="fas fa-paper-plane me-2 text-info"></i>Soumis le:</strong><br>
+                            <span class="ms-4">{{ $tour->submitted_at->format('d/m/Y à H:i') }}</span>
+                        </div>
+                        @endif
+                        @if($tour->approved_at && $tour->approvedBy)
+                        <div class="col-md-6 mb-3">
+                            <strong><i class="fas fa-user-check me-2 text-success"></i>Approuvé par:</strong><br>
+                            <span class="ms-4">{{ $tour->approvedBy->name }}</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong><i class="fas fa-calendar-check me-2 text-success"></i>Date d'approbation:</strong><br>
+                            <span class="ms-4">{{ $tour->approved_at->format('d/m/Y à H:i') }}</span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <!-- Tour Image and Basic Info -->
             <div class="card mb-4">
                 <div class="card-body">
@@ -96,6 +135,23 @@
                                  alt="{{ $tour->title }}"
                                  class="img-fluid rounded"
                                  style="width: 100%; height: 300px; object-fit: cover;">
+                        </div>
+                    @endif
+
+                    <!-- Galerie d'images -->
+                    @if($tour->media && $tour->media->count() > 0)
+                        <div class="mb-4">
+                            <h6><i class="fas fa-images me-2 text-primary"></i>Galerie ({{ $tour->media->count() }} images)</h6>
+                            <div class="row g-2">
+                                @foreach($tour->media as $media)
+                                    <div class="col-md-3">
+                                        <img src="{{ $media->getImageUrl() }}"
+                                             alt="{{ $media->translation('fr')->alt_text ?? $tour->title }}"
+                                             class="img-fluid rounded"
+                                             style="width: 100%; height: 120px; object-fit: cover; cursor: pointer;">
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
 
@@ -378,27 +434,38 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        @if($tour->status == 'draft')
-                            <button type="button" class="btn btn-success w-100">
-                                <i class="fas fa-check me-2"></i>
-                                Activer le tour
+                        @if(in_array($tour->status, ['draft', 'rejected']))
+                            <a href="{{ route('operator.tours.edit', $tour) }}" class="btn btn-warning w-100">
+                                <i class="fas fa-edit me-2"></i>
+                                Modifier
+                            </a>
+                            <form action="{{ route('operator.tours.submit-for-approval', $tour) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir soumettre ce tour pour approbation ?');">
+                                @csrf
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-paper-plane me-2"></i>
+                                    Soumettre pour Approbation
+                                </button>
+                            </form>
+                        @elseif($tour->status === 'pending_approval')
+                            <button class="btn btn-warning w-100" disabled>
+                                <i class="fas fa-clock me-2"></i>
+                                En Attente d'Approbation
                             </button>
-                        @elseif($tour->status == 'active')
-                            <button type="button" class="btn btn-warning w-100">
-                                <i class="fas fa-pause me-2"></i>
-                                Désactiver
-                            </button>
+                            <small class="text-muted text-center">Votre tour est en cours d'examen par l'administration</small>
+                        @elseif($tour->status === 'approved')
+                            <div class="alert alert-success mb-0 text-center">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <strong>Tour Approuvé et Publié</strong>
+                                <br><small>Visible publiquement</small>
+                            </div>
                         @endif
 
-                        <a href="#" class="btn btn-outline-info w-100">
-                            <i class="fas fa-copy me-2"></i>
-                            Dupliquer
-                        </a>
+                        <hr>
 
-                        <button type="button" class="btn btn-outline-danger w-100">
-                            <i class="fas fa-trash me-2"></i>
-                            Supprimer
-                        </button>
+                        <a href="{{ route('operator.tours.index') }}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Retour à la liste
+                        </a>
                     </div>
                 </div>
             </div>
