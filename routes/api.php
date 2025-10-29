@@ -107,7 +107,14 @@ Route::prefix('tour-operators')->group(function () {
 Route::prefix('tours')->group(function () {
     Route::get('/', [TourController::class, 'index']); // Liste des tours avec filtres
     Route::get('/{identifier}', [TourController::class, 'show']); // Détails d'un tour (ID ou slug)
+});
 
+// Routes publiques pour les activités
+Route::prefix('activities')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\ActivityController::class, 'index']); // Liste des activités avec filtres
+    Route::get('/nearby', [\App\Http\Controllers\Api\ActivityController::class, 'nearby']); // Activités à proximité
+    Route::get('/{identifier}', [\App\Http\Controllers\Api\ActivityController::class, 'show']); // Détails d'une activité (ID ou slug)
+    Route::post('/{activity}/register', [\App\Http\Controllers\Api\ActivityController::class, 'register']); // S'inscrire à une activité
 });
 
 // Routes publiques pour les réservations de tours
@@ -169,6 +176,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [TourReservationController::class, 'index']); // User's tour reservations
         Route::patch('/{reservation}/cancel', [TourReservationController::class, 'cancel']);
         Route::patch('/{reservation}', [TourReservationController::class, 'update']);
+    });
+
+    // Routes protégées pour les inscriptions aux activités
+    Route::prefix('activity-registrations')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\ActivityController::class, 'myRegistrations']); // Mes inscriptions
+        Route::delete('/{registration}', [\App\Http\Controllers\Api\ActivityController::class, 'cancelRegistration']); // Annuler une inscription
     });
 
     // Routes protégées pour les favoris

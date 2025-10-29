@@ -75,6 +75,26 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
         Route::post('/{tour}/submit-for-approval', [\App\Http\Controllers\Operator\TourController::class, 'submitForApproval'])->name('submit-for-approval');
     });
 
+    // Routes pour les activités
+    Route::prefix('activities')->name('activities.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Operator\ActivityController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Operator\ActivityController::class, 'create'])->name('create');
+        Route::get('/{activity}', [\App\Http\Controllers\Operator\ActivityController::class, 'show'])->name('show');
+        Route::get('/{activity}/edit', [\App\Http\Controllers\Operator\ActivityController::class, 'edit'])->name('edit');
+        Route::delete('/{activity}', [\App\Http\Controllers\Operator\ActivityController::class, 'destroy'])->name('destroy');
+        Route::post('/{activity}/toggle-status', [\App\Http\Controllers\Operator\ActivityController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    // Routes pour les inscriptions aux activités
+    Route::prefix('activity-registrations')->name('activity-registrations.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Operator\ActivityRegistrationController::class, 'index'])->name('index');
+        Route::get('/{registration}', [\App\Http\Controllers\Operator\ActivityRegistrationController::class, 'show'])->name('show');
+        Route::post('/{registration}/confirm', [\App\Http\Controllers\Operator\ActivityRegistrationController::class, 'confirm'])->name('confirm');
+        Route::post('/{registration}/cancel', [\App\Http\Controllers\Operator\ActivityRegistrationController::class, 'cancel'])->name('cancel');
+        Route::post('/{registration}/complete', [\App\Http\Controllers\Operator\ActivityRegistrationController::class, 'complete'])->name('complete');
+        Route::post('/{registration}/update-payment', [\App\Http\Controllers\Operator\ActivityRegistrationController::class, 'updatePaymentStatus'])->name('update-payment');
+    });
+
     // Routes pour les médias
     Route::prefix('media')->name('media.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Operator\MediaController::class, 'index'])->name('index');
