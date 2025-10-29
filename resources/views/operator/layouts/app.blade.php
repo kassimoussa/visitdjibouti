@@ -77,6 +77,14 @@
                         </li>
                         @endif
 
+                        <li class="{{ request()->routeIs('operator.activities.*') ? 'active' : '' }}">
+                            <a href="{{ route('operator.activities.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Activités">
+                                <i class="fas fa-running"></i>
+                                <span>Activités</span>
+                            </a>
+                        </li>
+
                         <li class="{{ request()->routeIs('operator.media.*') ? 'active' : '' }}">
                             <a href="{{ route('operator.media.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Bibliothèque de Médias">
@@ -104,6 +112,14 @@
                             </a>
                         </li>
                         @endif
+
+                        <li class="{{ request()->routeIs('operator.activity-registrations.*') ? 'active' : '' }}">
+                            <a href="{{ route('operator.activity-registrations.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Inscriptions Activités">
+                                <i class="fas fa-user-check"></i>
+                                <span>Rés. Activités</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
