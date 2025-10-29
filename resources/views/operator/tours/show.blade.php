@@ -21,9 +21,7 @@
             </nav>
             <h2 class="mb-1">{{ $tour->title }}</h2>
             <div class="d-flex align-items-center gap-3">
-                <span class="badge status-{{ $tour->status }}">
-                    {{ ucfirst($tour->status) }}
-                </span>
+                {!! $tour->status_badge !!}
                 @if($tour->is_featured)
                     <span class="badge bg-warning">
                         <i class="fas fa-star me-1"></i>
@@ -37,12 +35,54 @@
             </div>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('operator.tours.edit', $tour) }}" class="btn btn-warning">
-                <i class="fas fa-edit me-2"></i>
-                Modifier
-            </a>
+            @if(in_array($tour->status, ['draft', 'rejected']))
+                <a href="{{ route('operator.tours.edit', $tour) }}" class="btn btn-warning">
+                    <i class="fas fa-edit me-2"></i>
+                    Modifier
+                </a>
+                <form action="{{ route('operator.tours.submit-for-approval', $tour) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir soumettre ce tour pour approbation ?');">
+                    @csrf
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-paper-plane me-2"></i>
+                        Soumettre pour Approbation
+                    </button>
+                </form>
+            @elseif($tour->status === 'pending_approval')
+                <button class="btn btn-warning" disabled>
+                    <i class="fas fa-clock me-2"></i>
+                    En Attente d'Approbation
+                </button>
+            @elseif($tour->status === 'approved')
+                <span class="badge bg-success p-2">
+                    <i class="fas fa-check-circle me-1"></i>
+                    Tour Approuvé et Publié
+                </span>
+            @endif
         </div>
     </div>
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if($tour->status === 'rejected' && $tour->rejection_reason)
+        <div class="alert alert-danger">
+            <h5 class="alert-heading"><i class="fas fa-times-circle me-2"></i>Tour Rejeté</h5>
+            <hr>
+            <p class="mb-0"><strong>Raison du rejet :</strong> {{ $tour->rejection_reason }}</p>
+            <small class="text-muted">Veuillez modifier votre tour en tenant compte de ces remarques, puis resoumettez-le.</small>
+        </div>
+    @endif
 
     <div class="row">
         <!-- Tour Details -->

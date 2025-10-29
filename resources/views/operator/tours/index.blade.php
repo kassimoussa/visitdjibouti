@@ -11,6 +11,10 @@
             <h2 class="mb-1">Mes Tours Guidés</h2>
             <p class="text-muted mb-0">Organisez et gérez vos circuits touristiques</p>
         </div>
+        <a href="{{ route('operator.tours.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Créer un Tour
+        </a>
     </div>
 
     <!-- Filters and Search -->
@@ -35,6 +39,10 @@
                         <label class="form-label">Statut</label>
                         <select name="status" class="form-control">
                             <option value="">Tous</option>
+                            <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Brouillon</option>
+                            <option value="pending_approval" {{ request('status') == 'pending_approval' ? 'selected' : '' }}>En attente</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approuvé</option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejeté</option>
                             <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actif</option>
                             <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactif</option>
                         </select>
@@ -75,31 +83,40 @@
 
     <!-- Statistics Row -->
     <div class="row mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="stats-card small">
-                <div class="stats-icon primary">
-                    <i class="fas fa-route"></i>
+                <div class="stats-icon secondary">
+                    <i class="fas fa-file-alt"></i>
                 </div>
-                <h4>{{ $statistics['total'] }}</h4>
-                <p>Total Tours</p>
+                <h4>{{ $statistics['draft'] ?? 0 }}</h4>
+                <p>Brouillons</p>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <div class="stats-card small">
+                <div class="stats-icon warning">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h4>{{ $statistics['pending_approval'] ?? 0 }}</h4>
+                <p>En Attente</p>
+            </div>
+        </div>
+        <div class="col-md-3">
             <div class="stats-card small">
                 <div class="stats-icon success">
                     <i class="fas fa-check-circle"></i>
                 </div>
-                <h4>{{ $statistics['active'] }}</h4>
-                <p>Actifs</p>
+                <h4>{{ $statistics['approved'] ?? 0 }}</h4>
+                <p>Approuvés</p>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="stats-card small">
                 <div class="stats-icon danger">
                     <i class="fas fa-times-circle"></i>
                 </div>
-                <h4>{{ $statistics['inactive'] }}</h4>
-                <p>Inactifs</p>
+                <h4>{{ $statistics['rejected'] ?? 0 }}</h4>
+                <p>Rejetés</p>
             </div>
         </div>
     </div>
@@ -170,9 +187,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="badge status-{{ $tour->status }}">
-                                            {{ ucfirst($tour->status) }}
-                                        </span>
+                                        {!! $tour->status_badge !!}
                                     </td>
                                     <td>
                                         <div class="text-start">
