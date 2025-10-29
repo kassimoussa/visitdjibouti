@@ -24,7 +24,9 @@
       "Bash(./clear-cache.sh:*)",
       "Bash(/mnt/c/laragon/bin/php/php-8.2.20-Win32-vs16-x64/php.exe artisan route:list:*)",
       "Bash(mysql:*)",
-      "Bash(/mnt/c/laragon/bin/php/php-8.2.20-Win32-vs16-x64/php.exe artisan make:migration:*)"
+      "Bash(/mnt/c/laragon/bin/php/php-8.2.20-Win32-vs16-x64/php.exe artisan make:migration:*)",
+      "Bash(php -l:*)",
+      "Bash(/mnt/c/laragon/bin/php/php-8.2.20-Win32-vs16-x64/php.exe:*)"
     ],
     "deny": [],
     "ask": [],
