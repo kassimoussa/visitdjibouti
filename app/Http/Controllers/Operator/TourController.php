@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TourSubmittedForApproval;
+use App\Models\AdminUser;
 use App\Models\Tour;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -58,6 +61,10 @@ class TourController extends Controller
         // Statistics
         $statistics = [
             'total' => $user->managedTours()->count(),
+            'draft' => $user->managedTours()->where('status', 'draft')->count(),
+            'pending_approval' => $user->managedTours()->where('status', 'pending_approval')->count(),
+            'approved' => $user->managedTours()->where('status', 'approved')->count(),
+            'rejected' => $user->managedTours()->where('status', 'rejected')->count(),
             'active' => $user->managedTours()->where('status', 'active')->count(),
             'inactive' => $user->managedTours()->where('status', 'inactive')->count(),
         ];
@@ -114,7 +121,6 @@ class TourController extends Controller
         $user = Auth::guard('operator')->user();
 
         $validated = $request->validate([
-            'status' => 'required|in:active,inactive,draft', 
             'price' => 'nullable|numeric|min:0',
             'max_participants' => 'nullable|integer|min:1',
             'translations' => 'required|array',
@@ -122,9 +128,11 @@ class TourController extends Controller
             'translations.*.description' => 'required|string',
         ]);
 
+        // Tours created by operators always start as draft
         $tour = $user->tourOperator->tours()->create([
             'slug' => Str::slug($validated['translations']['fr']['title'] ?? 'tour-' . uniqid()),
-            'status' => $validated['status'], 
+            'status' => 'draft',
+            'created_by_operator_user_id' => $user->id,
             'price' => $validated['price'],
             'max_participants' => $validated['max_participants'],
             'current_participants' => 0,
@@ -138,7 +146,7 @@ class TourController extends Controller
 
         return redirect()
             ->route('operator.tours.show', $tour)
-            ->with('success', 'Tour créé avec succès.');
+            ->with('success', 'Tour créé avec succès. Soumettez-le pour approbation quand il sera prêt.');
     }
 
 
@@ -154,8 +162,14 @@ class TourController extends Controller
             abort(403, 'Vous n\'avez pas accès à ce tour.');
         }
 
+        // Operators can only edit draft or rejected tours
+        if (!in_array($tour->status, ['draft', 'rejected'])) {
+            return redirect()
+                ->back()
+                ->with('error', 'Vous ne pouvez modifier que les tours en brouillon ou rejetés.');
+        }
+
         $validated = $request->validate([
-            'status' => 'required|in:active,inactive,draft',
             'price' => 'nullable|numeric|min:0',
             'max_participants' => 'nullable|integer|min:1',
             'min_participants' => 'nullable|integer|min:1',
@@ -179,9 +193,8 @@ class TourController extends Controller
             'translations.*.meeting_point_description' => 'nullable|string',
         ]);
 
-        // Update main tour data
+        // Update main tour data (status is NOT updated here, use submitForApproval instead)
         $tour->update([
-            'status' => $validated['status'],
             'price' => $validated['price'],
             'max_participants' => $validated['max_participants'],
             'min_participants' => $validated['min_participants'],
@@ -246,9 +259,12 @@ class TourController extends Controller
 
         $tourStats = [
             'total_tours' => $toursQuery->count(),
+            'draft_tours' => $toursQuery->where('status', 'draft')->count(),
+            'pending_approval_tours' => $toursQuery->where('status', 'pending_approval')->count(),
+            'approved_tours' => $toursQuery->where('status', 'approved')->count(),
+            'rejected_tours' => $toursQuery->where('status', 'rejected')->count(),
             'active_tours' => $toursQuery->where('status', 'active')->count(),
             'inactive_tours' => $toursQuery->where('status', 'inactive')->count(),
-            'draft_tours' => $toursQuery->where('status', 'draft')->count(),
         ];
 
         // Reservations statistics
@@ -283,5 +299,47 @@ class TourController extends Controller
             'dateFrom',
             'dateTo'
         ));
+    }
+
+    /**
+     * Submit tour for admin approval.
+     */
+    public function submitForApproval(Tour $tour): RedirectResponse
+    {
+        $user = Auth::guard('operator')->user();
+
+        // Verify the tour belongs to this operator
+        if ($tour->tour_operator_id !== $user->tour_operator_id) {
+            abort(403, 'Vous n\'avez pas accès à ce tour.');
+        }
+
+        // Only draft or rejected tours can be submitted
+        if (!in_array($tour->status, ['draft', 'rejected'])) {
+            return redirect()
+                ->back()
+                ->with('error', 'Seuls les tours en brouillon ou rejetés peuvent être soumis pour approbation.');
+        }
+
+        // Submit the tour
+        if ($tour->submitForApproval()) {
+            // Send notification email to all admins
+            $admins = AdminUser::where('is_active', true)->get();
+
+            foreach ($admins as $admin) {
+                try {
+                    Mail::to($admin->email)->send(new TourSubmittedForApproval($tour));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send tour submission email to admin: ' . $e->getMessage());
+                }
+            }
+
+            return redirect()
+                ->route('operator.tours.show', $tour)
+                ->with('success', 'Tour soumis pour approbation avec succès. Vous recevrez un email une fois qu\'il sera examiné.');
+        }
+
+        return redirect()
+            ->back()
+            ->with('error', 'Erreur lors de la soumission du tour.');
     }
 }

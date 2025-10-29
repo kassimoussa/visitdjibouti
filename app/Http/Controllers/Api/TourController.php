@@ -19,7 +19,15 @@ class TourController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $query = Tour::active()
+            // Only show approved tours in public API (tours created by operators that have been approved by admin)
+            // Tours created directly by admin with status 'active' are also shown
+            $query = Tour::where(function($q) {
+                    $q->where('status', 'approved')
+                      ->orWhere(function($subQ) {
+                          $subQ->where('status', 'active')
+                               ->whereNull('created_by_operator_user_id'); // Admin-created tours
+                      });
+                })
                 ->with([
                     'tourOperator.translations',
                     'translations',
@@ -147,7 +155,14 @@ class TourController extends Controller
     public function show(Request $request, string $identifier): JsonResponse
     {
         try {
-            $query = Tour::active()
+            // Only show approved tours in public API (same logic as index)
+            $query = Tour::where(function($q) {
+                    $q->where('status', 'approved')
+                      ->orWhere(function($subQ) {
+                          $subQ->where('status', 'active')
+                               ->whereNull('created_by_operator_user_id'); // Admin-created tours
+                      });
+                })
                 ->with([
                     'tourOperator.translations',
                     'tourOperator.logo',

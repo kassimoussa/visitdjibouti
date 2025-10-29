@@ -72,6 +72,7 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
         Route::get('/{tour}', [\App\Http\Controllers\Operator\TourController::class, 'show'])->name('show');
         Route::get('/{tour}/edit', [\App\Http\Controllers\Operator\TourController::class, 'edit'])->name('edit');
         Route::put('/{tour}', [\App\Http\Controllers\Operator\TourController::class, 'update'])->name('update');
+        Route::post('/{tour}/submit-for-approval', [\App\Http\Controllers\Operator\TourController::class, 'submitForApproval'])->name('submit-for-approval');
     });
 
     // Routes pour les médias

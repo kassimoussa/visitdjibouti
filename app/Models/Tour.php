@@ -18,6 +18,8 @@ class Tour extends Model
     protected $fillable = [
         'slug',
         'tour_operator_id',
+        'created_by_operator_user_id',
+        'approved_by_admin_id',
         'type',
         'target_id',
         'target_type',
@@ -38,6 +40,9 @@ class Tour extends Model
         'meeting_point_longitude',
         'meeting_point_address',
         'status',
+        'submitted_at',
+        'approved_at',
+        'rejection_reason',
         'is_featured',
         'weather_dependent',
         'cancellation_policy',
@@ -58,6 +63,8 @@ class Tour extends Model
         'views_count' => 'integer',
         'includes' => 'array',
         'requirements' => 'array',
+        'submitted_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     /**
@@ -71,6 +78,33 @@ class Tour extends Model
             // Générer un slug si vide
             if (empty($tour->slug)) {
                 $tour->slug = 'tour-'.uniqid();
+            }
+        });
+
+        static::updating(function ($tour) {
+            // Si le tour est approuvé et qu'il y a des modifications substantielles,
+            // repasser en pending_approval (sauf si la modification vient d'un admin)
+            if ($tour->isDirty() &&
+                $tour->getOriginal('status') === 'approved' &&
+                $tour->created_by_operator_user_id !== null &&
+                !auth()->guard('admin')->check()) {
+
+                // Vérifier si ce sont des modifications substantielles (pas juste views_count)
+                $substantialFields = [
+                    'type', 'target_id', 'target_type', 'start_date', 'end_date',
+                    'price', 'max_participants', 'min_participants', 'duration_hours',
+                    'difficulty_level', 'meeting_point_latitude', 'meeting_point_longitude'
+                ];
+
+                $hasSubstantialChanges = collect($substantialFields)
+                    ->some(fn($field) => $tour->isDirty($field));
+
+                if ($hasSubstantialChanges) {
+                    $tour->status = 'pending_approval';
+                    $tour->submitted_at = now();
+                    $tour->approved_at = null;
+                    $tour->approved_by_admin_id = null;
+                }
             }
         });
     }
@@ -196,11 +230,48 @@ class Tour extends Model
     }
 
     /**
+     * Get the operator user who created this tour.
+     */
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(TourOperatorUser::class, 'created_by_operator_user_id');
+    }
+
+    /**
+     * Get the admin who approved this tour.
+     */
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(AdminUser::class, 'approved_by_admin_id');
+    }
+
+    /**
      * Scopes
      */
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
+    }
+
+    public function scopePendingApproval($query)
+    {
+        return $query->where('status', 'pending_approval')
+            ->orderBy('submitted_at', 'desc');
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
+    }
+
+    public function scopeDraft($query)
+    {
+        return $query->where('status', 'draft');
     }
 
     public function scopeFeatured($query)
@@ -385,6 +456,127 @@ class Tour extends Model
             'nature' => 'Nature',
             'gastronomic' => 'Gastronomique',
             default => 'Tour'
+        };
+    }
+
+    /**
+     * Approval Workflow Methods
+     */
+
+    /**
+     * Submit tour for admin approval.
+     */
+    public function submitForApproval(): bool
+    {
+        if (!in_array($this->status, ['draft', 'rejected'])) {
+            return false;
+        }
+
+        return $this->update([
+            'status' => 'pending_approval',
+            'submitted_at' => now(),
+        ]);
+    }
+
+    /**
+     * Approve tour by admin.
+     */
+    public function approve(int $adminId): bool
+    {
+        if ($this->status !== 'pending_approval') {
+            return false;
+        }
+
+        return $this->update([
+            'status' => 'approved',
+            'approved_by_admin_id' => $adminId,
+            'approved_at' => now(),
+            'rejection_reason' => null,
+        ]);
+    }
+
+    /**
+     * Reject tour by admin.
+     */
+    public function reject(int $adminId, string $reason): bool
+    {
+        if ($this->status !== 'pending_approval') {
+            return false;
+        }
+
+        return $this->update([
+            'status' => 'rejected',
+            'approved_by_admin_id' => $adminId,
+            'approved_at' => null,
+            'rejection_reason' => $reason,
+        ]);
+    }
+
+    /**
+     * Check if tour is pending approval.
+     */
+    public function isPendingApproval(): bool
+    {
+        return $this->status === 'pending_approval';
+    }
+
+    /**
+     * Check if tour is approved.
+     */
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
+    }
+
+    /**
+     * Check if tour is rejected.
+     */
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
+    }
+
+    /**
+     * Check if tour is in draft status.
+     */
+    public function isDraft(): bool
+    {
+        return $this->status === 'draft';
+    }
+
+    /**
+     * Get status label with color badge.
+     */
+    public function getStatusBadgeAttribute(): string
+    {
+        return match ($this->status) {
+            'draft' => '<span class="badge bg-secondary">Brouillon</span>',
+            'pending_approval' => '<span class="badge bg-warning">En attente d\'approbation</span>',
+            'approved' => '<span class="badge bg-success">Approuvé</span>',
+            'rejected' => '<span class="badge bg-danger">Rejeté</span>',
+            'active' => '<span class="badge bg-primary">Actif</span>',
+            'inactive' => '<span class="badge bg-secondary">Inactif</span>',
+            'suspended' => '<span class="badge bg-warning">Suspendu</span>',
+            'archived' => '<span class="badge bg-dark">Archivé</span>',
+            default => '<span class="badge bg-secondary">' . ucfirst($this->status) . '</span>'
+        };
+    }
+
+    /**
+     * Get status label text only.
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status) {
+            'draft' => 'Brouillon',
+            'pending_approval' => 'En attente d\'approbation',
+            'approved' => 'Approuvé',
+            'rejected' => 'Rejeté',
+            'active' => 'Actif',
+            'inactive' => 'Inactif',
+            'suspended' => 'Suspendu',
+            'archived' => 'Archivé',
+            default => ucfirst($this->status)
         };
     }
 }
