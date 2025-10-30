@@ -65,7 +65,7 @@
     <!-- Filtres -->
     <div class="card mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('admin.activities.index') }}">
+            <form method="GET" action="{{ route('activities.index') }}">
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label">Recherche</label>
@@ -118,7 +118,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-filter me-2"></i>Filtrer
                     </button>
-                    <a href="{{ route('admin.activities.index') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('activities.index') }}" class="btn btn-outline-secondary">
                         <i class="fas fa-times me-2"></i>Réinitialiser
                     </a>
                 </div>
@@ -207,13 +207,13 @@
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="{{ route('admin.activities.show', $activity) }}"
+                                            <a href="{{ route('activities.show', $activity) }}"
                                                class="btn btn-sm btn-outline-primary"
                                                title="Voir">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             @if($activity->status !== 'draft')
-                                                <form action="{{ route('admin.activities.toggle-status', $activity) }}" method="POST" class="d-inline">
+                                                <form action="{{ route('activities.toggle-status', $activity) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit"
                                                             class="btn btn-sm btn-outline-{{ $activity->status === 'active' ? 'warning' : 'success' }}"
@@ -222,7 +222,7 @@
                                                     </button>
                                                 </form>
                                             @endif
-                                            <form action="{{ route('admin.activities.toggle-featured', $activity) }}" method="POST" class="d-inline">
+                                            <form action="{{ route('activities.toggle-featured', $activity) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 <button type="submit"
                                                         class="btn btn-sm btn-outline-warning"
@@ -237,7 +237,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                             <form id="delete-form-{{ $activity->id }}"
-                                                  action="{{ route('admin.activities.destroy', $activity) }}"
+                                                  action="{{ route('activities.destroy', $activity) }}"
                                                   method="POST"
                                                   style="display: none;">
                                                 @csrf

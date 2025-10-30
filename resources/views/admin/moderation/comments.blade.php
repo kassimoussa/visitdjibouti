@@ -47,7 +47,7 @@
     <!-- Filtres -->
     <div class="card mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('admin.moderation.comments') }}">
+            <form method="GET" action="{{ route('moderation.comments') }}">
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label">Recherche</label>
@@ -76,7 +76,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-filter me-2"></i>Filtrer
                         </button>
-                        <a href="{{ route('admin.moderation.comments') }}" class="btn btn-outline-secondary">
+                        <a href="{{ route('moderation.comments') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-times me-2"></i>Réinitialiser
                         </a>
                     </div>
@@ -194,14 +194,14 @@
                                     <td>
                                         <div class="btn-group" role="group">
                                             @if(!$comment->is_approved)
-                                                <form action="{{ route('admin.moderation.comments.approve', $comment) }}" method="POST" class="d-inline">
+                                                <form action="{{ route('moderation.comments.approve', $comment) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-outline-success" title="Approuver">
                                                         <i class="fas fa-check"></i>
                                                     </button>
                                                 </form>
                                             @else
-                                                <form action="{{ route('admin.moderation.comments.reject', $comment) }}" method="POST" class="d-inline">
+                                                <form action="{{ route('moderation.comments.reject', $comment) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-outline-warning" title="Rejeter">
                                                         <i class="fas fa-ban"></i>
@@ -221,7 +221,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                             <form id="delete-comment-{{ $comment->id }}"
-                                                  action="{{ route('admin.moderation.comments.delete', $comment) }}"
+                                                  action="{{ route('moderation.comments.delete', $comment) }}"
                                                   method="POST"
                                                   style="display: none;">
                                                 @csrf

@@ -65,7 +65,7 @@
     <!-- Filtres -->
     <div class="card mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('admin.activity-registrations.index') }}">
+            <form method="GET" action="{{ route('activity-registrations.index') }}">
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label">Recherche</label>
@@ -128,7 +128,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-filter me-2"></i>Filtrer
                     </button>
-                    <a href="{{ route('admin.activity-registrations.index') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('activity-registrations.index') }}" class="btn btn-outline-secondary">
                         <i class="fas fa-times me-2"></i>Réinitialiser
                     </a>
                 </div>
@@ -178,7 +178,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.activities.show', $registration->activity) }}">
+                                        <a href="{{ route('activities.show', $registration->activity) }}">
                                             {{ Str::limit($registration->activity->title, 30) }}
                                         </a>
                                     </td>
@@ -217,7 +217,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.activity-registrations.show', $registration) }}"
+                                        <a href="{{ route('activity-registrations.show', $registration) }}"
                                            class="btn btn-sm btn-outline-primary"
                                            title="Voir">
                                             <i class="fas fa-eye"></i>

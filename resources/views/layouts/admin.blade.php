@@ -234,7 +234,7 @@
                             </a>
                         </li>
                         <li class="{{ request()->is('activities*') && !request()->is('activity-registrations*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.activities.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                            <a href="{{ route('activities.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Activités">
                                 <i class="fas fa-running"></i>
                                 <span>Activités</span>
@@ -282,7 +282,7 @@
                             </a>
                         </li>
                         <li class="{{ request()->is('activity-registrations*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.activity-registrations.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                            <a href="{{ route('activity-registrations.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Inscriptions Activités">
                                 <i class="fas fa-user-check"></i>
                                 <span>Inscriptions Activités</span>
@@ -295,14 +295,14 @@
                     <div class="menu-section-title">MODÉRATION</div>
                     <ul class="list-unstyled components">
                         <li class="{{ request()->is('moderation/reviews*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.moderation.reviews') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                            <a href="{{ route('moderation.reviews') }}" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Avis">
                                 <i class="fas fa-star"></i>
                                 <span>Avis</span>
                             </a>
                         </li>
                         <li class="{{ request()->is('moderation/comments*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.moderation.comments') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                            <a href="{{ route('moderation.comments') }}" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Commentaires">
                                 <i class="fas fa-comments"></i>
                                 <span>Commentaires</span>

@@ -8,7 +8,7 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('admin.activity-registrations.index') }}">Inscriptions</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('activity-registrations.index') }}">Inscriptions</a></li>
             <li class="breadcrumb-item active">Inscription #{{ $registration->id }}</li>
         </ol>
     </nav>
@@ -39,7 +39,7 @@
                 @endif
             </div>
         </div>
-        <a href="{{ route('admin.activity-registrations.index') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('activity-registrations.index') }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Retour
         </a>
     </div>
@@ -77,7 +77,7 @@
                                     {{ $registration->activity->difficulty_label }}
                                 </span>
                             </p>
-                            <a href="{{ route('admin.activities.show', $registration->activity) }}" class="btn btn-sm btn-outline-primary mt-2">
+                            <a href="{{ route('activities.show', $registration->activity) }}" class="btn btn-sm btn-outline-primary mt-2">
                                 Voir l'activité
                             </a>
                         </div>

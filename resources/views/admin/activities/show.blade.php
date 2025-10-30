@@ -8,7 +8,7 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('admin.activities.index') }}">Activités</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('activities.index') }}">Activités</a></li>
             <li class="breadcrumb-item active">{{ Str::limit($activity->title, 50) }}</li>
         </ol>
     </nav>
@@ -38,11 +38,11 @@
             </div>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('admin.activities.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('activities.index') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Retour
             </a>
             @if($activity->status !== 'draft')
-                <form action="{{ route('admin.activities.toggle-status', $activity) }}" method="POST" class="d-inline">
+                <form action="{{ route('activities.toggle-status', $activity) }}" method="POST" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-{{ $activity->status === 'active' ? 'warning' : 'success' }}">
                         <i class="fas fa-{{ $activity->status === 'active' ? 'pause' : 'play' }} me-2"></i>
@@ -50,7 +50,7 @@
                     </button>
                 </form>
             @endif
-            <form action="{{ route('admin.activities.toggle-featured', $activity) }}" method="POST" class="d-inline">
+            <form action="{{ route('activities.toggle-featured', $activity) }}" method="POST" class="d-inline">
                 @csrf
                 <button type="submit" class="btn btn-outline-warning">
                     <i class="fas fa-star{{ $activity->is_featured ? '' : '-half-alt' }} me-2"></i>
@@ -61,7 +61,7 @@
                     onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cette activité ?')) { document.getElementById('delete-form').submit(); }">
                 <i class="fas fa-trash me-2"></i>Supprimer
             </button>
-            <form id="delete-form" action="{{ route('admin.activities.destroy', $activity) }}" method="POST" style="display: none;">
+            <form id="delete-form" action="{{ route('activities.destroy', $activity) }}" method="POST" style="display: none;">
                 @csrf
                 @method('DELETE')
             </form>
@@ -244,7 +244,7 @@
                     <h5 class="mb-0">
                         <i class="fas fa-users me-2"></i>Inscriptions récentes
                     </h5>
-                    <a href="{{ route('admin.activity-registrations.index', ['activity_id' => $activity->id]) }}" class="btn btn-sm btn-primary">
+                    <a href="{{ route('activity-registrations.index', ['activity_id' => $activity->id]) }}" class="btn btn-sm btn-primary">
                         Voir toutes
                     </a>
                 </div>
@@ -282,7 +282,7 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <a href="{{ route('admin.activity-registrations.show', $registration) }}"
+                                            <a href="{{ route('activity-registrations.show', $registration) }}"
                                                class="btn btn-sm btn-outline-primary">
                                                 <i class="fas fa-eye"></i>
                                             </a>
