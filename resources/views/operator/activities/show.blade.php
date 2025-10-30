@@ -36,6 +36,10 @@
             </div>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ route('operator.activity-registrations.index', ['activity_id' => $activity->id]) }}" class="btn btn-outline-primary">
+                <i class="fas fa-user-check me-2"></i>
+                Inscriptions
+            </a>
             <a href="{{ route('operator.activities.edit', $activity) }}" class="btn btn-warning">
                 <i class="fas fa-edit me-2"></i>
                 Modifier

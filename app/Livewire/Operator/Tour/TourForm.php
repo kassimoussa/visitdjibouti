@@ -36,7 +36,7 @@ class TourForm extends Component
 
     public $difficulty_level = 'easy';
 
-    // Status is not editable by operator - always created as 'draft'
+    // Status is not editable by operator - automatically submitted for approval upon creation
 
     public $is_featured = false;
 
@@ -228,10 +228,21 @@ class TourForm extends Component
             'slug' => $this->slug,
         ];
 
-        // For new tours, set initial status and creator
+        // For new tours, set initial status and creator, then auto-submit for approval
         if (!$this->isEditMode) {
-            $tourData['status'] = 'draft';
+            $tourData['status'] = 'pending_approval';
             $tourData['created_by_operator_user_id'] = $user->id;
+            $tourData['submitted_at'] = now();
+        } else {
+            // If editing a rejected tour, auto-resubmit for approval
+            $existingTour = Tour::find($this->tourId);
+            if ($existingTour && $existingTour->status === 'rejected') {
+                $tourData['status'] = 'pending_approval';
+                $tourData['submitted_at'] = now();
+                $tourData['rejection_reason'] = null;
+                $tourData['rejected_at'] = null;
+                $tourData['rejected_by_admin_user_id'] = null;
+            }
         }
 
         if (empty($tourData['slug'])) {
@@ -256,7 +267,19 @@ class TourForm extends Component
         // Synchroniser les médias de la galerie
         $tour->media()->sync($this->selectedMedia);
 
-        session()->flash('success', 'Tour sauvegardé avec succès.');
+        // Determine success message based on action
+        if (!$this->isEditMode) {
+            $successMessage = 'Tour créé et soumis pour approbation avec succès.';
+        } else {
+            $existingTour = Tour::find($this->tourId);
+            if ($existingTour && $existingTour->status === 'rejected') {
+                $successMessage = 'Tour modifié et resoumis pour approbation avec succès.';
+            } else {
+                $successMessage = 'Tour modifié avec succès.';
+            }
+        }
+
+        session()->flash('success', $successMessage);
 
         return redirect()->route('operator.tours.index');
     }

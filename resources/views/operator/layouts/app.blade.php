@@ -57,16 +57,6 @@
                 <div class="menu-section">
                     <div class="menu-section-title">GESTION</div>
                     <ul class="list-unstyled components">
-                        @if(Auth::guard('operator')->user()->canManageEvents())
-                        <li class="{{ request()->routeIs('operator.events.*') ? 'active' : '' }}">
-                            <a href="{{ route('operator.events.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Événements">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>Événements</span>
-                            </a>
-                        </li>
-                        @endif
-
                         @if(Auth::guard('operator')->user()->canManageTours())
                         <li class="{{ request()->routeIs('operator.tours.*') ? 'active' : '' }}">
                             <a href="{{ route('operator.tours.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
@@ -90,34 +80,6 @@
                                 title="Bibliothèque de Médias">
                                 <i class="fas fa-images"></i>
                                 <span>Médias</span>
-                            </a>
-                        </li>
-
-                        @if(Auth::guard('operator')->user()->canViewReservations())
-                        <li class="{{ request()->routeIs('operator.reservations.*') && !request()->routeIs('operator.tour-reservations.*') ? 'active' : '' }}">
-                            <a href="{{ route('operator.reservations.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Réservations Événements">
-                                <i class="fas fa-calendar-check"></i>
-                                <span>Rés. Événements</span>
-                            </a>
-                        </li>
-                        @endif
-
-                        @if(Auth::guard('operator')->user()->canManageTours())
-                        <li class="{{ request()->routeIs('operator.tour-reservations.*') ? 'active' : '' }}">
-                            <a href="{{ route('operator.tour-reservations.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Réservations Tours">
-                                <i class="fas fa-clipboard-list"></i>
-                                <span>Rés. Tours</span>
-                            </a>
-                        </li>
-                        @endif
-
-                        <li class="{{ request()->routeIs('operator.activity-registrations.*') ? 'active' : '' }}">
-                            <a href="{{ route('operator.activity-registrations.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Inscriptions Activités">
-                                <i class="fas fa-user-check"></i>
-                                <span>Rés. Activités</span>
                             </a>
                         </li>
                     </ul>

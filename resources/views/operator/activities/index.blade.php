@@ -11,10 +11,16 @@
             <h2 class="mb-1">Mes Activités</h2>
             <p class="text-muted mb-0">Organisez et gérez vos activités touristiques</p>
         </div>
-        <a href="{{ route('operator.activities.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>
-            Créer une Activité
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('operator.activity-registrations.index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-user-check me-2"></i>
+                Voir les inscriptions
+            </a>
+            <a href="{{ route('operator.activities.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
+                Créer une Activité
+            </a>
+        </div>
     </div>
 
     <!-- Filters and Search -->

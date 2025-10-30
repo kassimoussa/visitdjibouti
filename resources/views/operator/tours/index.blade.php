@@ -11,10 +11,16 @@
             <h2 class="mb-1">Mes Tours Guidés</h2>
             <p class="text-muted mb-0">Organisez et gérez vos circuits touristiques</p>
         </div>
-        <a href="{{ route('operator.tours.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>
-            Créer un Tour
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('operator.tour-reservations.index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-clipboard-list me-2"></i>
+                Voir les réservations
+            </a>
+            <a href="{{ route('operator.tours.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
+                Créer un Tour
+            </a>
+        </div>
     </div>
 
     <!-- Filters and Search -->

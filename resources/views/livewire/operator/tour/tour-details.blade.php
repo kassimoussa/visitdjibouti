@@ -30,18 +30,13 @@
                 <a href="{{ route('operator.tours.index') }}" class="btn btn-outline-secondary me-2">
                     <i class="fas fa-arrow-left me-1"></i> Retour
                 </a>
-                @if(in_array($tour->status, ['draft', 'rejected']))
-                    <a href="{{ route('operator.tours.edit', $tour) }}" class="btn btn-primary me-2">
-                        <i class="fas fa-edit me-1"></i> Modifier
+                <a href="{{ route('operator.tour-reservations.index', ['tour_id' => $tour->id]) }}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-clipboard-list me-1"></i> Réservations
+                </a>
+                @if(in_array($tour->status, ['rejected']))
+                    <a href="{{ route('operator.tours.edit', $tour) }}" class="btn btn-warning me-2">
+                        <i class="fas fa-edit me-1"></i> Modifier et resoumettre
                     </a>
-                @endif
-                @if(in_array($tour->status, ['draft', 'rejected']))
-                    <form action="{{ route('operator.tours.submit-for-approval', $tour) }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-success" onclick="return confirm('Êtes-vous sûr de vouloir soumettre ce tour pour approbation ?')">
-                            <i class="fas fa-paper-plane me-1"></i> Soumettre pour approbation
-                        </button>
-                    </form>
                 @endif
             </div>
         </div>

@@ -142,14 +142,23 @@
                                 @error('price') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
 
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Durée (heures)</label>
-                                <input type="number" class="form-control" wire:model="duration_hours" min="0">
-                            </div>
-
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Durée (minutes)</label>
-                                <input type="number" class="form-control" wire:model="duration_minutes" min="0" max="59">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Durée</label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" wire:model="duration_hours" min="0" placeholder="0">
+                                            <span class="input-group-text">h</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" wire:model="duration_minutes" min="0" max="59" placeholder="0">
+                                            <span class="input-group-text">min</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Exemple: 2h 30min</small>
                             </div>
                         </div>
 
