@@ -19,8 +19,6 @@ class TourList extends Component
 
     public $typeFilter = '';
 
-    public $difficultyFilter = '';
-
     // Tri
     public $sortField = 'created_at';
 
@@ -44,11 +42,6 @@ class TourList extends Component
     }
 
     public function updatedTypeFilter()
-    {
-        $this->resetPage();
-    }
-
-    public function updatedDifficultyFilter()
     {
         $this->resetPage();
     }
@@ -104,10 +97,6 @@ class TourList extends Component
             $query->where('type', $this->typeFilter);
         }
 
-        if (! empty($this->difficultyFilter)) {
-            $query->where('difficulty_level', $this->difficultyFilter);
-        }
-
         // Tri dynamique
         if ($this->sortField === 'title') {
             // Tri par titre (via traduction)
@@ -117,6 +106,11 @@ class TourList extends Component
                     ->where('tour_translations.locale', '=', $locale);
             })
                 ->orderBy('tour_translations.title', $this->sortDirection)
+                ->select('tours.*');
+        } elseif ($this->sortField === 'tour_operator_id') {
+            // Tri par nom d'opérateur (via relation)
+            $query->join('tour_operators', 'tours.tour_operator_id', '=', 'tour_operators.id')
+                ->orderBy('tour_operators.name', $this->sortDirection)
                 ->select('tours.*');
         } else {
             // Tri par les autres colonnes directes

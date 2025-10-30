@@ -63,16 +63,6 @@
                             <option value="gastronomic">Gastronomique</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label for="difficultyFilter" class="form-label">Difficulté</label>
-                        <select wire:model.live="difficultyFilter" class="form-select" id="difficultyFilter">
-                            <option value="">Toutes</option>
-                            <option value="easy">Facile</option>
-                            <option value="moderate">Modéré</option>
-                            <option value="difficult">Difficile</option>
-                            <option value="expert">Expert</option>
-                        </select>
-                    </div>
                 </div>
             </div>
         </div>
@@ -97,7 +87,7 @@
                                     @endif
                                 </th>
                                 <th style="cursor: pointer;" wire:click="sortBy('title')">
-                                    Tour
+                                    Nom
                                     @if($sortField === 'title')
                                         @if($sortDirection === 'asc')
                                             <i class="fas fa-sort-up"></i>
@@ -108,9 +98,19 @@
                                         <i class="fas fa-sort text-muted"></i>
                                     @endif
                                 </th>
-                                <th>Opérateur</th>
+                                <th style="cursor: pointer;" wire:click="sortBy('tour_operator_id')">
+                                    Opérateur
+                                    @if($sortField === 'tour_operator_id')
+                                        @if($sortDirection === 'asc')
+                                            <i class="fas fa-sort-up"></i>
+                                        @else
+                                            <i class="fas fa-sort-down"></i>
+                                        @endif
+                                    @else
+                                        <i class="fas fa-sort text-muted"></i>
+                                    @endif
+                                </th>
                                 <th>Type</th>
-                                <th>Difficulté</th>
                                 <th>Prix</th>
                                 <th>Statut</th>
                                 <th>Actions</th>
@@ -121,43 +121,20 @@
                                 <tr>
                                     <td>{{ $tour->id }}</td>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            @if($tour->featuredImage)
-                                                <img src="{{ $tour->featuredImage->getImageUrl() }}"
-                                                     alt="{{ $tour->title }}"
-                                                     class="rounded me-3"
-                                                     style="width: 60px; height: 60px; object-fit: cover;">
-                                            @else
-                                                <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center"
-                                                     style="width: 60px; height: 60px;">
-                                                    <i class="fas fa-map-signs text-muted"></i>
-                                                </div>
+                                        <div>
+                                            <a href="{{ route('tours.show', $tour) }}" class="text-decoration-none">
+                                                <strong>{{ $tour->title }}</strong>
+                                            </a>
+                                            @if($tour->is_featured)
+                                                <span class="badge bg-warning text-dark ms-1">
+                                                    <i class="fas fa-star"></i>
+                                                </span>
                                             @endif
-                                            <div>
-                                                <h6 class="mb-0">
-                                                    <a href="{{ route('tours.show', $tour) }}" class="text-decoration-none">
-                                                        {{ $tour->title }}
-                                                    </a>
-                                                </h6>
-                                                <small class="text-muted">{{ Str::limit($tour->short_description, 50) }}</small>
-                                                @if($tour->is_featured)
-                                                    <span class="badge bg-warning ms-1">Mis en avant</span>
-                                                @endif
-                                            </div>
                                         </div>
                                     </td>
                                     <td>{{ $tour->tourOperator->name }}</td>
                                     <td>
                                         <span class="badge bg-info">{{ $tour->type_label }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge
-                                            @if($tour->difficulty_level === 'easy') bg-success
-                                            @elseif($tour->difficulty_level === 'moderate') bg-warning
-                                            @elseif($tour->difficulty_level === 'difficult') bg-danger
-                                            @else bg-dark @endif">
-                                            {{ $tour->difficulty_label }}
-                                        </span>
                                     </td>
                                     <td>{{ $tour->formatted_price }}</td>
                                     <td>
@@ -191,11 +168,11 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center py-4">
+                                    <td colspan="7" class="text-center py-4">
                                         <div class="text-muted">
                                             <i class="fas fa-map-signs fa-3x mb-3"></i>
                                             <p>Aucun tour trouvé</p>
-                                            @if(empty($search) && empty($statusFilter) && empty($operatorFilter) && empty($typeFilter) && empty($difficultyFilter))
+                                            @if(empty($search) && empty($statusFilter) && empty($operatorFilter) && empty($typeFilter))
                                                 <a href="{{ route('tours.create') }}" class="btn btn-primary">
                                                     <i class="fas fa-plus-circle me-1"></i> Créer le premier tour
                                                 </a>
