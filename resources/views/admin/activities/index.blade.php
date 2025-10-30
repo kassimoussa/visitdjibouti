@@ -13,55 +13,6 @@
         </div>
     </div>
 
-    <!-- Statistiques -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stats-card small">
-                <div class="stats-icon secondary">
-                    <i class="fas fa-list"></i>
-                </div>
-                <h4>{{ $statistics['total'] ?? 0 }}</h4>
-                <p>Total</p>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="stats-card small">
-                <div class="stats-icon warning">
-                    <i class="fas fa-file-alt"></i>
-                </div>
-                <h4>{{ $statistics['draft'] ?? 0 }}</h4>
-                <p>Brouillons</p>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="stats-card small">
-                <div class="stats-icon success">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <h4>{{ $statistics['active'] ?? 0 }}</h4>
-                <p>Actives</p>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="stats-card small">
-                <div class="stats-icon danger">
-                    <i class="fas fa-pause-circle"></i>
-                </div>
-                <h4>{{ $statistics['inactive'] ?? 0 }}</h4>
-                <p>Inactives</p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card small">
-                <div class="stats-icon primary">
-                    <i class="fas fa-star"></i>
-                </div>
-                <h4>{{ $statistics['featured'] ?? 0 }}</h4>
-                <p>Mises en avant</p>
-            </div>
-        </div>
-    </div>
-
     <!-- Filtres -->
     <div class="card mb-4">
         <div class="card-body">
@@ -89,28 +40,6 @@
                                     {{ $operator->name }}
                                 </option>
                             @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Difficulté</label>
-                        <select name="difficulty" class="form-control">
-                            <option value="">Toutes</option>
-                            <option value="easy" {{ request('difficulty') == 'easy' ? 'selected' : '' }}>Facile</option>
-                            <option value="moderate" {{ request('difficulty') == 'moderate' ? 'selected' : '' }}>Modéré</option>
-                            <option value="difficult" {{ request('difficulty') == 'difficult' ? 'selected' : '' }}>Difficile</option>
-                            <option value="expert" {{ request('difficulty') == 'expert' ? 'selected' : '' }}>Expert</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Région</label>
-                        <select name="region" class="form-control">
-                            <option value="">Toutes</option>
-                            <option value="Djibouti" {{ request('region') == 'Djibouti' ? 'selected' : '' }}>Djibouti</option>
-                            <option value="Ali Sabieh" {{ request('region') == 'Ali Sabieh' ? 'selected' : '' }}>Ali Sabieh</option>
-                            <option value="Dikhil" {{ request('region') == 'Dikhil' ? 'selected' : '' }}>Dikhil</option>
-                            <option value="Tadjourah" {{ request('region') == 'Tadjourah' ? 'selected' : '' }}>Tadjourah</option>
-                            <option value="Obock" {{ request('region') == 'Obock' ? 'selected' : '' }}>Obock</option>
-                            <option value="Arta" {{ request('region') == 'Arta' ? 'selected' : '' }}>Arta</option>
                         </select>
                     </div>
                 </div>
@@ -141,49 +70,57 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Activité</th>
-                                <th>Opérateur</th>
+                                <th style="cursor: pointer;" onclick="window.location='{{ route('activities.index', array_merge(request()->except('sort', 'direction'), ['sort' => 'id', 'direction' => request('sort') === 'id' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}'">
+                                    ID
+                                    @if(request('sort') === 'id')
+                                        <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                        <i class="fas fa-sort text-muted"></i>
+                                    @endif
+                                </th>
+                                <th style="cursor: pointer;" onclick="window.location='{{ route('activities.index', array_merge(request()->except('sort', 'direction'), ['sort' => 'name', 'direction' => request('sort') === 'name' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}'">
+                                    Nom
+                                    @if(request('sort') === 'name')
+                                        <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                        <i class="fas fa-sort text-muted"></i>
+                                    @endif
+                                </th>
+                                <th style="cursor: pointer;" onclick="window.location='{{ route('activities.index', array_merge(request()->except('sort', 'direction'), ['sort' => 'operator', 'direction' => request('sort') === 'operator' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}'">
+                                    Opérateur
+                                    @if(request('sort') === 'operator')
+                                        <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }}"></i>
+                                    @else
+                                        <i class="fas fa-sort text-muted"></i>
+                                    @endif
+                                </th>
                                 <th>Prix</th>
-                                <th>Difficulté</th>
                                 <th>Participants</th>
                                 <th>Statut</th>
-                                <th>Stats</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($activities as $activity)
                                 <tr>
+                                    <td>{{ $activity->id }}</td>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            @if($activity->featuredImage)
-                                                <img src="{{ asset($activity->featuredImage->thumbnail_path ?? $activity->featuredImage->path) }}"
-                                                     alt="{{ $activity->title }}"
-                                                     class="rounded me-3"
-                                                     style="width: 60px; height: 60px; object-fit: cover;">
+                                        <div>
+                                            <a href="{{ route('activities.show', $activity) }}" class="text-decoration-none">
+                                                <strong>{{ Str::limit($activity->title, 50) }}</strong>
+                                            </a>
+                                            @if($activity->is_featured)
+                                                <span class="badge bg-warning text-dark ms-1">
+                                                    <i class="fas fa-star"></i>
+                                                </span>
                                             @endif
-                                            <div>
-                                                <strong>{{ Str::limit($activity->title, 40) }}</strong>
-                                                @if($activity->is_featured)
-                                                    <span class="badge bg-warning ms-2">
-                                                        <i class="fas fa-star"></i> Mise en avant
-                                                    </span>
-                                                @endif
-                                                <br>
-                                                <small class="text-muted">{{ $activity->region ?? 'Non spécifié' }}</small>
-                                            </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <strong>{{ $activity->tourOperator->name }}</strong>
+                                        {{ $activity->tourOperator->name }}
                                     </td>
                                     <td>
-                                        <strong>{{ number_format($activity->price, 0, ',', ' ') }}</strong> {{ $activity->currency }}
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{{ $activity->difficulty_level === 'easy' ? 'success' : ($activity->difficulty_level === 'moderate' ? 'warning' : 'danger') }}">
-                                            {{ $activity->difficulty_label }}
-                                        </span>
+                                        {{ number_format($activity->price, 0, ',', ' ') }} {{ $activity->currency }}
                                     </td>
                                     <td>
                                         <span class="badge bg-secondary">
@@ -198,12 +135,6 @@
                                         @else
                                             <span class="badge bg-danger">Inactive</span>
                                         @endif
-                                    </td>
-                                    <td>
-                                        <small class="text-muted">
-                                            <i class="fas fa-eye"></i> {{ $activity->views_count }}<br>
-                                            <i class="fas fa-user-check"></i> {{ $activity->registrations_count }}
-                                        </small>
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
@@ -263,7 +194,7 @@
                     <i class="fas fa-running fa-3x text-muted mb-3"></i>
                     <h5 class="text-muted">Aucune activité trouvée</h5>
                     <p class="text-muted mb-0">
-                        @if(request()->hasAny(['search', 'status', 'tour_operator_id', 'difficulty', 'region']))
+                        @if(request()->hasAny(['search', 'status', 'tour_operator_id']))
                             Modifiez vos filtres pour voir plus d'activités
                         @else
                             Les activités créées par les opérateurs apparaîtront ici

@@ -16,8 +16,7 @@ class ActivityController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Activity::with(['tourOperator.translations', 'featuredImage', 'translations'])
-            ->latest();
+        $query = Activity::with(['tourOperator.translations', 'translations']);
 
         // Filtres
         if ($request->filled('search')) {
@@ -38,19 +37,35 @@ class ActivityController extends Controller
             $query->where('tour_operator_id', $request->tour_operator_id);
         }
 
-        if ($request->filled('difficulty')) {
-            $query->where('difficulty_level', $request->difficulty);
-        }
-
-        if ($request->filled('region')) {
-            $query->where('region', $request->region);
-        }
-
         if ($request->filled('is_featured')) {
             $query->where('is_featured', $request->is_featured === '1');
         }
 
-        $activities = $query->paginate(20);
+        // Tri
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+
+        if ($sortField === 'id') {
+            $query->orderBy('id', $sortDirection);
+        } elseif ($sortField === 'name') {
+            // Tri par nom (via traduction)
+            $locale = session('locale', 'fr');
+            $query->leftJoin('activity_translations', function ($join) use ($locale) {
+                $join->on('activities.id', '=', 'activity_translations.activity_id')
+                    ->where('activity_translations.locale', '=', $locale);
+            })
+                ->orderBy('activity_translations.title', $sortDirection)
+                ->select('activities.*');
+        } elseif ($sortField === 'operator') {
+            // Tri par opérateur
+            $query->join('tour_operators', 'activities.tour_operator_id', '=', 'tour_operators.id')
+                ->orderBy('tour_operators.name', $sortDirection)
+                ->select('activities.*');
+        } else {
+            $query->orderBy('created_at', $sortDirection);
+        }
+
+        $activities = $query->paginate(20)->withQueryString();
 
         // Liste des opérateurs pour le filtre
         $tourOperators = TourOperator::with('translations')
@@ -58,16 +73,7 @@ class ActivityController extends Controller
             ->orderBy('id')
             ->get();
 
-        // Statistiques
-        $statistics = [
-            'total' => Activity::count(),
-            'draft' => Activity::where('status', 'draft')->count(),
-            'active' => Activity::where('status', 'active')->count(),
-            'inactive' => Activity::where('status', 'inactive')->count(),
-            'featured' => Activity::where('is_featured', true)->count(),
-        ];
-
-        return view('admin.activities.index', compact('activities', 'tourOperators', 'statistics'));
+        return view('admin.activities.index', compact('activities', 'tourOperators'));
     }
 
     /**

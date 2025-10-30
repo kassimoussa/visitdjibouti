@@ -121,15 +121,28 @@
                                 <tr>
                                     <td>{{ $tour->id }}</td>
                                     <td>
-                                        <div>
-                                            <a href="{{ route('tours.show', $tour) }}" class="text-decoration-none">
-                                                <strong>{{ $tour->title }}</strong>
-                                            </a>
-                                            @if($tour->is_featured)
-                                                <span class="badge bg-warning text-dark ms-1">
-                                                    <i class="fas fa-star"></i>
-                                                </span>
+                                        <div class="d-flex align-items-center">
+                                            @if($tour->featuredImage)
+                                                <img src="{{ $tour->featuredImage->getImageUrl() }}"
+                                                     alt="{{ $tour->title }}"
+                                                     class="rounded me-3"
+                                                     style="width: 60px; height: 60px; object-fit: cover;">
+                                            @else
+                                                <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center"
+                                                     style="width: 60px; height: 60px;">
+                                                    <i class="fas fa-map-signs text-muted"></i>
+                                                </div>
                                             @endif
+                                            <div>
+                                                <a href="{{ route('tours.show', $tour) }}" class="text-decoration-none">
+                                                    <strong>{{ $tour->title }}</strong>
+                                                </a>
+                                                @if($tour->is_featured)
+                                                    <span class="badge bg-warning text-dark ms-1">
+                                                        <i class="fas fa-star"></i>
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </td>
                                     <td>{{ $tour->tourOperator->name }}</td>
