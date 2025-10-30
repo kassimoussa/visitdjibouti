@@ -167,6 +167,21 @@ Route::middleware('auth.admin')->group(function () {
         })->where('id', '[0-9]+')->name('show');
     });
 
+    // Routes pour les activités
+    Route::prefix('activities')->name('activities.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ActivityController::class, 'index'])->name('index');
+        Route::get('/{activity}', [\App\Http\Controllers\Admin\ActivityController::class, 'show'])->name('show');
+        Route::post('/{activity}/toggle-status', [\App\Http\Controllers\Admin\ActivityController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/{activity}/toggle-featured', [\App\Http\Controllers\Admin\ActivityController::class, 'toggleFeatured'])->name('toggle-featured');
+        Route::delete('/{activity}', [\App\Http\Controllers\Admin\ActivityController::class, 'destroy'])->name('destroy');
+    });
+
+    // Routes pour les inscriptions aux activités
+    Route::prefix('activity-registrations')->name('activity-registrations.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ActivityController::class, 'registrations'])->name('index');
+        Route::get('/{registration}', [\App\Http\Controllers\Admin\ActivityController::class, 'showRegistration'])->name('show');
+    });
+
     // Routes pour la modération des avis et commentaires
     Route::prefix('moderation')->name('moderation.')->group(function () {
         // Avis (Reviews)

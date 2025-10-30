@@ -233,6 +233,13 @@
                                 <span>Tours Guidés</span>
                             </a>
                         </li>
+                        <li class="{{ request()->is('activities*') && !request()->is('activity-registrations*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.activities.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Activités">
+                                <i class="fas fa-running"></i>
+                                <span>Activités</span>
+                            </a>
+                        </li>
                         <li class="{{ request()->is('categories*') ? 'active' : '' }}">
                             <a href="{{ route('categories.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
                                 title="Catégories">
@@ -274,13 +281,33 @@
                                 <span>Réservations</span>
                             </a>
                         </li>
-                        {{-- <li class="{{ request()->is('reviews*') ? 'active' : '' }}">
-                            <a href="#" class="coming-soon-link" data-feature="Avis & Commentaires" data-icon="fas fa-comments" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Avis & Commentaires">
+                        <li class="{{ request()->is('activity-registrations*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.activity-registrations.index') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Inscriptions Activités">
+                                <i class="fas fa-user-check"></i>
+                                <span>Inscriptions Activités</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="menu-section">
+                    <div class="menu-section-title">MODÉRATION</div>
+                    <ul class="list-unstyled components">
+                        <li class="{{ request()->is('moderation/reviews*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.moderation.reviews') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Avis">
+                                <i class="fas fa-star"></i>
+                                <span>Avis</span>
+                            </a>
+                        </li>
+                        <li class="{{ request()->is('moderation/comments*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.moderation.comments') }}" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Commentaires">
                                 <i class="fas fa-comments"></i>
-                                <span>Avis & Commentaires</span>
-                            /a>
-                        </li>< --}}
+                                <span>Commentaires</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
 

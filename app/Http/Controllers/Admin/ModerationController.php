@@ -88,7 +88,7 @@ class ModerationController extends Controller
      */
     public function comments(Request $request): View
     {
-        $query = Comment::with(['commentable', 'appUser'])
+        $query = Comment::with(['commentable', 'appUser', 'replies.appUser'])
             ->whereNull('parent_id') // Seulement les commentaires racines
             ->latest();
 
