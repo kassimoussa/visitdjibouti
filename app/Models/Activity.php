@@ -71,7 +71,7 @@ class Activity extends Model
 
     public function createdBy(): BelongsTo
     {
-        return $this->belongsTo(OperatorUser::class, 'created_by_operator_user_id');
+        return $this->belongsTo(TourOperatorUser::class, 'created_by_operator_user_id');
     }
 
     public function featuredImage(): BelongsTo

@@ -341,7 +341,7 @@ class ActivityForm extends Component
 
         // For new activities, set creator and initial status
         if (! $this->isEditMode) {
-            $activityData['status'] = 'draft';
+            $activityData['status'] = 'active';
             $activityData['created_by_operator_user_id'] = $user->id;
         }
 

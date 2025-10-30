@@ -19,7 +19,7 @@ return new class extends Migration
 
             // Informations de base
             $table->string('slug')->unique();
-            $table->enum('status', ['draft', 'active', 'inactive'])->default('draft');
+            $table->enum('status', ['draft', 'active', 'inactive'])->default('active');
             $table->decimal('price', 10, 2)->default(0);
             $table->string('currency', 3)->default('DJF');
             $table->integer('duration_hours')->nullable(); // Durée en heures
