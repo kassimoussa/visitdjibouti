@@ -221,13 +221,11 @@
                                                title="Voir">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            @if($activity->status === 'draft')
-                                                <a href="{{ route('operator.activities.edit', $activity) }}"
-                                                   class="btn btn-sm btn-outline-warning"
-                                                   title="Modifier">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                            @endif
+                                            <a href="{{ route('operator.activities.edit', $activity) }}"
+                                               class="btn btn-sm btn-outline-warning"
+                                               title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
                                             @if($activity->status !== 'draft')
                                                 <form action="{{ route('operator.activities.toggle-status', $activity) }}" method="POST" class="d-inline">
                                                     @csrf
