@@ -37,9 +37,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // Indexes
-            $table->index('poi_id');
-            $table->index('app_user_id');
+            // Indexes (foreignId() crée déjà des index sur poi_id et app_user_id)
             $table->index(['poi_id', 'rating']);
             $table->index(['is_approved', 'created_at']);
         });
@@ -70,10 +68,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // Indexes
-            $table->index(['commentable_type', 'commentable_id']);
-            $table->index('app_user_id');
-            $table->index('parent_id');
+            // Indexes (morphs() et foreignId() créent déjà des index)
             $table->index(['is_approved', 'created_at']);
         });
 
@@ -86,8 +81,8 @@ return new class extends Migration
             $table->timestamps();
 
             // Un utilisateur/invité ne peut voter qu'une fois
-            $table->unique(['review_id', 'app_user_id']);
-            $table->index(['review_id', 'guest_identifier']);
+            $table->unique(['review_id', 'app_user_id'], 'review_helpful_unique');
+            $table->index(['review_id', 'guest_identifier'], 'review_helpful_guest_idx');
         });
 
         // Table pour les "likes" sur les comments
@@ -99,8 +94,8 @@ return new class extends Migration
             $table->timestamps();
 
             // Un utilisateur/invité ne peut liker qu'une fois
-            $table->unique(['comment_id', 'app_user_id']);
-            $table->index(['comment_id', 'guest_identifier']);
+            $table->unique(['comment_id', 'app_user_id'], 'comment_like_unique');
+            $table->index(['comment_id', 'guest_identifier'], 'comment_like_guest_idx');
         });
     }
 
