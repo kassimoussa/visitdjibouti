@@ -11,34 +11,21 @@
                     </span>
 
                     @if($tour->created_by_operator_user_id)
-                        <!-- Workflow status badge -->
-                        @if($tour->status === 'pending_approval')
-                            <span class="badge bg-warning text-dark fs-6 px-3 py-2">
-                                <i class="fas fa-clock me-1"></i>
-                                Soumis par {{ $tour->tourOperator->name ?? 'N/A' }} {{ $tour->submitted_at ? $tour->submitted_at->diffForHumans() : '' }}
-                            </span>
-                        @elseif($tour->status === 'approved')
-                            <span class="badge bg-success fs-6 px-3 py-2">
-                                <i class="fas fa-check-circle me-1"></i>
-                                Approuvé {{ $tour->approved_at ? $tour->approved_at->diffForHumans() : '' }}
-                                @if($tour->approvedBy)
-                                    par {{ $tour->approvedBy->name }}
-                                @endif
-                            </span>
-                        @elseif($tour->status === 'rejected')
-                            <span class="badge bg-danger fs-6 px-3 py-2"
-                                  data-bs-toggle="tooltip"
-                                  title="{{ $tour->rejection_reason ?? 'Aucune raison spécifiée' }}">
-                                <i class="fas fa-times-circle me-1"></i>
-                                Rejeté {{ $tour->rejected_at ? $tour->rejected_at->diffForHumans() : '' }}
-                            </span>
-                        @endif
-
                         <!-- Operator info badge -->
                         <span class="badge bg-secondary fs-6 px-3 py-2">
                             <i class="fas fa-building me-1"></i>
                             {{ $tour->tourOperator->name ?? 'N/A' }}
                         </span>
+
+                        <!-- Workflow status badge for rejected tours only -->
+                        @if($tour->status === 'rejected' && $tour->rejection_reason)
+                            <span class="badge bg-danger fs-6 px-3 py-2"
+                                  data-bs-toggle="tooltip"
+                                  title="{{ $tour->rejection_reason }}">
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                Raison du rejet
+                            </span>
+                        @endif
                     @endif
 
                     @if($tour->is_featured)
