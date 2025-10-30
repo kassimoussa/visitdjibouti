@@ -13,46 +13,6 @@
         </div>
     </div>
 
-    <!-- Statistiques -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stats-card small">
-                <div class="stats-icon secondary">
-                    <i class="fas fa-star"></i>
-                </div>
-                <h4>{{ $stats['total'] ?? 0 }}</h4>
-                <p>Total des avis</p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card small">
-                <div class="stats-icon success">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <h4>{{ $stats['approved'] ?? 0 }}</h4>
-                <p>Approuvés</p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card small">
-                <div class="stats-icon warning">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <h4>{{ $stats['pending'] ?? 0 }}</h4>
-                <p>En attente</p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card small">
-                <div class="stats-icon primary">
-                    <i class="fas fa-star-half-alt"></i>
-                </div>
-                <h4>{{ $stats['average_rating'] ?? 0 }}/5</h4>
-                <p>Note moyenne</p>
-            </div>
-        </div>
-    </div>
-
     <!-- Filtres -->
     <div class="card mb-4">
         <div class="card-body">
@@ -60,19 +20,19 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label">Recherche</label>
-                        <input type="text" name="search" class="form-control" placeholder="Titre, commentaire, nom..." value="{{ request('search') }}">
+                        <input type="text" name="search" class="form-control" placeholder="Titre, commentaire, nom..." value="{{ request('search') }}" onchange="this.form.submit()">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="form-label">Statut</label>
-                        <select name="status" class="form-control">
+                        <select name="status" class="form-control" onchange="this.form.submit()">
                             <option value="">Tous</option>
                             <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approuvés</option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>En attente</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-4">
                         <label class="form-label">Note</label>
-                        <select name="rating" class="form-control">
+                        <select name="rating" class="form-control" onchange="this.form.submit()">
                             <option value="">Toutes</option>
                             <option value="5" {{ request('rating') == '5' ? 'selected' : '' }}>5 étoiles</option>
                             <option value="4" {{ request('rating') == '4' ? 'selected' : '' }}>4 étoiles</option>
@@ -80,14 +40,6 @@
                             <option value="2" {{ request('rating') == '2' ? 'selected' : '' }}>2 étoiles</option>
                             <option value="1" {{ request('rating') == '1' ? 'selected' : '' }}>1 étoile</option>
                         </select>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter me-2"></i>Filtrer
-                        </button>
-                        <a href="{{ route('moderation.reviews') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-times me-2"></i>Réinitialiser
-                        </a>
                     </div>
                 </div>
             </form>

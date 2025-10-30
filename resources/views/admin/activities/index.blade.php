@@ -21,22 +21,22 @@
         <div class="card-body">
             <form method="GET" action="{{ route('activities.index') }}">
                 <div class="row g-3">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="form-label">Recherche</label>
-                        <input type="text" name="search" class="form-control" placeholder="Titre, description..." value="{{ request('search') }}">
+                        <input type="text" name="search" class="form-control" placeholder="Titre, description..." value="{{ request('search') }}" onchange="this.form.submit()">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-4">
                         <label class="form-label">Statut</label>
-                        <select name="status" class="form-control">
+                        <select name="status" class="form-control" onchange="this.form.submit()">
                             <option value="">Tous</option>
                             <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Brouillon</option>
                             <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                             <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="form-label">Opérateur</label>
-                        <select name="tour_operator_id" class="form-control">
+                        <select name="tour_operator_id" class="form-control" onchange="this.form.submit()">
                             <option value="">Tous les opérateurs</option>
                             @foreach($tourOperators as $operator)
                                 <option value="{{ $operator->id }}" {{ request('tour_operator_id') == $operator->id ? 'selected' : '' }}>
@@ -45,14 +45,6 @@
                             @endforeach
                         </select>
                     </div>
-                </div>
-                <div class="mt-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-filter me-2"></i>Filtrer
-                    </button>
-                    <a href="{{ route('activities.index') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-times me-2"></i>Réinitialiser
-                    </a>
                 </div>
             </form>
         </div>

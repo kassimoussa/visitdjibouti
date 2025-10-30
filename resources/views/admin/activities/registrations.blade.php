@@ -16,15 +16,15 @@
     <!-- Filtres -->
     <div class="card mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('activity-registrations.index') }}">
+            <form method="GET" action="{{ route('activity-registrations.index') }}" id="filter-form">
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label">Recherche</label>
-                        <input type="text" name="search" class="form-control" placeholder="Nom, email..." value="{{ request('search') }}">
+                        <input type="text" name="search" class="form-control" placeholder="Nom, email..." value="{{ request('search') }}" onchange="this.form.submit()">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Activité</label>
-                        <select name="activity_id" class="form-control">
+                        <select name="activity_id" class="form-control" onchange="this.form.submit()">
                             <option value="">Toutes les activités</option>
                             @foreach($activities as $activity)
                                 <option value="{{ $activity->id }}" {{ request('activity_id') == $activity->id ? 'selected' : '' }}>
@@ -35,7 +35,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Statut</label>
-                        <select name="status" class="form-control">
+                        <select name="status" class="form-control" onchange="this.form.submit()">
                             <option value="">Tous</option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>En attente</option>
                             <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmée</option>
@@ -44,14 +44,6 @@
                             <option value="cancelled_by_operator" {{ request('status') == 'cancelled_by_operator' ? 'selected' : '' }}>Annulée (opérateur)</option>
                         </select>
                     </div>
-                </div>
-                <div class="mt-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-filter me-2"></i>Filtrer
-                    </button>
-                    <a href="{{ route('activity-registrations.index') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-times me-2"></i>Réinitialiser
-                    </a>
                 </div>
             </form>
         </div>

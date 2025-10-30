@@ -13,37 +13,6 @@
         </div>
     </div>
 
-    <!-- Statistiques -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="stats-card small">
-                <div class="stats-icon secondary">
-                    <i class="fas fa-comments"></i>
-                </div>
-                <h4>{{ $stats['total'] ?? 0 }}</h4>
-                <p>Total des commentaires</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stats-card small">
-                <div class="stats-icon success">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <h4>{{ $stats['approved'] ?? 0 }}</h4>
-                <p>Approuvés</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stats-card small">
-                <div class="stats-icon warning">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <h4>{{ $stats['pending'] ?? 0 }}</h4>
-                <p>En attente</p>
-            </div>
-        </div>
-    </div>
-
     <!-- Filtres -->
     <div class="card mb-4">
         <div class="card-body">
@@ -51,19 +20,19 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label">Recherche</label>
-                        <input type="text" name="search" class="form-control" placeholder="Commentaire, nom..." value="{{ request('search') }}">
+                        <input type="text" name="search" class="form-control" placeholder="Commentaire, nom..." value="{{ request('search') }}" onchange="this.form.submit()">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="form-label">Statut</label>
-                        <select name="status" class="form-control">
+                        <select name="status" class="form-control" onchange="this.form.submit()">
                             <option value="">Tous</option>
                             <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approuvés</option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>En attente</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="form-label">Type de contenu</label>
-                        <select name="type" class="form-control">
+                        <select name="type" class="form-control" onchange="this.form.submit()">
                             <option value="">Tous</option>
                             <option value="poi" {{ request('type') == 'poi' ? 'selected' : '' }}>POI</option>
                             <option value="event" {{ request('type') == 'event' ? 'selected' : '' }}>Event</option>
@@ -71,14 +40,6 @@
                             <option value="tour_operator" {{ request('type') == 'tour_operator' ? 'selected' : '' }}>Opérateur</option>
                             <option value="activity" {{ request('type') == 'activity' ? 'selected' : '' }}>Activité</option>
                         </select>
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter me-2"></i>Filtrer
-                        </button>
-                        <a href="{{ route('moderation.comments') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-times me-2"></i>Réinitialiser
-                        </a>
                     </div>
                 </div>
             </form>
