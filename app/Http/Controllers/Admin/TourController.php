@@ -58,4 +58,20 @@ class TourController extends Controller
 
         return view('admin.tours.show', compact('tour'));
     }
+
+    /**
+     * Remove the specified tour from storage.
+     */
+    public function destroy(Tour $tour)
+    {
+        try {
+            $tour->delete();
+
+            return redirect()->route('tours.index')
+                ->with('success', 'Tour supprimé avec succès');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de la suppression du tour: ' . $e->getMessage());
+        }
+    }
 }
