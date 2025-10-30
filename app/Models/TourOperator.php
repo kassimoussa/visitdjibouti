@@ -329,6 +329,22 @@ class TourOperator extends Model
     }
 
     /**
+     * Get all activities offered by this tour operator.
+     */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(Activity::class, 'tour_operator_id');
+    }
+
+    /**
+     * Get all active activities offered by this tour operator.
+     */
+    public function activeActivities(): HasMany
+    {
+        return $this->activities()->where('status', 'active');
+    }
+
+    /**
      * Get all reservations for this tour operator's events and tours.
      */
     public function allReservations()
