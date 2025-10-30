@@ -167,4 +167,19 @@ Route::middleware('auth.admin')->group(function () {
         })->where('id', '[0-9]+')->name('show');
     });
 
+    // Routes pour la modération des avis et commentaires
+    Route::prefix('moderation')->name('moderation.')->group(function () {
+        // Avis (Reviews)
+        Route::get('/reviews', [\App\Http\Controllers\Admin\ModerationController::class, 'reviews'])->name('reviews');
+        Route::post('/reviews/{review}/approve', [\App\Http\Controllers\Admin\ModerationController::class, 'approveReview'])->name('reviews.approve');
+        Route::post('/reviews/{review}/reject', [\App\Http\Controllers\Admin\ModerationController::class, 'rejectReview'])->name('reviews.reject');
+        Route::delete('/reviews/{review}', [\App\Http\Controllers\Admin\ModerationController::class, 'deleteReview'])->name('reviews.delete');
+
+        // Commentaires (Comments)
+        Route::get('/comments', [\App\Http\Controllers\Admin\ModerationController::class, 'comments'])->name('comments');
+        Route::post('/comments/{comment}/approve', [\App\Http\Controllers\Admin\ModerationController::class, 'approveComment'])->name('comments.approve');
+        Route::post('/comments/{comment}/reject', [\App\Http\Controllers\Admin\ModerationController::class, 'rejectComment'])->name('comments.reject');
+        Route::delete('/comments/{comment}', [\App\Http\Controllers\Admin\ModerationController::class, 'deleteComment'])->name('comments.delete');
+    });
+
 });

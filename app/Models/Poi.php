@@ -399,4 +399,65 @@ class Poi extends Model
     {
         return $this->morphMany(Tour::class, 'target');
     }
+
+    /**
+     * Get all reviews for this POI.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get approved reviews only.
+     */
+    public function approvedReviews(): HasMany
+    {
+        return $this->reviews()->where('is_approved', true);
+    }
+
+    /**
+     * Get average rating.
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return round($this->approvedReviews()->avg('rating') ?? 0, 1);
+    }
+
+    /**
+     * Get reviews count.
+     */
+    public function getReviewsCountAttribute(): int
+    {
+        return $this->approvedReviews()->count();
+    }
+
+    /**
+     * Get rating distribution (count by rating).
+     */
+    public function getRatingDistributionAttribute(): array
+    {
+        $distribution = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $distribution[$i] = $this->approvedReviews()->where('rating', $i)->count();
+        }
+
+        return $distribution;
+    }
+
+    /**
+     * Get all comments for this POI (polymorphic).
+     */
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    /**
+     * Get approved comments only.
+     */
+    public function approvedComments()
+    {
+        return $this->comments()->where('is_approved', true);
+    }
 }

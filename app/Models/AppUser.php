@@ -456,6 +456,22 @@ class AppUser extends Authenticatable
     }
 
     /**
+     * Get all reviews written by this user
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get all comments written by this user
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
      * API Resource transformation.
      */
     public function toArray(): array

@@ -117,6 +117,18 @@ Route::prefix('activities')->group(function () {
     Route::post('/{activity}/register', [\App\Http\Controllers\Api\ActivityController::class, 'register']); // S'inscrire à une activité
 });
 
+// Routes publiques pour les avis (reviews) sur les POIs
+Route::prefix('pois/{poi}/reviews')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\ReviewController::class, 'index']); // Liste des avis d'un POI
+    Route::post('/', [\App\Http\Controllers\Api\ReviewController::class, 'store']); // Créer un avis (authentifié ou invité)
+});
+
+// Routes publiques pour les commentaires polymorphiques
+Route::prefix('comments')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\CommentController::class, 'index']); // Liste des commentaires (avec commentable_type et commentable_id)
+    Route::post('/', [\App\Http\Controllers\Api\CommentController::class, 'store']); // Créer un commentaire (authentifié ou invité)
+});
+
 // Routes publiques pour les réservations de tours
 Route::prefix('tour-reservations')->group(function () {
     Route::get('/{reservation}', [TourReservationController::class, 'show']);
@@ -182,6 +194,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('activity-registrations')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\ActivityController::class, 'myRegistrations']); // Mes inscriptions
         Route::delete('/{registration}', [\App\Http\Controllers\Api\ActivityController::class, 'cancelRegistration']); // Annuler une inscription
+    });
+
+    // Routes protégées pour les avis (reviews)
+    Route::prefix('reviews')->group(function () {
+        Route::get('/my-reviews', [\App\Http\Controllers\Api\ReviewController::class, 'myReviews']); // Mes avis
+        Route::put('/{review}', [\App\Http\Controllers\Api\ReviewController::class, 'update']); // Modifier un avis
+        Route::delete('/{review}', [\App\Http\Controllers\Api\ReviewController::class, 'destroy']); // Supprimer un avis
+        Route::post('/{review}/helpful', [\App\Http\Controllers\Api\ReviewController::class, 'markHelpful']); // Marquer comme utile (toggle)
+    });
+
+    // Routes protégées pour les commentaires
+    Route::prefix('comments')->group(function () {
+        Route::get('/my-comments', [\App\Http\Controllers\Api\CommentController::class, 'myComments']); // Mes commentaires
+        Route::put('/{comment}', [\App\Http\Controllers\Api\CommentController::class, 'update']); // Modifier un commentaire
+        Route::delete('/{comment}', [\App\Http\Controllers\Api\CommentController::class, 'destroy']); // Supprimer un commentaire
+        Route::post('/{comment}/like', [\App\Http\Controllers\Api\CommentController::class, 'toggleLike']); // Liker/Unliker (toggle)
     });
 
     // Routes protégées pour les favoris
