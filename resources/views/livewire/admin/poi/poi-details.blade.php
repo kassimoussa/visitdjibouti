@@ -447,6 +447,187 @@
                 </div>
             </div>
         </div>
+
+        <!-- Nouvelles sections : Reviews, Commentaires, Tours & Opérateurs -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <!-- Reviews (Avis) -->
+                @if($poi->reviews && $poi->reviews->count() > 0)
+                <div class="mpv-card shadow-sm mb-4 border-0">
+                    <div class="mpv-card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mpv-card-title mb-0">
+                                <i class="fas fa-star text-warning me-2"></i>
+                                Avis des visiteurs ({{ $poi->reviews()->count() }})
+                            </h4>
+                            <a href="{{ route('moderation.reviews') }}?poi_id={{ $poi->id }}" class="btn btn-sm btn-outline-primary">
+                                Voir tous les avis
+                            </a>
+                        </div>
+
+                        @if($poi->reviews_avg_rating)
+                        <div class="alert alert-light border-start border-4 border-warning mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <h3 class="mb-0 text-warning">{{ number_format($poi->reviews_avg_rating, 1) }}/5</h3>
+                                </div>
+                                <div>
+                                    @for($i = 1; $i <= 5; $i++)
+                                        @if($i <= floor($poi->reviews_avg_rating))
+                                            <i class="fas fa-star text-warning"></i>
+                                        @elseif($i - $poi->reviews_avg_rating < 1)
+                                            <i class="fas fa-star-half-alt text-warning"></i>
+                                        @else
+                                            <i class="far fa-star text-muted"></i>
+                                        @endif
+                                    @endfor
+                                    <div class="small text-muted">Basé sur {{ $poi->reviews()->count() }} avis</div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        <div class="row">
+                            @foreach($poi->reviews->take(3) as $review)
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <strong>{{ $review->appUser ? $review->appUser->name : $review->guest_name }}</strong>
+                                                @if($review->is_verified)
+                                                    <span class="badge bg-info ms-1" title="Visite vérifiée">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                @for($i = 1; $i <= 5; $i++)
+                                                    @if($i <= $review->rating)
+                                                        <i class="fas fa-star text-warning small"></i>
+                                                    @else
+                                                        <i class="far fa-star text-muted small"></i>
+                                                    @endif
+                                                @endfor
+                                            </div>
+                                        </div>
+                                        @if($review->title)
+                                            <h6 class="card-title">{{ Str::limit($review->title, 50) }}</h6>
+                                        @endif
+                                        @if($review->comment)
+                                            <p class="card-text small text-muted">{{ Str::limit($review->comment, 100) }}</p>
+                                        @endif
+                                        <small class="text-muted">{{ $review->created_at->diffForHumans() }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Commentaires -->
+                @if($poi->comments && $poi->comments->count() > 0)
+                <div class="mpv-card shadow-sm mb-4 border-0">
+                    <div class="mpv-card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mpv-card-title mb-0">
+                                <i class="fas fa-comments text-primary me-2"></i>
+                                Commentaires récents ({{ $poi->comments()->count() }})
+                            </h4>
+                            <a href="{{ route('moderation.comments') }}?type=poi" class="btn btn-sm btn-outline-primary">
+                                Voir tous les commentaires
+                            </a>
+                        </div>
+
+                        <div class="list-group">
+                            @foreach($poi->comments->take(5) as $comment)
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <strong class="me-2">{{ $comment->appUser ? $comment->appUser->name : $comment->guest_name }}</strong>
+                                            @if($comment->is_approved)
+                                                <span class="badge bg-success">Approuvé</span>
+                                            @else
+                                                <span class="badge bg-warning">En attente</span>
+                                            @endif
+                                        </div>
+                                        <p class="mb-1">{{ Str::limit($comment->comment, 150) }}</p>
+                                        <small class="text-muted">
+                                            {{ $comment->created_at->diffForHumans() }}
+                                            @if($comment->likes_count > 0)
+                                                • <i class="fas fa-heart"></i> {{ $comment->likes_count }}
+                                            @endif
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Tour Operators & Tours -->
+                @if($poi->tourOperators && $poi->tourOperators->count() > 0)
+                <div class="mpv-card shadow-sm mb-4 border-0">
+                    <div class="mpv-card-body p-4">
+                        <h4 class="mpv-card-title border-bottom pb-3 mb-3">
+                            <i class="fas fa-route text-success me-2"></i>
+                            Opérateurs desservant ce POI ({{ $poi->tourOperators->count() }})
+                        </h4>
+
+                        @foreach($poi->tourOperators as $operator)
+                        <div class="border rounded p-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">
+                                        <a href="{{ route('tour-operators.show', $operator->id) }}" class="text-decoration-none">
+                                            {{ $operator->getTranslatedName($currentLocale) }}
+                                        </a>
+                                    </h5>
+                                    @if($operator->is_active)
+                                        <span class="badge bg-success">Actif</span>
+                                    @else
+                                        <span class="badge bg-secondary">Inactif</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            @if($operator->tours && $operator->tours->count() > 0)
+                            <div class="mt-3">
+                                <h6 class="text-muted mb-2"><i class="fas fa-map-signs me-1"></i> Tours incluant ce POI :</h6>
+                                <div class="row g-2">
+                                    @foreach($operator->tours->take(3) as $tour)
+                                    @php
+                                        $tourTranslation = $tour->translations->firstWhere('locale', $currentLocale)
+                                            ?? $tour->translations->firstWhere('locale', 'fr')
+                                            ?? $tour->translations->first();
+                                    @endphp
+                                    <div class="col-md-4">
+                                        <div class="card card-sm">
+                                            <div class="card-body p-2">
+                                                <a href="{{ route('tours.show', $tour->id) }}" class="text-decoration-none">
+                                                    <small class="fw-medium">{{ Str::limit($tourTranslation->title ?? 'Sans titre', 40) }}</small>
+                                                </a>
+                                                <br>
+                                                <small class="text-muted">{{ number_format($tour->price, 0, ',', ' ') }} {{ $tour->currency }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
     </div>
 </div>
 

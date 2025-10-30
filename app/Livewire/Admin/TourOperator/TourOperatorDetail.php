@@ -17,7 +17,16 @@ class TourOperatorDetail extends Component
 
     public function mount(TourOperator $tourOperator)
     {
-        $this->tourOperator = $tourOperator->load(['translations', 'logo', 'media', 'pois.translations']);
+        $this->tourOperator = $tourOperator->load([
+            'translations',
+            'logo',
+            'media',
+            'pois.translations',
+            'tours.translations',
+            'tours.featuredImage',
+            'activities.translations',
+            'activities.featuredImage'
+        ]);
     }
 
     public function render()
@@ -110,5 +119,15 @@ class TourOperatorDetail extends Component
     public function getMediaCount()
     {
         return $this->tourOperator->media()->count();
+    }
+
+    public function getToursCount()
+    {
+        return $this->tourOperator->tours()->count();
+    }
+
+    public function getActivitiesCount()
+    {
+        return $this->tourOperator->activities()->count();
     }
 }

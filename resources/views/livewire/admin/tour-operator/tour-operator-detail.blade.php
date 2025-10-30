@@ -200,6 +200,146 @@
                     </div>
                 </div>
             @endif
+
+            <!-- Tours proposés -->
+            @if($tourOperator->tours->count() > 0)
+                <div class="mov-card shadow-sm border-0 mb-4">
+                    <div class="mov-card-body p-4">
+                        <h4 class="mov-card-title border-bottom pb-3 mb-3">
+                            <i class="fas fa-map-signs text-primary me-2"></i>
+                            Tours proposés ({{ $this->getToursCount() }})
+                        </h4>
+                        <div class="row">
+                            @foreach($tourOperator->tours as $tour)
+                                @php
+                                    $tourTranslation = $tour->translations->firstWhere('locale', $activeLocale)
+                                        ?? $tour->translations->firstWhere('locale', 'fr')
+                                        ?? $tour->translations->first();
+                                @endphp
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100">
+                                        @if($tour->featuredImage)
+                                            <img src="{{ asset($tour->featuredImage->path) }}"
+                                                 class="card-img-top"
+                                                 style="height: 150px; object-fit: cover;"
+                                                 alt="{{ $tourTranslation->title ?? 'Tour' }}">
+                                        @endif
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-0">
+                                                    <a href="{{ route('tours.show', $tour->id) }}" class="text-decoration-none">
+                                                        {{ $tourTranslation->title ?? 'Sans titre' }}
+                                                    </a>
+                                                </h6>
+                                            </div>
+
+                                            <div class="mb-2">
+                                                @if($tour->status === 'active')
+                                                    <span class="badge bg-success">Actif</span>
+                                                @elseif($tour->status === 'pending_approval')
+                                                    <span class="badge bg-warning">En attente</span>
+                                                @elseif($tour->status === 'approved')
+                                                    <span class="badge bg-info">Approuvé</span>
+                                                @else
+                                                    <span class="badge bg-secondary">{{ ucfirst($tour->status) }}</span>
+                                                @endif
+
+                                                @if($tour->is_featured)
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i>
+                                                    </span>
+                                                @endif
+                                            </div>
+
+                                            @if($tourTranslation->description)
+                                                <p class="text-muted small mb-2">{{ Str::limit($tourTranslation->description, 100) }}</p>
+                                            @endif
+
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="text-primary fw-bold">{{ number_format($tour->price, 0, ',', ' ') }} {{ $tour->currency }}</span>
+                                                @if($tour->max_participants)
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-users"></i> Max: {{ $tour->max_participants }}
+                                                    </small>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Activités proposées -->
+            @if($tourOperator->activities->count() > 0)
+                <div class="mov-card shadow-sm border-0 mb-4">
+                    <div class="mov-card-body p-4">
+                        <h4 class="mov-card-title border-bottom pb-3 mb-3">
+                            <i class="fas fa-running text-primary me-2"></i>
+                            Activités proposées ({{ $this->getActivitiesCount() }})
+                        </h4>
+                        <div class="row">
+                            @foreach($tourOperator->activities as $activity)
+                                @php
+                                    $activityTranslation = $activity->translations->firstWhere('locale', $activeLocale)
+                                        ?? $activity->translations->firstWhere('locale', 'fr')
+                                        ?? $activity->translations->first();
+                                @endphp
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100">
+                                        @if($activity->featuredImage)
+                                            <img src="{{ asset($activity->featuredImage->path) }}"
+                                                 class="card-img-top"
+                                                 style="height: 150px; object-fit: cover;"
+                                                 alt="{{ $activityTranslation->title ?? 'Activité' }}">
+                                        @endif
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-0">
+                                                    <a href="{{ route('activities.show', $activity->id) }}" class="text-decoration-none">
+                                                        {{ $activityTranslation->title ?? 'Sans titre' }}
+                                                    </a>
+                                                </h6>
+                                            </div>
+
+                                            <div class="mb-2">
+                                                @if($activity->status === 'active')
+                                                    <span class="badge bg-success">Active</span>
+                                                @elseif($activity->status === 'draft')
+                                                    <span class="badge bg-secondary">Brouillon</span>
+                                                @else
+                                                    <span class="badge bg-danger">Inactive</span>
+                                                @endif
+
+                                                @if($activity->is_featured)
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i>
+                                                    </span>
+                                                @endif
+                                            </div>
+
+                                            @if($activityTranslation->description)
+                                                <p class="text-muted small mb-2">{{ Str::limit($activityTranslation->description, 100) }}</p>
+                                            @endif
+
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="text-primary fw-bold">{{ number_format($activity->price, 0, ',', ' ') }} {{ $activity->currency }}</span>
+                                                @if($activity->max_participants)
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-users"></i> {{ $activity->current_participants }}/{{ $activity->max_participants }}
+                                                    </small>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
             </div>
 
             <!-- Informations rapides (colonne droite) -->
@@ -263,16 +403,24 @@
                         <!-- Statistiques -->
                         <div class="mov-info-item mb-3 border-top pt-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small">Tours</span>
+                                <span class="badge bg-primary">{{ $this->getToursCount() }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small">Activités</span>
+                                <span class="badge bg-success">{{ $this->getActivitiesCount() }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="small">POIs desservis</span>
-                                <span class="badge bg-primary">{{ $this->getServedPoisCount() }}</span>
+                                <span class="badge bg-info">{{ $this->getServedPoisCount() }}</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="small">Images</span>
-                                <span class="badge bg-info">{{ $this->getMediaCount() }}</span>
+                                <span class="badge bg-secondary">{{ $this->getMediaCount() }}</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="small">Traductions</span>
-                                <span class="badge bg-success">{{ $tourOperator->translations->count() }}</span>
+                                <span class="badge bg-dark">{{ $tourOperator->translations->count() }}</span>
                             </div>
                         </div>
 

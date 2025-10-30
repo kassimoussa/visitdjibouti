@@ -17,8 +17,26 @@ class PoiDetails extends Component
     public function mount($poiId)
     {
         // Charger le POI avec ses relations
-        $this->poi = Poi::with(['categories', 'media', 'creator', 'featuredImage', 'translations'])
-            ->findOrFail($poiId);
+        $this->poi = Poi::with([
+            'categories',
+            'media',
+            'creator',
+            'featuredImage',
+            'translations',
+            'comments' => function ($query) {
+                $query->whereNull('parent_id')->latest()->take(5);
+            },
+            'comments.appUser',
+            'reviews' => function ($query) {
+                $query->latest()->take(5);
+            },
+            'reviews.appUser',
+            'tourOperators.translations',
+            'tourOperators.tours' => function ($query) {
+                $query->take(3);
+            },
+            'tourOperators.tours.translations'
+        ])->findOrFail($poiId);
 
         // Initialiser la langue courante avec la langue de l'application
         $this->currentLocale = app()->getLocale();
