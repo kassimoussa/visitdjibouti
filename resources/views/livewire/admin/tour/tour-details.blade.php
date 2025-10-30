@@ -4,11 +4,47 @@
         <div class="d-flex justify-content-between align-items-start">
             <div>
                 <h1 class="h3 mb-2">{{ $tour->translation($currentLocale)->title }}</h1>
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
                     @php $statusBadge = $this->getStatusBadge(); @endphp
-                    <span class="badge bg-{{ $statusBadge['color'] }}">{{ $statusBadge['label'] }}</span>
+                    <span class="badge bg-{{ $statusBadge['color'] }} fs-6 px-3 py-2">
+                        {{ $statusBadge['label'] }}
+                    </span>
+
+                    @if($tour->created_by_operator_user_id)
+                        <!-- Workflow status badge -->
+                        @if($tour->status === 'pending_approval')
+                            <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                                <i class="fas fa-clock me-1"></i>
+                                Soumis par {{ $tour->tourOperator->name ?? 'N/A' }} {{ $tour->submitted_at ? $tour->submitted_at->diffForHumans() : '' }}
+                            </span>
+                        @elseif($tour->status === 'approved')
+                            <span class="badge bg-success fs-6 px-3 py-2">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Approuvé {{ $tour->approved_at ? $tour->approved_at->diffForHumans() : '' }}
+                                @if($tour->approvedBy)
+                                    par {{ $tour->approvedBy->name }}
+                                @endif
+                            </span>
+                        @elseif($tour->status === 'rejected')
+                            <span class="badge bg-danger fs-6 px-3 py-2"
+                                  data-bs-toggle="tooltip"
+                                  title="{{ $tour->rejection_reason ?? 'Aucune raison spécifiée' }}">
+                                <i class="fas fa-times-circle me-1"></i>
+                                Rejeté {{ $tour->rejected_at ? $tour->rejected_at->diffForHumans() : '' }}
+                            </span>
+                        @endif
+
+                        <!-- Operator info badge -->
+                        <span class="badge bg-secondary fs-6 px-3 py-2">
+                            <i class="fas fa-building me-1"></i>
+                            {{ $tour->tourOperator->name ?? 'N/A' }}
+                        </span>
+                    @endif
+
                     @if($tour->is_featured)
-                        <span class="badge bg-warning"><i class="fas fa-star me-1"></i>Mis en avant</span>
+                        <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                            <i class="fas fa-star me-1"></i>Mis en avant
+                        </span>
                     @endif
                     <small class="text-muted">
                         <i class="fas fa-eye me-1"></i>{{ number_format($tour->views_count) }} vues
@@ -41,45 +77,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Workflow Info if operator-created -->
-    @if($tour->created_by_operator_user_id)
-    <div class="container-fluid mb-4">
-        <div class="alert alert-{{ $tour->status === 'approved' ? 'success' : ($tour->status === 'rejected' ? 'danger' : 'warning') }}">
-            <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Informations du Workflow d'Approbation</h5>
-            <hr>
-            <div class="row">
-                <div class="col-md-3">
-                    <strong>Créé par:</strong><br>
-                    {{ $tour->createdBy->name ?? 'N/A' }}<br>
-                    <small class="text-muted">{{ $tour->createdBy->email ?? '' }}</small>
-                </div>
-                <div class="col-md-3">
-                    <strong>Tour Operator:</strong><br>
-                    {{ $tour->tourOperator->name ?? 'N/A' }}
-                </div>
-                @if($tour->submitted_at)
-                <div class="col-md-3">
-                    <strong>Soumis le:</strong><br>
-                    {{ $tour->submitted_at->format('d/m/Y à H:i') }}
-                </div>
-                @endif
-                @if($tour->approved_at)
-                <div class="col-md-3">
-                    <strong>Approuvé le:</strong><br>
-                    {{ $tour->approved_at->format('d/m/Y à H:i') }}<br>
-                    <small class="text-muted">Par: {{ $tour->approvedBy->name ?? 'N/A' }}</small>
-                </div>
-                @endif
-            </div>
-            @if($tour->rejection_reason)
-                <hr>
-                <strong>Raison du rejet:</strong>
-                <p class="mb-0">{{ $tour->rejection_reason }}</p>
-            @endif
-        </div>
-    </div>
-    @endif
 
     <div class="container-fluid">
         <div class="row mb-4">

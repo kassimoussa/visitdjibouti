@@ -44,35 +44,58 @@
 
     <!-- Workflow Info -->
     @if($tour->created_by_operator_user_id)
-    <div class="container-fluid mb-4">
-        <div class="alert alert-{{ $tour->status === 'approved' ? 'success' : ($tour->status === 'rejected' ? 'danger' : 'warning') }}">
-            <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Statut de l'Approbation</h5>
-            <hr>
-            <div class="row">
-                <div class="col-md-4">
-                    <strong>Créé par:</strong><br>
-                    {{ $tour->createdBy->name ?? 'N/A' }}
+    <div class="container-fluid mb-3">
+        @if($tour->status === 'pending_approval')
+            <div class="alert alert-warning border-warning shadow-sm mb-0">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-clock fa-2x text-warning me-3"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="alert-heading mb-1">
+                            <i class="fas fa-hourglass-half me-1"></i>En attente d'approbation
+                        </h6>
+                        <small class="mb-0">
+                            Soumis {{ $tour->submitted_at ? $tour->submitted_at->diffForHumans() : 'récemment' }}
+                            par {{ $tour->createdBy->first_name ?? '' }} {{ $tour->createdBy->last_name ?? 'N/A' }}
+                        </small>
+                    </div>
                 </div>
-                @if($tour->submitted_at)
-                <div class="col-md-4">
-                    <strong>Soumis le:</strong><br>
-                    {{ $tour->submitted_at->format('d/m/Y à H:i') }}
-                </div>
-                @endif
-                @if($tour->approved_at)
-                <div class="col-md-4">
-                    <strong>Approuvé le:</strong><br>
-                    {{ $tour->approved_at->format('d/m/Y à H:i') }}
-                </div>
-                @endif
             </div>
-            @if($tour->rejection_reason)
-                <hr>
-                <strong>Raison du rejet:</strong>
-                <p class="mb-0 text-danger">{{ $tour->rejection_reason }}</p>
-                <small class="text-muted">Veuillez modifier votre tour et le soumettre à nouveau.</small>
-            @endif
-        </div>
+        @elseif($tour->status === 'approved')
+            <div class="alert alert-success border-success shadow-sm mb-0">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle fa-2x text-success me-3"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="alert-heading mb-1">
+                            <i class="fas fa-thumbs-up me-1"></i>Tour approuvé
+                        </h6>
+                        <small class="mb-0">
+                            Approuvé {{ $tour->approved_at ? $tour->approved_at->diffForHumans() : 'récemment' }}
+                            @if($tour->approvedBy)
+                                par {{ $tour->approvedBy->name }}
+                            @endif
+                        </small>
+                    </div>
+                </div>
+            </div>
+        @elseif($tour->status === 'rejected')
+            <div class="alert alert-danger border-danger shadow-sm mb-0">
+                <div class="d-flex align-items-start">
+                    <i class="fas fa-times-circle fa-2x text-danger me-3"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="alert-heading text-danger mb-2">
+                            <i class="fas fa-ban me-1"></i>Tour rejeté
+                        </h6>
+                        @if($tour->rejection_reason)
+                            <p class="mb-2"><strong>Raison :</strong> {{ $tour->rejection_reason }}</p>
+                        @endif
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Cliquez sur "Modifier et resoumettre" pour corriger et resoumettre automatiquement.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
     @endif
 
