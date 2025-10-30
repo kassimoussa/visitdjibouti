@@ -11,6 +11,9 @@
             <h2 class="mb-1">Activités des Opérateurs</h2>
             <p class="text-muted mb-0">Gérez toutes les activités proposées par les opérateurs touristiques</p>
         </div>
+        <a href="{{ route('activity-registrations.index') }}" class="btn btn-outline-primary">
+            <i class="fas fa-user-check me-2"></i>Voir les inscriptions
+        </a>
     </div>
 
     <!-- Filtres -->

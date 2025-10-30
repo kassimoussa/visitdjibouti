@@ -13,65 +13,16 @@
         </div>
     </div>
 
-    <!-- Statistiques -->
-    <div class="row mb-4">
-        <div class="col-md">
-            <div class="stats-card small">
-                <div class="stats-icon secondary">
-                    <i class="fas fa-list"></i>
-                </div>
-                <h4>{{ $statistics['total'] ?? 0 }}</h4>
-                <p>Total</p>
-            </div>
-        </div>
-        <div class="col-md">
-            <div class="stats-card small">
-                <div class="stats-icon warning">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <h4>{{ $statistics['pending'] ?? 0 }}</h4>
-                <p>En attente</p>
-            </div>
-        </div>
-        <div class="col-md">
-            <div class="stats-card small">
-                <div class="stats-icon success">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <h4>{{ $statistics['confirmed'] ?? 0 }}</h4>
-                <p>Confirmées</p>
-            </div>
-        </div>
-        <div class="col-md">
-            <div class="stats-card small">
-                <div class="stats-icon primary">
-                    <i class="fas fa-flag-checkered"></i>
-                </div>
-                <h4>{{ $statistics['completed'] ?? 0 }}</h4>
-                <p>Terminées</p>
-            </div>
-        </div>
-        <div class="col-md">
-            <div class="stats-card small">
-                <div class="stats-icon danger">
-                    <i class="fas fa-times-circle"></i>
-                </div>
-                <h4>{{ $statistics['cancelled'] ?? 0 }}</h4>
-                <p>Annulées</p>
-            </div>
-        </div>
-    </div>
-
     <!-- Filtres -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="GET" action="{{ route('activity-registrations.index') }}">
                 <div class="row g-3">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="form-label">Recherche</label>
                         <input type="text" name="search" class="form-control" placeholder="Nom, email..." value="{{ request('search') }}">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="form-label">Activité</label>
                         <select name="activity_id" class="form-control">
                             <option value="">Toutes les activités</option>
@@ -82,18 +33,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Opérateur</label>
-                        <select name="tour_operator_id" class="form-control">
-                            <option value="">Tous</option>
-                            @foreach($tourOperators as $operator)
-                                <option value="{{ $operator->id }}" {{ request('tour_operator_id') == $operator->id ? 'selected' : '' }}>
-                                    {{ $operator->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2">
+                    <div class="col-md-4">
                         <label class="form-label">Statut</label>
                         <select name="status" class="form-control">
                             <option value="">Tous</option>
@@ -103,25 +43,6 @@
                             <option value="cancelled_by_user" {{ request('status') == 'cancelled_by_user' ? 'selected' : '' }}>Annulée (utilisateur)</option>
                             <option value="cancelled_by_operator" {{ request('status') == 'cancelled_by_operator' ? 'selected' : '' }}>Annulée (opérateur)</option>
                         </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Statut paiement</label>
-                        <select name="payment_status" class="form-control">
-                            <option value="">Tous</option>
-                            <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>En attente</option>
-                            <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Payé</option>
-                            <option value="refunded" {{ request('payment_status') == 'refunded' ? 'selected' : '' }}>Remboursé</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row g-3 mt-2">
-                    <div class="col-md-3">
-                        <label class="form-label">Date début</label>
-                        <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Date fin</label>
-                        <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
                     </div>
                 </div>
                 <div class="mt-3 d-flex gap-2">
