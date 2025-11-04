@@ -332,8 +332,8 @@
                                         @enderror
                                     </div>
 
-                                    <!-- Tour Operator -->
-                                    <div class="mb-3">
+                                    {{-- Tour Operator - Temporairement caché --}}
+                                    {{-- <div class="mb-3">
                                         <label for="tour_operator_id" class="form-label">Tour Operator</label>
                                         <select class="form-select @error('tour_operator_id') is-invalid @enderror"
                                             id="tour_operator_id" wire:model="tour_operator_id">
@@ -351,20 +351,20 @@
                                             <i class="fas fa-info-circle me-1"></i>
                                             Si un tour operator est sélectionné, il gérera les réservations de cet événement
                                         </div>
-                                    </div>
+                                    </div> --}}
 
-                                    <!-- Organisateur -->
-                                    <div class="mb-3">
+                                    {{-- Organisateur - Temporairement caché --}}
+                                    {{-- <div class="mb-3">
                                         <label for="organizer" class="form-label">Organisateur</label>
-                                        <input type="text" 
+                                        <input type="text"
                                             class="form-control @error('organizer') is-invalid @enderror"
-                                            id="organizer" 
+                                            id="organizer"
                                             wire:model="organizer"
                                             placeholder="Nom de l'organisateur">
                                         @error('organizer')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                    </div>
+                                    </div> --}}
 
                                     <!-- Options -->
                                     <div class="mb-3">
