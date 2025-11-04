@@ -87,9 +87,15 @@
                 <i class="fas fa-edit me-2"></i>Modifier
             </a>
             @if($tour->status === 'pending_approval')
-                <a href="{{ route('tours.approvals') }}" class="btn btn-success">
-                    <i class="fas fa-check me-2"></i>Gérer l'Approbation
-                </a>
+                <form action="{{ route('tours.approve', $tour) }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-success" onclick="return confirm('Êtes-vous sûr de vouloir approuver ce tour ?')">
+                        <i class="fas fa-check me-2"></i>Approuver
+                    </button>
+                </form>
+                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                    <i class="fas fa-times me-2"></i>Rejeter
+                </button>
             @endif
             <button type="button" class="btn btn-outline-danger"
                     onclick="if(confirm('Êtes-vous sûr de vouloir supprimer ce tour ?')) { document.getElementById('delete-form').submit(); }">
@@ -378,6 +384,55 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de rejet -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('tours.reject', $tour) }}" method="POST">
+                @csrf
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="rejectModalLabel">
+                        <i class="fas fa-times-circle me-2"></i>Rejeter le tour
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Vous êtes sur le point de rejeter le tour : <strong>{{ $tour->title }}</strong></p>
+
+                    <div class="mb-3">
+                        <label for="rejection_reason" class="form-label">
+                            Raison du rejet <span class="text-danger">*</span>
+                        </label>
+                        <textarea
+                            class="form-control"
+                            id="rejection_reason"
+                            name="rejection_reason"
+                            rows="4"
+                            required
+                            placeholder="Expliquez pourquoi ce tour est rejeté (informations manquantes, contenu inapproprié, etc.)"></textarea>
+                        <div class="form-text">
+                            Cette raison sera communiquée au tour operator
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Le tour operator recevra une notification avec la raison du rejet.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-ban me-2"></i>Rejeter le tour
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

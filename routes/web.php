@@ -70,6 +70,8 @@ Route::middleware('auth.admin')->group(function () {
     Route::get('/tours/approvals', function () {
         return view('admin.tours.approvals');
     })->name('tours.approvals');
+    Route::post('/tours/{tour}/approve', [App\Http\Controllers\Admin\TourController::class, 'approve'])->name('tours.approve');
+    Route::post('/tours/{tour}/reject', [App\Http\Controllers\Admin\TourController::class, 'reject'])->name('tours.reject');
     Route::get('/tours/{id}/edit', [App\Http\Controllers\Admin\TourController::class, 'edit'])->name('tours.edit');
     Route::get('/tours/{tour}', [App\Http\Controllers\Admin\TourController::class, 'show'])->name('tours.show');
     Route::delete('/tours/{tour}', [App\Http\Controllers\Admin\TourController::class, 'destroy'])->name('tours.destroy');

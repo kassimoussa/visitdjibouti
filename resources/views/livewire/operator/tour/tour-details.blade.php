@@ -33,9 +33,14 @@
                 <a href="{{ route('operator.tour-reservations.index', ['tour_id' => $tour->id]) }}" class="btn btn-outline-primary me-2">
                     <i class="fas fa-clipboard-list me-1"></i> Réservations
                 </a>
-                @if(in_array($tour->status, ['rejected']))
-                    <a href="{{ route('operator.tours.edit', $tour) }}" class="btn btn-warning me-2">
-                        <i class="fas fa-edit me-1"></i> Modifier et resoumettre
+                @if(in_array($tour->status, ['draft', 'rejected', 'active']))
+                    <a href="{{ route('operator.tours.edit', $tour) }}" class="btn btn-{{ $tour->status === 'rejected' ? 'warning' : 'primary' }} me-2">
+                        <i class="fas fa-edit me-1"></i>
+                        @if($tour->status === 'rejected')
+                            Modifier et resoumettre
+                        @else
+                            Modifier
+                        @endif
                     </a>
                 @endif
             </div>
