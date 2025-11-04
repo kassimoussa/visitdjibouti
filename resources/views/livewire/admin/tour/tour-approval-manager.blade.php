@@ -114,7 +114,7 @@
                                     <td>{!! $tour->status_badge !!}</td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{ route('admin.tours.show', $tour->id) }}" class="btn btn-info" title="Voir">
+                                            <a href="{{ route('tours.show', $tour->id) }}" class="btn btn-info" title="Voir">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             @if($tour->status === 'pending_approval')
