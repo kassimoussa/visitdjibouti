@@ -32,6 +32,8 @@ class EventForm extends Component
 
     public $longitude = null;
 
+    public $region = '';
+
     public $contact_email = '';
 
     public $contact_phone = '';
@@ -110,6 +112,7 @@ class EventForm extends Component
             'location' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
+            'region' => 'nullable|in:Djibouti,Ali Sabieh,Dikhil,Tadjourah,Obock,Arta',
             'contact_email' => 'nullable|email|max:255',
             'contact_phone' => 'nullable|string|max:255',
             'website_url' => 'nullable|url|max:255',
@@ -248,6 +251,7 @@ class EventForm extends Component
             $this->location = $event->location;
             $this->latitude = $event->latitude;
             $this->longitude = $event->longitude;
+            $this->region = $event->region;
             $this->contact_email = $event->contact_email;
             $this->contact_phone = $event->contact_phone;
             $this->website_url = $event->website_url;
@@ -373,6 +377,7 @@ class EventForm extends Component
                 'location' => $this->location,
                 'latitude' => $this->latitude,
                 'longitude' => $this->longitude,
+                'region' => $this->region,
                 'contact_email' => $this->contact_email,
                 'contact_phone' => $this->contact_phone,
                 'website_url' => $this->website_url,
@@ -425,6 +430,7 @@ class EventForm extends Component
                 'location' => $this->location,
                 'latitude' => $this->latitude,
                 'longitude' => $this->longitude,
+                'region' => $this->region,
                 'contact_email' => $this->contact_email,
                 'contact_phone' => $this->contact_phone,
                 'website_url' => $this->website_url,

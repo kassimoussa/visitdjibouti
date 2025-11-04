@@ -178,12 +178,36 @@
                                     <!-- Lieu général (commun à toutes les langues) -->
                                     <div class="mb-3">
                                         <label for="location" class="form-label">Lieu</label>
-                                        <input type="text" 
+                                        <input type="text"
                                             class="form-control @error('location') is-invalid @enderror"
-                                            id="location" 
+                                            id="location"
                                             wire:model="location"
                                             placeholder="Ex: Palais du Peuple, Djibouti">
                                         @error('location')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <!-- Région -->
+                                    <div class="mb-3">
+                                        <label for="region" class="form-label">Région</label>
+                                        <select
+                                            class="form-select @error('region') is-invalid @enderror"
+                                            id="region"
+                                            wire:model="region">
+                                            <option value="">Sélectionner une région</option>
+                                            <option value="Djibouti">Djibouti</option>
+                                            <option value="Ali Sabieh">Ali Sabieh</option>
+                                            <option value="Dikhil">Dikhil</option>
+                                            <option value="Tadjourah">Tadjourah</option>
+                                            <option value="Obock">Obock</option>
+                                            <option value="Arta">Arta</option>
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle"></i>
+                                            Choisissez la région géographique de l'événement
+                                        </div>
+                                        @error('region')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>

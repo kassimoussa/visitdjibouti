@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ExternalLinkController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\PoiController;
+use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\TourController;
@@ -115,6 +116,13 @@ Route::prefix('activities')->group(function () {
     Route::get('/nearby', [\App\Http\Controllers\Api\ActivityController::class, 'nearby']); // Activités à proximité
     Route::get('/{identifier}', [\App\Http\Controllers\Api\ActivityController::class, 'show']); // Détails d'une activité (ID ou slug)
     Route::post('/{activity}/register', [\App\Http\Controllers\Api\ActivityController::class, 'register']); // S'inscrire à une activité
+});
+
+// Routes publiques pour les régions
+Route::prefix('regions')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\RegionController::class, 'index']); // Liste des régions avec compteurs
+    Route::get('/statistics', [\App\Http\Controllers\Api\RegionController::class, 'statistics']); // Statistiques par région
+    Route::get('/{region}', [\App\Http\Controllers\Api\RegionController::class, 'show']); // Contenu d'une région spécifique
 });
 
 // Routes publiques pour les avis (reviews) sur les POIs

@@ -30,6 +30,7 @@ class Event extends Model
         'location',
         'latitude',
         'longitude',
+        'region',
         'contact_email',
         'contact_phone',
         'website_url',
