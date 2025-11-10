@@ -144,8 +144,25 @@
 
                         @if($tour->max_participants)
                         <div class="mb-3">
-                            <small class="text-muted d-block">Participants max</small>
-                            <strong>{{ $tour->max_participants }} personnes</strong>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <small class="text-muted">Participants</small>
+                                <button wire:click="refresh" class="btn btn-sm btn-link p-0" title="Actualiser">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <strong class="text-primary">{{ $tour->current_participants ?? 0 }}</strong>
+                                <span class="text-muted">/ {{ $tour->max_participants }}</span>
+                            </div>
+                            <small class="text-muted">
+                                @php
+                                    $availableSpots = $tour->max_participants - ($tour->current_participants ?? 0);
+                                    $percentFull = $tour->max_participants > 0 ? round((($tour->current_participants ?? 0) / $tour->max_participants) * 100) : 0;
+                                @endphp
+                                <span class="badge bg-{{ $availableSpots > 5 ? 'success' : ($availableSpots > 0 ? 'warning' : 'danger') }}">
+                                    {{ $availableSpots }} places disponibles
+                                </span>
+                            </small>
                         </div>
                         @endif
 

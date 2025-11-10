@@ -17,6 +17,17 @@ class TourDetails extends Component
      */
     public function mount($tourId)
     {
+        $this->loadTour($tourId);
+
+        // Initialiser la langue courante avec la langue de l'application
+        $this->currentLocale = app()->getLocale();
+    }
+
+    /**
+     * Charger ou recharger les données du tour
+     */
+    public function loadTour($tourId)
+    {
         // Charger le tour avec ses relations
         $this->tour = Tour::with([
             'tourOperator',
@@ -34,9 +45,14 @@ class TourDetails extends Component
         if ($this->tour->tour_operator_id !== $user->tour_operator_id) {
             abort(403, 'Vous n\'avez pas accès à ce tour.');
         }
+    }
 
-        // Initialiser la langue courante avec la langue de l'application
-        $this->currentLocale = app()->getLocale();
+    /**
+     * Rafraîchir les données du tour
+     */
+    public function refresh()
+    {
+        $this->loadTour($this->tour->id);
     }
 
     /**

@@ -144,14 +144,17 @@ class TourReservationController extends Controller
 
         // Update current_participants count
         DB::transaction(function () use ($reservation, $request) {
+            // Store original status before updating
+            $originalStatus = $reservation->status;
+
             $reservation->update([
                 'status' => 'cancelled_by_operator',
                 'notes' => ($reservation->notes ? $reservation->notes . "\n\n" : '') .
                           'Annulé par l\'opérateur: ' . ($request->reason ?? 'Aucune raison fournie')
             ]);
 
-            // Decrement participants if was confirmed
-            if ($reservation->status === 'confirmed') {
+            // Decrement participants if reservation was pending or confirmed
+            if (in_array($originalStatus, ['pending', 'confirmed'])) {
                 $reservation->tour->decrement('current_participants', $reservation->number_of_people);
             }
         });

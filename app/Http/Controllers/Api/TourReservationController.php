@@ -219,13 +219,35 @@ class TourReservationController extends Controller
             ], 400);
         }
 
-        $reservation->status = 'cancelled_by_user';
-        $reservation->save();
+        try {
+            DB::transaction(function () use ($reservation) {
+                // Update reservation status
+                $reservation->status = 'cancelled_by_user';
+                $reservation->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Tour reservation successfully cancelled.',
-            'reservation' => $reservation,
-        ]);
+                // Decrement the participants count from the tour
+                $tour = $reservation->tour;
+                if ($tour) {
+                    $tour->decrement('current_participants', $reservation->number_of_people);
+                }
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tour reservation successfully cancelled.',
+                'reservation' => $reservation,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Tour reservation cancellation failed', [
+                'error' => $e->getMessage(),
+                'reservation_id' => $reservation->id,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while cancelling the reservation.',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
     }
 }
