@@ -182,16 +182,25 @@ class ActivityController extends Controller
             ], 400);
         }
 
-        $validator = Validator::make($request->all(), [
+        // Check if user is authenticated
+        $user = Auth::guard('sanctum')->user();
+
+        // Build validation rules dynamically
+        $rules = [
             'number_of_people' => 'required|integer|min:1',
             'preferred_date' => 'nullable|date|after:today',
             'special_requirements' => 'nullable|string|max:500',
             'medical_conditions' => 'nullable|string|max:500',
-            // For guest users
-            'guest_name' => 'required_without:user_authenticated|string|max:255',
-            'guest_email' => 'required_without:user_authenticated|email|max:255',
-            'guest_phone' => 'nullable|string|max:50',
-        ]);
+        ];
+
+        // Add guest fields validation only if user is not authenticated
+        if (!$user) {
+            $rules['guest_name'] = 'required|string|max:255';
+            $rules['guest_email'] = 'required|email|max:255';
+            $rules['guest_phone'] = 'nullable|string|max:50';
+        }
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return response()->json([
@@ -200,8 +209,6 @@ class ActivityController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-
-        $user = Auth::guard('sanctum')->user();
 
         // Vérifier si l'utilisateur a déjà une inscription active
         if ($user && ! $activity->canUserRegister($user->id)) {
