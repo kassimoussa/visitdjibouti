@@ -23,7 +23,7 @@ class ActivityController extends Controller
     {
         $locale = $request->header('Accept-Language', 'fr');
 
-        $query = Activity::with(['tourOperator', 'featuredImage', 'media', 'translations'])
+        $query = Activity::with(['tourOperator.logo', 'tourOperator.translations', 'featuredImage', 'media', 'translations'])
             ->where('status', 'active');
 
         // Filtres
@@ -94,7 +94,7 @@ class ActivityController extends Controller
     {
         $locale = $request->header('Accept-Language', 'fr');
 
-        $activity = Activity::with(['tourOperator', 'featuredImage', 'media', 'translations'])
+        $activity = Activity::with(['tourOperator.logo', 'tourOperator.translations', 'featuredImage', 'media', 'translations'])
             ->where('status', 'active')
             ->where(function ($query) use ($identifier) {
                 $query->where('id', $identifier)
@@ -142,7 +142,7 @@ class ActivityController extends Controller
         $longitude = $request->longitude;
         $radius = $request->get('radius', 50); // km
 
-        $activities = Activity::with(['tourOperator', 'featuredImage', 'media', 'translations'])
+        $activities = Activity::with(['tourOperator.logo', 'tourOperator.translations', 'featuredImage', 'media', 'translations'])
             ->where('status', 'active')
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
@@ -397,9 +397,11 @@ class ActivityController extends Controller
             }),
             'tour_operator' => [
                 'id' => $activity->tourOperator->id,
-                'name' => $activity->tourOperator->name,
+                'name' => $activity->tourOperator->getTranslatedName($locale),
+                'slug' => $activity->tourOperator->slug,
                 'email' => $activity->tourOperator->email,
                 'phone' => $activity->tourOperator->phone,
+                'logo' => $activity->tourOperator->logo ? asset($activity->tourOperator->logo->path) : null,
             ],
             'is_featured' => $activity->is_featured,
             'weather_dependent' => $activity->weather_dependent,
