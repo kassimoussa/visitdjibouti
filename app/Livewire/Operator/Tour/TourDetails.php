@@ -56,6 +56,31 @@ class TourDetails extends Component
     }
 
     /**
+     * Basculer le statut du tour entre active et inactive
+     */
+    public function toggleStatus()
+    {
+        // Vérifier que le tour a été approuvé
+        if (!in_array($this->tour->status, ['active', 'inactive'])) {
+            session()->flash('error', 'Seuls les tours approuvés peuvent changer de statut.');
+            return;
+        }
+
+        // Basculer le statut
+        $newStatus = $this->tour->status === 'active' ? 'inactive' : 'active';
+        $this->tour->update(['status' => $newStatus]);
+
+        // Recharger le tour
+        $this->loadTour($this->tour->id);
+
+        $message = $newStatus === 'active'
+            ? 'Le tour a été activé avec succès.'
+            : 'Le tour a été désactivé avec succès.';
+
+        session()->flash('success', $message);
+    }
+
+    /**
      * Changer la langue d'affichage
      */
     public function changeLocale($locale)

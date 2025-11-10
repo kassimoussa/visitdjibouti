@@ -1,4 +1,23 @@
 <div>
+    <!-- Flash Messages -->
+    @if (session()->has('success'))
+        <div class="container-fluid mb-3">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    @endif
+
+    @if (session()->has('error'))
+        <div class="container-fluid mb-3">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    @endif
+
     <!-- En-tête avec boutons d'action et sélecteur de langue -->
     <div class="container-fluid mb-4">
         <div class="d-flex justify-content-between align-items-start">
@@ -33,6 +52,17 @@
                 <a href="{{ route('operator.tour-reservations.index', ['tour_id' => $tour->id]) }}" class="btn btn-outline-primary me-2">
                     <i class="fas fa-clipboard-list me-1"></i> Réservations
                 </a>
+
+                <!-- Bouton pour basculer le statut (active/inactive) -->
+                @if(in_array($tour->status, ['active', 'inactive']))
+                    <button wire:click="toggleStatus"
+                            wire:confirm="Êtes-vous sûr de vouloir {{ $tour->status === 'active' ? 'désactiver' : 'activer' }} ce tour ?"
+                            class="btn btn-{{ $tour->status === 'active' ? 'warning' : 'success' }} me-2">
+                        <i class="fas fa-{{ $tour->status === 'active' ? 'pause' : 'play' }} me-1"></i>
+                        {{ $tour->status === 'active' ? 'Désactiver' : 'Activer' }}
+                    </button>
+                @endif
+
                 @if(in_array($tour->status, ['draft', 'rejected', 'active']))
                     <a href="{{ route('operator.tours.edit', $tour) }}" class="btn btn-{{ $tour->status === 'rejected' ? 'warning' : 'primary' }} me-2">
                         <i class="fas fa-edit me-1"></i>
