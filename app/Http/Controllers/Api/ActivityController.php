@@ -352,6 +352,46 @@ class ActivityController extends Controller
     }
 
     /**
+     * Permanently delete a cancelled activity registration
+     */
+    public function deleteRegistration(Request $request, ActivityRegistration $registration): JsonResponse
+    {
+        $user = Auth::guard('sanctum')->user();
+
+        if (! $user || $registration->app_user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Non autorisé',
+            ], 403);
+        }
+
+        // Only allow deletion of cancelled registrations
+        if ($registration->status !== 'cancelled') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Seules les inscriptions annulées peuvent être supprimées. Veuillez d\'abord annuler l\'inscription.',
+                'current_status' => $registration->status,
+            ], 400);
+        }
+
+        try {
+            $registration->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Inscription supprimée définitivement',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la suppression de l\'inscription: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Une erreur s\'est produite lors de la suppression de l\'inscription',
+            ], 500);
+        }
+    }
+
+    /**
      * Format activity for API response
      */
     private function formatActivity(Activity $activity, string $locale, bool $detailed = false): array

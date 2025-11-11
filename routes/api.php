@@ -196,12 +196,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [TourReservationController::class, 'index']); // User's tour reservations
         Route::patch('/{reservation}/cancel', [TourReservationController::class, 'cancel']);
         Route::patch('/{reservation}', [TourReservationController::class, 'update']);
+        Route::delete('/{reservation}', [TourReservationController::class, 'destroy']); // Supprimer une réservation annulée
     });
 
     // Routes protégées pour les inscriptions aux activités
     Route::prefix('activity-registrations')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\ActivityController::class, 'myRegistrations']); // Mes inscriptions
-        Route::delete('/{registration}', [\App\Http\Controllers\Api\ActivityController::class, 'cancelRegistration']); // Annuler une inscription
+        Route::patch('/{registration}/cancel', [\App\Http\Controllers\Api\ActivityController::class, 'cancelRegistration']); // Annuler une inscription
+        Route::delete('/{registration}', [\App\Http\Controllers\Api\ActivityController::class, 'deleteRegistration']); // Supprimer une inscription annulée
     });
 
     // Routes protégées pour les avis (reviews)

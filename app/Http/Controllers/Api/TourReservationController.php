@@ -250,4 +250,48 @@ class TourReservationController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Permanently delete a cancelled tour reservation.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\TourReservation  $reservation
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy(Request $request, TourReservation $reservation)
+    {
+        // Authorize that the user owns the reservation
+        if ($request->user()->id !== $reservation->app_user_id) {
+            return response()->json(['success' => false, 'message' => 'This action is unauthorized.'], 403);
+        }
+
+        // Only allow deletion of cancelled reservations
+        if (!in_array($reservation->status, ['cancelled_by_user', 'cancelled_by_operator'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only cancelled reservations can be deleted. Please cancel the reservation first.',
+                'current_status' => $reservation->status,
+            ], 400);
+        }
+
+        try {
+            $reservation->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tour reservation permanently deleted.',
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Tour reservation deletion failed', [
+                'error' => $e->getMessage(),
+                'reservation_id' => $reservation->id,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the reservation.',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
+    }
 }
