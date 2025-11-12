@@ -128,7 +128,7 @@ class RegionController extends Controller
                     'is_featured' => $event->is_featured,
                     'featured_image' => $event->featuredImage ? [
                         'id' => $event->featuredImage->id,
-                        'url' => $event->featuredImage->file_path ? asset('storage/'.$event->featuredImage->file_path) : null,
+                        'url' => $event->featuredImage->getImageUrl(),
                     ] : null,
                     'categories' => $event->categories->map(function ($category) use ($locale) {
                         $catTranslation = $category->translations->firstWhere('locale', $locale)
@@ -169,7 +169,7 @@ class RegionController extends Controller
                     'is_featured' => $activity->is_featured,
                     'featured_image' => $activity->featuredImage ? [
                         'id' => $activity->featuredImage->id,
-                        'url' => $activity->featuredImage->file_path ? asset('storage/'.$activity->featuredImage->file_path) : null,
+                        'url' => asset($activity->featuredImage->path),
                     ] : null,
                     'tour_operator' => $activity->tourOperator ? [
                         'id' => $activity->tourOperator->id,
