@@ -429,7 +429,7 @@ class PoiController extends Controller
         $translation = $poi->translation($locale);
 
         $basic = $this->transformPoi($poi, $locale, $user);
-
+ 
         return array_merge($basic, [
             'description' => $translation->description ?? '',
             'opening_hours' => $translation->opening_hours ?? '',

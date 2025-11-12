@@ -87,7 +87,7 @@ class RegionController extends Controller
                     'is_featured' => $poi->is_featured,
                     'featured_image' => $poi->featuredImage ? [
                         'id' => $poi->featuredImage->id,
-                        'url' => $poi->featuredImage->file_path ? asset('storage/'.$poi->featuredImage->file_path) : null,
+                        'url' => $poi->featuredImage->getImageUrl(),
                     ] : null,
                     'categories' => $poi->categories->map(function ($category) use ($locale) {
                         $catTranslation = $category->translations->firstWhere('locale', $locale)
@@ -100,7 +100,7 @@ class RegionController extends Controller
                     }),
                 ];
             });
-
+ 
         // Get Events
         $events = Event::with(['translations', 'categories.translations', 'featuredImage'])
             ->where('region', $region)
