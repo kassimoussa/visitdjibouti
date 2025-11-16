@@ -105,6 +105,14 @@ class TourOperatorUser extends Authenticatable
     }
 
     /**
+     * Get all activities managed by this operator user.
+     */
+    public function managedActivities(): HasMany
+    {
+        return $this->hasMany(Activity::class, 'tour_operator_id', 'tour_operator_id');
+    }
+
+    /**
      * Get all tour schedules managed by this operator user.
      */
     public function managedTourSchedules()
@@ -165,6 +173,15 @@ class TourOperatorUser extends Authenticatable
     }
 
     /**
+     * Check if the operator user can manage activities.
+     * All active operator users have full access.
+     */
+    public function canManageActivities(): bool
+    {
+        return $this->is_active;
+    }
+
+    /**
      * Check if the operator user can view reservations.
      * All active operator users have full access.
      */
@@ -213,27 +230,26 @@ class TourOperatorUser extends Authenticatable
     public function getStatistics(): array
     {
         $stats = [
-            'total_events' => 0,
-            'active_events' => 0,
             'total_tours' => 0,
             'active_tours' => 0,
+            'total_activities' => 0,
+            'active_activities' => 0,
             'total_reservations' => 0,
             'confirmed_reservations' => 0,
             'pending_reservations' => 0,
             'revenue_this_month' => 0,
         ];
 
-        if ($this->canManageEvents()) {
-            $stats['total_events'] = $this->managedEvents()->count();
-            $stats['active_events'] = $this->managedEvents()
-                ->where('status', 'published')
-                ->where('start_date', '>=', now()->toDateString())
-                ->count();
-        }
-
         if ($this->canManageTours()) {
             $stats['total_tours'] = $this->managedTours()->count();
             $stats['active_tours'] = $this->managedTours()
+                ->where('status', 'active')
+                ->count();
+        }
+
+        if ($this->canManageActivities()) {
+            $stats['total_activities'] = $this->managedActivities()->count();
+            $stats['active_activities'] = $this->managedActivities()
                 ->where('status', 'active')
                 ->count();
         }

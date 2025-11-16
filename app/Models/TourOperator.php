@@ -405,13 +405,10 @@ class TourOperator extends Model
     public function getStatistics(): array
     {
         return [
-            'total_events' => $this->managedEvents()->count(),
-            'published_events' => $this->publishedEvents()->count(),
-            'upcoming_events' => $this->publishedEvents()
-                ->where('start_date', '>=', now()->toDateString())
-                ->count(),
             'total_tours' => $this->tours()->count(),
             'active_tours' => $this->activeTours()->count(),
+            'total_activities' => $this->activities()->count(),
+            'active_activities' => $this->activities()->where('status', 'active')->count(),
             'total_pois' => $this->pois()->count(),
             'total_users' => $this->users()->count(),
             'active_users' => $this->activeUsers()->count(),
