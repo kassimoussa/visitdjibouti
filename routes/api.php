@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AnonymousAuthController;
 use App\Http\Controllers\Api\AppSettingController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\Api\EmbassyController;
 use App\Http\Controllers\Api\EventController;
@@ -35,6 +36,10 @@ Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 
+    // Routes de récupération de mot de passe
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
     // Routes OAuth
     Route::get('/{provider}/redirect', [SocialAuthController::class, 'redirectToProvider'])
         ->where('provider', 'google|facebook');
@@ -46,6 +51,12 @@ Route::prefix('auth')->group(function () {
     // Routes pour utilisateurs anonymes (publiques)
     Route::post('/anonymous', [AnonymousAuthController::class, 'createAnonymous']);
     Route::post('/anonymous/retrieve', [AnonymousAuthController::class, 'getAnonymous']);
+});
+
+// Routes publiques pour le contenu global
+Route::prefix('content')->group(function () {
+    Route::get('/all', [ContentController::class, 'getAllContent']); // Tout le contenu (POIs, Events, Tours, Activities)
+    Route::get('/geolocated', [ContentController::class, 'getGeolocatedContent']); // Contenu avec coordonnées GPS
 });
 
 // Routes publiques pour les catégories
