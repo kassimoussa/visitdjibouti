@@ -34,17 +34,32 @@
 
     <!-- Statistics Row -->
     <div class="row mb-4">
-        <!-- Total Events -->
+        <!-- Total Tours -->
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="stats-card">
                 <div class="stats-icon primary">
-                    <i class="fas fa-calendar-alt"></i>
+                    <i class="fas fa-route"></i>
                 </div>
-                <h3 class="stats-number">{{ $statistics['total_events'] ?? 0 }}</h3>
-                <p class="stats-label">Événements Total</p>
+                <h3 class="stats-number">{{ $statistics['total_tours'] ?? 0 }}</h3>
+                <p class="stats-label">Tours Guidés</p>
+                <small class="text-success">
+                    <i class="fas fa-check me-1"></i>
+                    {{ $statistics['active_tours'] ?? 0 }} approuvés
+                </small>
+            </div>
+        </div>
+
+        <!-- Total Activities -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="stats-icon warning">
+                    <i class="fas fa-hiking"></i>
+                </div>
+                <h3 class="stats-number">{{ $statistics['total_activities'] ?? 0 }}</h3>
+                <p class="stats-label">Activités</p>
                 <small class="text-success">
                     <i class="fas fa-arrow-up me-1"></i>
-                    {{ $statistics['active_events'] ?? 0 }} actifs
+                    {{ $statistics['active_activities'] ?? 0 }} actives
                 </small>
             </div>
         </div>
@@ -78,82 +93,75 @@
                 </small>
             </div>
         </div>
-
-        <!-- Tours -->
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="stats-card">
-                <div class="stats-icon warning">
-                    <i class="fas fa-route"></i>
-                </div>
-                <h3 class="stats-number">{{ $statistics['total_tours'] ?? 0 }}</h3>
-                <p class="stats-label">Tours Guidés</p>
-                <small class="text-success">
-                    <i class="fas fa-check me-1"></i>
-                    {{ $statistics['active_tours'] ?? 0 }} actifs
-                </small>
-            </div>
-        </div>
     </div>
 
     <div class="row">
-        <!-- Recent Events -->
+        <!-- Recent Tours -->
         <div class="col-lg-8 mb-4">
             <div class="card">
                 <div class="card-header">
                     <h5>
-                        <i class="fas fa-calendar-alt me-2"></i>
-                        Événements Récents
+                        <i class="fas fa-route me-2"></i>
+                        Tours Récents
                     </h5>
                 </div>
                 <div class="card-body">
-                    @if($recentEvents->count() > 0)
+                    @if($recentTours->count() > 0)
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>Événement</th>
-                                        <th>Date</th>
+                                        <th>Tour</th>
+                                        <th>Dates</th>
                                         <th>Statut</th>
+                                        <th>Prix</th>
                                         <th>Participants</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($recentEvents as $event)
+                                    @foreach($recentTours as $tour)
+                                        @php
+                                            $translation = $tour->translation(session('locale', 'fr'));
+                                        @endphp
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    @if($event->featuredImage)
-                                                        <img src="{{ $event->featuredImage->getImageUrl() }}"
-                                                             alt="{{ $event->title }}"
+                                                    @if($tour->featuredImage)
+                                                        <img src="{{ $tour->featuredImage->file_path }}"
+                                                             alt="{{ $translation->name ?? 'Tour' }}"
                                                              class="rounded me-3"
                                                              style="width: 50px; height: 50px; object-fit: cover;">
                                                     @endif
                                                     <div>
-                                                        <h6 class="mb-0">{{ $event->title }}</h6>
-                                                        <small class="text-muted">{{ Str::limit($event->short_description, 50) }}</small>
+                                                        <h6 class="mb-0">{{ $translation->name ?? 'N/A' }}</h6>
+                                                        <small class="text-muted">{{ Str::limit($translation->short_description ?? '', 50) }}</small>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
-                                                <small>{{ $event->start_date->format('d/m/Y') }}</small>
-                                                @if($event->start_time)
-                                                    <br><small class="text-muted">{{ $event->start_time->format('H:i') }}</small>
+                                                <small>{{ $tour->start_date?->format('d/m/Y') ?? 'N/A' }}</small>
+                                                @if($tour->end_date)
+                                                    <br><small class="text-muted">au {{ $tour->end_date->format('d/m/Y') }}</small>
                                                 @endif
                                             </td>
                                             <td>
-                                                <span class="badge status-{{ $event->status }}">
-                                                    {{ ucfirst($event->status) }}
+                                                <span class="badge status-{{ $tour->status }}">
+                                                    {{ ucfirst($tour->status) }}
                                                 </span>
                                             </td>
                                             <td>
-                                                <span class="fw-bold">{{ $event->current_participants }}</span>
-                                                @if($event->max_participants)
-                                                    / {{ $event->max_participants }}
+                                                <strong>{{ number_format($tour->price ?? 0, 0, ',', ' ') }}</strong>
+                                                <small class="text-muted">{{ $tour->currency ?? 'DJF' }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold">{{ $tour->current_participants ?? 0 }}</span>
+                                                @if($tour->max_participants)
+                                                    / {{ $tour->max_participants }}
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="{{ route('operator.events.show', $event) }}"
+                                                <a href="{{ route('operator.tours.show', $tour) }}"
                                                    class="btn btn-sm btn-outline-primary">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
@@ -164,16 +172,114 @@
                             </table>
                         </div>
                         <div class="text-center mt-3">
-                            <a href="{{ route('operator.events.index') }}" class="btn btn-outline-primary">
+                            <a href="{{ route('operator.tours.index') }}" class="btn btn-outline-primary">
                                 <i class="fas fa-list me-2"></i>
-                                Voir tous les événements
+                                Voir tous les tours
                             </a>
                         </div>
                     @else
                         <div class="text-center py-4">
-                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Aucun événement récent</h5>
-                            <p class="text-muted">Vos derniers événements apparaîtront ici</p>
+                            <i class="fas fa-route fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucun tour récent</h5>
+                            <p class="text-muted">Vos derniers tours apparaîtront ici</p>
+                            <a href="{{ route('operator.tours.create') }}" class="btn btn-primary mt-2">
+                                <i class="fas fa-plus me-2"></i>
+                                Créer un tour
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>
+                        <i class="fas fa-hiking me-2"></i>
+                        Activités Récentes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if($recentActivities->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Activité</th>
+                                        <th>Région</th>
+                                        <th>Statut</th>
+                                        <th>Prix</th>
+                                        <th>Difficulté</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($recentActivities as $activity)
+                                        @php
+                                            $translation = $activity->translation(session('locale', 'fr'));
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    @if($activity->featuredImage)
+                                                        <img src="{{ $activity->featuredImage->file_path }}"
+                                                             alt="{{ $translation->name ?? 'Activité' }}"
+                                                             class="rounded me-3"
+                                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                                    @endif
+                                                    <div>
+                                                        <h6 class="mb-0">{{ $translation->name ?? 'N/A' }}</h6>
+                                                        <small class="text-muted">{{ Str::limit($translation->short_description ?? '', 50) }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <small>{{ $activity->region ?? 'N/A' }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge status-{{ $activity->status }}">
+                                                    {{ ucfirst($activity->status) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <strong>{{ number_format($activity->price ?? 0, 0, ',', ' ') }}</strong>
+                                                <small class="text-muted">{{ $activity->currency ?? 'DJF' }}</small>
+                                            </td>
+                                            <td>
+                                                @if($activity->difficulty_level)
+                                                    <span class="badge bg-{{ $activity->difficulty_level == 'easy' ? 'success' : ($activity->difficulty_level == 'intermediate' ? 'warning' : 'danger') }}">
+                                                        {{ ucfirst($activity->difficulty_level) }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-muted">N/A</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('operator.activities.show', $activity) }}"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ route('operator.activities.index') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-list me-2"></i>
+                                Voir toutes les activités
+                            </a>
+                        </div>
+                    @else
+                        <div class="text-center py-4">
+                            <i class="fas fa-hiking fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucune activité récente</h5>
+                            <p class="text-muted">Vos dernières activités apparaîtront ici</p>
+                            <a href="{{ route('operator.activities.create') }}" class="btn btn-primary mt-2">
+                                <i class="fas fa-plus me-2"></i>
+                                Créer une activité
+                            </a>
                         </div>
                     @endif
                 </div>
@@ -192,11 +298,29 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        @if($user->canManageEvents())
-                            <a href="{{ route('operator.events.index') }}"
+                        @if($user->canManageTours())
+                            <a href="{{ route('operator.tours.index') }}"
                                class="btn btn-outline-primary">
-                                <i class="fas fa-calendar-plus me-2"></i>
-                                Gérer les Événements
+                                <i class="fas fa-route me-2"></i>
+                                Gérer les Tours
+                            </a>
+                            <a href="{{ route('operator.tours.create') }}"
+                               class="btn btn-outline-primary">
+                                <i class="fas fa-plus me-2"></i>
+                                Créer un Tour
+                            </a>
+                        @endif
+
+                        @if($user->canManageActivities())
+                            <a href="{{ route('operator.activities.index') }}"
+                               class="btn btn-outline-warning">
+                                <i class="fas fa-hiking me-2"></i>
+                                Gérer les Activités
+                            </a>
+                            <a href="{{ route('operator.activities.create') }}"
+                               class="btn btn-outline-warning">
+                                <i class="fas fa-plus me-2"></i>
+                                Créer une Activité
                             </a>
                         @endif
 
@@ -205,14 +329,6 @@
                                class="btn btn-outline-success">
                                 <i class="fas fa-ticket-alt me-2"></i>
                                 Voir les Réservations
-                            </a>
-                        @endif
-
-                        @if($user->canManageTours())
-                            <a href="{{ route('operator.tours.index') }}"
-                               class="btn btn-outline-info">
-                                <i class="fas fa-route me-2"></i>
-                                Gérer les Tours
                             </a>
                         @endif
                     </div>
@@ -241,21 +357,37 @@
                         </div>
                     @endif
 
-                    @if($upcomingEvents->count() > 0)
+                    @if($upcomingTours->count() > 0)
                         <div class="alert alert-info">
-                            <i class="fas fa-calendar-check me-2"></i>
-                            <strong>{{ $upcomingEvents->count() }}</strong> événement(s) à venir cette semaine
+                            <i class="fas fa-route me-2"></i>
+                            <strong>{{ $upcomingTours->count() }}</strong> tour(s) à venir
                             <div class="mt-2">
-                                @foreach($upcomingEvents->take(3) as $event)
+                                @foreach($upcomingTours->take(3) as $tour)
+                                    @php
+                                        $translation = $tour->translation(session('locale', 'fr'));
+                                    @endphp
                                     <div class="small mb-1">
-                                        <strong>{{ $event->title }}</strong> - {{ $event->start_date->format('d/m') }}
+                                        <strong>{{ $translation->name ?? 'N/A' }}</strong> - {{ $tour->start_date->format('d/m') }}
                                     </div>
                                 @endforeach
                             </div>
                         </div>
                     @endif
 
-                    @if($pendingReservationsCount == 0 && $upcomingEvents->count() == 0)
+                    @if($activeActivities->count() > 0)
+                        <div class="alert alert-success">
+                            <i class="fas fa-hiking me-2"></i>
+                            <strong>{{ $activeActivities->count() }}</strong> activité(s) active(s)
+                            <div class="mt-2">
+                                <a href="{{ route('operator.activities.index') }}"
+                                   class="btn btn-sm btn-success">
+                                    Gérer les activités
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($pendingReservationsCount == 0 && $upcomingTours->count() == 0 && $activeActivities->count() == 0)
                         <div class="text-center py-3">
                             <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
                             <p class="text-muted mb-0">Tout est à jour !</p>

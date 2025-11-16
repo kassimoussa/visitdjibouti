@@ -20,19 +20,34 @@ class DashboardController extends Controller
         $statistics = $user->getStatistics();
         $operatorStatistics = $tourOperator->getStatistics();
 
-        // Get recent events
-        $recentEvents = $user->managedEvents()
+        // Get recent tours
+        $recentTours = $tourOperator->tours()
             ->with(['translations', 'featuredImage'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
-        // Get upcoming events
-        $upcomingEvents = $user->managedEvents()
+        // Get upcoming tours
+        $upcomingTours = $tourOperator->tours()
             ->with(['translations', 'featuredImage'])
-            ->where('status', 'published')
+            ->where('status', 'approved')
             ->where('start_date', '>=', now()->toDateString())
             ->orderBy('start_date')
+            ->limit(5)
+            ->get();
+
+        // Get recent activities
+        $recentActivities = $tourOperator->activities()
+            ->with(['translations', 'featuredImage'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Get active activities
+        $activeActivities = $tourOperator->activities()
+            ->with(['translations', 'featuredImage'])
+            ->where('status', 'active')
+            ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
@@ -53,8 +68,10 @@ class DashboardController extends Controller
             'tourOperator',
             'statistics',
             'operatorStatistics',
-            'recentEvents',
-            'upcomingEvents',
+            'recentTours',
+            'upcomingTours',
+            'recentActivities',
+            'activeActivities',
             'recentReservations',
             'pendingReservationsCount'
         ));
