@@ -129,12 +129,12 @@
                                                 <div class="d-flex align-items-center">
                                                     @if($tour->featuredImage)
                                                         <img src="{{ $tour->featuredImage->file_path }}"
-                                                             alt="{{ $translation->name ?? 'Tour' }}"
+                                                             alt="{{ $translation->title ?? 'Tour' }}"
                                                              class="rounded me-3"
                                                              style="width: 50px; height: 50px; object-fit: cover;">
                                                     @endif
                                                     <div>
-                                                        <h6 class="mb-0">{{ $translation->name ?? 'N/A' }}</h6>
+                                                        <h6 class="mb-0">{{ $translation->title ?? 'N/A' }}</h6>
                                                         <small class="text-muted">{{ Str::limit($translation->short_description ?? '', 50) }}</small>
                                                     </div>
                                                 </div>
@@ -223,12 +223,12 @@
                                                 <div class="d-flex align-items-center">
                                                     @if($activity->featuredImage)
                                                         <img src="{{ $activity->featuredImage->file_path }}"
-                                                             alt="{{ $translation->name ?? 'Activité' }}"
+                                                             alt="{{ $translation->title ?? 'Activité' }}"
                                                              class="rounded me-3"
                                                              style="width: 50px; height: 50px; object-fit: cover;">
                                                     @endif
                                                     <div>
-                                                        <h6 class="mb-0">{{ $translation->name ?? 'N/A' }}</h6>
+                                                        <h6 class="mb-0">{{ $translation->title ?? 'N/A' }}</h6>
                                                         <small class="text-muted">{{ Str::limit($translation->short_description ?? '', 50) }}</small>
                                                     </div>
                                                 </div>
@@ -367,7 +367,7 @@
                                         $translation = $tour->translation(session('locale', 'fr'));
                                     @endphp
                                     <div class="small mb-1">
-                                        <strong>{{ $translation->name ?? 'N/A' }}</strong> - {{ $tour->start_date->format('d/m') }}
+                                        <strong>{{ $translation->title ?? 'N/A' }}</strong> - {{ $tour->start_date->format('d/m') }}
                                     </div>
                                 @endforeach
                             </div>
