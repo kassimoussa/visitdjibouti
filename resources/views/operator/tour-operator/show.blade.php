@@ -227,22 +227,22 @@
                 <div class="card-body">
                     <div class="row text-center">
                         <div class="col-6 border-end">
-                            <div class="h3 text-primary mb-1">{{ $statistics['total_events'] }}</div>
-                            <small class="text-muted">Événements</small>
+                            <div class="h3 text-primary mb-1">{{ $statistics['total_tours'] ?? 0 }}</div>
+                            <small class="text-muted">Tours</small>
                         </div>
                         <div class="col-6">
-                            <div class="h3 text-success mb-1">{{ $statistics['total_reservations'] }}</div>
-                            <small class="text-muted">Réservations</small>
+                            <div class="h3 text-warning mb-1">{{ $statistics['total_activities'] ?? 0 }}</div>
+                            <small class="text-muted">Activités</small>
                         </div>
                     </div>
                     <hr>
                     <div class="row text-center">
                         <div class="col-6 border-end">
-                            <div class="h3 text-info mb-1">{{ $statistics['total_tours'] }}</div>
-                            <small class="text-muted">Tours</small>
+                            <div class="h3 text-success mb-1">{{ $statistics['total_reservations'] ?? 0 }}</div>
+                            <small class="text-muted">Réservations</small>
                         </div>
                         <div class="col-6">
-                            <div class="h3 text-warning mb-1">{{ $tourOperator->users()->count() }}</div>
+                            <div class="h3 text-info mb-1">{{ $tourOperator->users()->count() }}</div>
                             <small class="text-muted">Employés</small>
                         </div>
                     </div>

@@ -287,7 +287,7 @@
 
                     <!-- Boutons de sauvegarde -->
                     <div class="d-flex justify-content-between mt-4">
-                        <a href="{{ route('tour-operators.index') }}" class="btn btn-secondary">
+                        <a href="{{ $isOperatorMode ? route('operator.tour-operator.show') : route('tour-operators.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Annuler
                         </a>
                         <button type="submit" class="btn btn-primary">

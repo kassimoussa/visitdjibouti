@@ -18,9 +18,9 @@ class TourOperatorController extends Controller
         $tourOperator = $user->tourOperator()->with(['logo', 'translations', 'users'])->first();
 
         $statistics = [
-            'total_events' => $user->managedEvents()->count(),
-            'total_reservations' => $user->managedReservations()->count(),
             'total_tours' => $user->managedTours()->count(),
+            'total_activities' => $user->managedActivities()->count(),
+            'total_reservations' => $user->managedReservations()->count(),
             'total_revenue' => $user->managedReservations()
                 ->where('status', 'confirmed')
                 ->sum('payment_amount'),
