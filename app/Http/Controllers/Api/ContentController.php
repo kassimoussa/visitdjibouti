@@ -355,8 +355,8 @@ class ContentController extends Controller
             'is_featured' => $poi->is_featured,
             'featured_image' => $poi->featuredImage ? [
                 'id' => $poi->featuredImage->id,
-                'url' => $poi->featuredImage->file_path,
-                'thumbnail_url' => $poi->featuredImage->thumbnail_path,
+                'url' => $poi->featuredImage->url,
+                'thumbnail_url' => $poi->featuredImage->thumbnail_url,
             ] : null,
             'categories' => $poi->categories->map(function ($category) use ($locale) {
                 $catTranslation = $category->translation($locale);
@@ -396,8 +396,8 @@ class ContentController extends Controller
             'is_featured' => $event->is_featured,
             'featured_image' => $event->featuredImage ? [
                 'id' => $event->featuredImage->id,
-                'url' => $event->featuredImage->file_path,
-                'thumbnail_url' => $event->featuredImage->thumbnail_path,
+                'url' => $event->featuredImage->url,
+                'thumbnail_url' => $event->featuredImage->thumbnail_url,
             ] : null,
             'categories' => $event->categories->map(function ($category) use ($locale) {
                 $catTranslation = $category->translation($locale);
@@ -437,8 +437,8 @@ class ContentController extends Controller
             'is_featured' => $tour->is_featured,
             'featured_image' => $tour->featuredImage ? [
                 'id' => $tour->featuredImage->id,
-                'url' => $tour->featuredImage->file_path,
-                'thumbnail_url' => $tour->featuredImage->thumbnail_path,
+                'url' => $tour->featuredImage->url,
+                'thumbnail_url' => $tour->featuredImage->thumbnail_url,
             ] : null,
             'tour_operator' => $tour->tourOperator ? [
                 'id' => $tour->tourOperator->id,
@@ -475,8 +475,8 @@ class ContentController extends Controller
             'is_featured' => $activity->is_featured,
             'featured_image' => $activity->featuredImage ? [
                 'id' => $activity->featuredImage->id,
-                'url' => $activity->featuredImage->file_path,
-                'thumbnail_url' => $activity->featuredImage->thumbnail_path,
+                'url' => $activity->featuredImage->url,
+                'thumbnail_url' => $activity->featuredImage->thumbnail_url,
             ] : null,
             'tour_operator' => $activity->tourOperator ? [
                 'id' => $activity->tourOperator->id,

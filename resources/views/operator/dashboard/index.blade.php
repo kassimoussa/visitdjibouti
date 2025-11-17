@@ -128,7 +128,7 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     @if($tour->featuredImage)
-                                                        <img src="{{ $tour->featuredImage->file_path }}"
+                                                        <img src="{{ $tour->featuredImage->url }}"
                                                              alt="{{ $translation->title ?? 'Tour' }}"
                                                              class="rounded me-3"
                                                              style="width: 50px; height: 50px; object-fit: cover;">
@@ -222,7 +222,7 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     @if($activity->featuredImage)
-                                                        <img src="{{ $activity->featuredImage->file_path }}"
+                                                        <img src="{{ $activity->featuredImage->url }}"
                                                              alt="{{ $translation->title ?? 'Activité' }}"
                                                              class="rounded me-3"
                                                              style="width: 50px; height: 50px; object-fit: cover;">
