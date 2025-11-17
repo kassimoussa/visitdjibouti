@@ -146,6 +146,16 @@ class AnonymousAuthController extends Controller
                 ], 400);
             }
 
+            // Vérifier d'abord si l'email existe déjà
+            if ($request->email && AppUser::where('email', $request->email)->exists()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Cet email est déjà utilisé. Veuillez vous connecter avec cet email ou utiliser un autre email.',
+                    'error_code' => 'EMAIL_ALREADY_EXISTS',
+                    'suggestion' => 'login',
+                ], 422);
+            }
+
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:app_users,email',
