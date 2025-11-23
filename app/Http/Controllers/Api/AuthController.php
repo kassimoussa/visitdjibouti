@@ -325,11 +325,14 @@ class AuthController extends Controller
 
     /**
      * Send password reset link
+     *
+     * Security: This method returns a generic message regardless of whether
+     * the email exists to prevent user enumeration attacks.
      */
     public function forgotPassword(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:app_users,email',
+            'email' => 'required|email',
         ]);
 
         if ($validator->fails()) {
@@ -341,59 +344,57 @@ class AuthController extends Controller
         }
 
         try {
-            $user = AppUser::where('email', $request->email)->first();
+            // Check if user exists and is active
+            $user = AppUser::where('email', $request->email)
+                ->where('is_active', true)
+                ->first();
 
-            if (! $user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not found',
-                ], 404);
+            // Only send email if user exists and is active
+            if ($user) {
+                // Generate 6-digit OTP
+                $otp = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+
+                // Generate token for web (backward compatibility)
+                $token = Str::random(64);
+
+                // Delete old tokens for this email
+                DB::table('password_reset_tokens')
+                    ->where('email', $request->email)
+                    ->delete();
+
+                // Store new token with OTP
+                DB::table('password_reset_tokens')->insert([
+                    'email' => $request->email,
+                    'token' => Hash::make($token),
+                    'otp' => $otp, // Store OTP in plain text for mobile
+                    'attempts' => 0,
+                    'created_at' => now(),
+                ]);
+
+                // Send email with OTP for mobile users
+                Mail::to($user->email)->send(new PasswordResetOtpMail(
+                    otp: $otp,
+                    email: $user->email,
+                    userName: $user->name
+                ));
             }
 
-            if (! $user->is_active) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Account is deactivated',
-                ], 403);
-            }
-
-            // Generate 6-digit OTP
-            $otp = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
-
-            // Generate token for web (backward compatibility)
-            $token = Str::random(64);
-
-            // Delete old tokens for this email
-            DB::table('password_reset_tokens')
-                ->where('email', $request->email)
-                ->delete();
-
-            // Store new token with OTP
-            DB::table('password_reset_tokens')->insert([
-                'email' => $request->email,
-                'token' => Hash::make($token),
-                'otp' => $otp, // Store OTP in plain text for mobile
-                'attempts' => 0,
-                'created_at' => now(),
-            ]);
-
-            // Send email with OTP for mobile users
-            Mail::to($user->email)->send(new PasswordResetOtpMail(
-                otp: $otp,
-                email: $user->email,
-                userName: $user->name
-            ));
-
+            // Always return the same message for security (prevents user enumeration)
             return response()->json([
                 'success' => true,
-                'message' => 'Password reset link sent to your email',
+                'message' => 'Si cet email existe dans notre système, vous recevrez un code de réinitialisation dans quelques instants.',
             ]);
 
         } catch (\Exception $e) {
+            // Log the error for debugging but don't expose details to user
+            \Log::error('Password reset error: '.$e->getMessage(), [
+                'email' => $request->email,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send password reset email',
-                'error' => $e->getMessage(),
+                'message' => 'Une erreur est survenue. Veuillez réessayer ultérieurement.',
             ], 500);
         }
     }
