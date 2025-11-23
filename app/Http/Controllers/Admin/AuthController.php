@@ -29,7 +29,16 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): RedirectResponse
     {
-        $credentials = $request->validated();
+        $login = $request->input('login');
+        $password = $request->input('password');
+
+        // Déterminer si le login est un email ou un username
+        $loginType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $credentials = [
+            $loginType => $login,
+            'password' => $password,
+        ];
 
         // Essayer d'abord la connexion admin
         if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
@@ -54,8 +63,8 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Les identifiants fournis ne correspondent pas à nos enregistrements.',
-        ])->onlyInput('email');
+            'login' => 'Les identifiants fournis ne correspondent pas à nos enregistrements.',
+        ])->onlyInput('login');
     }
 
     /**

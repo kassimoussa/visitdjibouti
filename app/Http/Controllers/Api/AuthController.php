@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Mail\PasswordResetMail;
+use App\Mail\PasswordResetOtpMail;
 use App\Models\AppUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -356,7 +357,10 @@ class AuthController extends Controller
                 ], 403);
             }
 
-            // Generate token
+            // Generate 6-digit OTP
+            $otp = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+
+            // Generate token for web (backward compatibility)
             $token = Str::random(64);
 
             // Delete old tokens for this email
@@ -364,16 +368,18 @@ class AuthController extends Controller
                 ->where('email', $request->email)
                 ->delete();
 
-            // Store new token
+            // Store new token with OTP
             DB::table('password_reset_tokens')->insert([
                 'email' => $request->email,
                 'token' => Hash::make($token),
+                'otp' => $otp, // Store OTP in plain text for mobile
+                'attempts' => 0,
                 'created_at' => now(),
             ]);
 
-            // Send email
-            Mail::to($user->email)->send(new PasswordResetMail(
-                token: $token,
+            // Send email with OTP for mobile users
+            Mail::to($user->email)->send(new PasswordResetOtpMail(
+                otp: $otp,
                 email: $user->email,
                 userName: $user->name
             ));
@@ -467,6 +473,117 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Password reset failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Reset password with OTP (for mobile users)
+     */
+    public function resetPasswordWithOtp(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:app_users,email',
+            'otp' => 'required|string|size:6',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Données invalides',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            // Get OTP record from database
+            $resetRecord = DB::table('password_reset_tokens')
+                ->where('email', $request->email)
+                ->first();
+
+            if (! $resetRecord) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Aucune demande de réinitialisation trouvée pour cet email',
+                ], 404);
+            }
+
+            // Check if OTP is expired (15 minutes)
+            if (now()->diffInMinutes($resetRecord->created_at) > 15) {
+                DB::table('password_reset_tokens')
+                    ->where('email', $request->email)
+                    ->delete();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Le code OTP a expiré. Veuillez demander un nouveau code.',
+                    'error_code' => 'OTP_EXPIRED',
+                ], 400);
+            }
+
+            // Check max attempts (3 attempts)
+            if ($resetRecord->attempts >= 3) {
+                DB::table('password_reset_tokens')
+                    ->where('email', $request->email)
+                    ->delete();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nombre maximum de tentatives dépassé. Veuillez demander un nouveau code.',
+                    'error_code' => 'MAX_ATTEMPTS_EXCEEDED',
+                ], 400);
+            }
+
+            // Verify OTP
+            if ($request->otp !== $resetRecord->otp) {
+                // Increment attempts
+                DB::table('password_reset_tokens')
+                    ->where('email', $request->email)
+                    ->update(['attempts' => $resetRecord->attempts + 1]);
+
+                $remainingAttempts = 3 - ($resetRecord->attempts + 1);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => "Code OTP incorrect. Il vous reste {$remainingAttempts} tentative(s).",
+                    'error_code' => 'INVALID_OTP',
+                    'remaining_attempts' => $remainingAttempts,
+                ], 400);
+            }
+
+            // OTP is valid - update password
+            $user = AppUser::where('email', $request->email)->first();
+            $user->update([
+                'password' => Hash::make($request->password),
+            ]);
+
+            // Delete OTP record
+            DB::table('password_reset_tokens')
+                ->where('email', $request->email)
+                ->delete();
+
+            // Revoke all existing tokens for security
+            $user->tokens()->delete();
+
+            // Create new token for immediate login
+            $token = $user->createToken('mobile-app')->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Mot de passe réinitialisé avec succès',
+                'data' => [
+                    'user' => $user,
+                    'token' => $token,
+                    'token_type' => 'Bearer',
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Échec de la réinitialisation du mot de passe',
                 'error' => $e->getMessage(),
             ], 500);
         }

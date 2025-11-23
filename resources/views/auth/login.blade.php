@@ -9,9 +9,9 @@
         @csrf
 
         <div class="form-group">
-            <label for="email" class="form-label">Adresse email</label>
-            <input id="email" type="email" class="form-input" name="email" value="{{ old('email') }}" required autofocus>
-            @error('email')
+            <label for="login" class="form-label">Email ou Nom d'utilisateur</label>
+            <input id="login" type="text" class="form-input" name="login" value="{{ old('login') }}" required autofocus placeholder="email@exemple.com ou username">
+            @error('login')
                 <span class="form-error">{{ $message }}</span>
             @enderror
         </div>

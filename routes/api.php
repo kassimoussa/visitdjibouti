@@ -39,6 +39,7 @@ Route::prefix('auth')->group(function () {
     // Routes de récupération de mot de passe
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('/reset-password-otp', [AuthController::class, 'resetPasswordWithOtp']); // Mobile OTP reset
 
     // Routes OAuth
     Route::get('/{provider}/redirect', [SocialAuthController::class, 'redirectToProvider'])
@@ -114,6 +115,8 @@ Route::prefix('tour-operators')->group(function () {
     Route::get('/nearby', [TourOperatorController::class, 'getNearby']); // Proximité géographique
     Route::get('/{identifier}', [TourOperatorController::class, 'show']); // Détails (ID ou slug)
 });
+
+
 
 // Routes publiques pour les tours
 Route::prefix('tours')->group(function () {
