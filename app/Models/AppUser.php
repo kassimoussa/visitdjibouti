@@ -292,6 +292,26 @@ class AppUser extends Authenticatable
     }
 
     /**
+     * Get favorite tours.
+     */
+    public function favoriteTours()
+    {
+        return $this->belongsToMany(Tour::class, 'user_favorites', 'app_user_id', 'favoritable_id')
+            ->where('user_favorites.favoritable_type', Tour::class)
+            ->withTimestamps();
+    }
+
+    /**
+     * Get favorite activities.
+     */
+    public function favoriteActivities()
+    {
+        return $this->belongsToMany(Activity::class, 'user_favorites', 'app_user_id', 'favoritable_id')
+            ->where('user_favorites.favoritable_type', Activity::class)
+            ->withTimestamps();
+    }
+
+    /**
      * Check if user has favorited a specific item.
      */
     public function hasFavorited($model): bool

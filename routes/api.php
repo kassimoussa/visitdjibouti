@@ -249,6 +249,14 @@ Route::middleware('auth:sanctum')->group(function () {
         // Gestion des favoris Events
         Route::post('/events/{event}', [FavoriteController::class, 'addEvent']);
         Route::delete('/events/{event}', [FavoriteController::class, 'removeEvent']);
+
+        // Gestion des favoris Tours
+        Route::post('/tours/{tour}', [FavoriteController::class, 'addTour']);
+        Route::delete('/tours/{tour}', [FavoriteController::class, 'removeTour']);
+
+        // Gestion des favoris Activities
+        Route::post('/activities/{activity}', [FavoriteController::class, 'addActivity']);
+        Route::delete('/activities/{activity}', [FavoriteController::class, 'removeActivity']);
     });
 
     // Routes protégées pour la gestion des appareils et géolocalisation

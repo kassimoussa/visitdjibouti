@@ -83,6 +83,22 @@ class UserFavorite extends Model
     }
 
     /**
+     * Scope to get Tour favorites.
+     */
+    public function scopeTours($query)
+    {
+        return $query->where('favoritable_type', Tour::class);
+    }
+
+    /**
+     * Scope to get Activity favorites.
+     */
+    public function scopeActivities($query)
+    {
+        return $query->where('favoritable_type', Activity::class);
+    }
+
+    /**
      * Check if a specific item is favorited by a user.
      */
     public static function isFavorited($userId, $favoritableId, $favoritableType): bool
