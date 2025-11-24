@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Poi;
-use AppModelsTour;
-use AppModelsActivity;
+use App\Models\Tour;
+use App\Models\Activity;
 use App\Models\UserFavorite;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,8 +30,13 @@ class FavoriteController extends Controller
         }
 
         $favorites = UserFavorite::forUser($user->id)
-            ->with(['favoritable' => function ($query) {
-                $query->with(['translations', 'featuredImage', 'categories.translations']);
+            ->with(['favoritable' => function (MorphTo $morphTo) {
+                $morphTo->morphWith([
+                    Poi::class => ['translations', 'featuredImage', 'categories.translations'],
+                    Event::class => ['translations', 'featuredImage', 'categories.translations'],
+                    Tour::class => ['translations', 'featuredImage'],
+                    Activity::class => ['translations', 'featuredImage'],
+                ]);
             }])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -57,14 +63,14 @@ class FavoriteController extends Controller
                     'thumbnail_url' => asset($item->featuredImage->thumbnail_path ?? $item->featuredImage->path),
                     'alt_text' => $item->featuredImage->getTranslation($locale)->alt_text ?? '',
                 ] : null,
-                'categories' => $item->categories->map(function ($category) use ($locale) {
+                'categories' => method_exists($item, 'categories') ? $item->categories->map(function ($category) use ($locale) {
                     return [
                         'id' => $category->id,
                         'name' => $category->translation($locale)?->name ?? '',
                         'color' => $category->color,
                         'icon' => $category->icon,
                     ];
-                }),
+                }) : [],
                 'favorited_at' => $favorite->created_at->toISOString(),
             ];
 
@@ -106,8 +112,6 @@ class FavoriteController extends Controller
                 'total' => $formattedFavorites->count(),
                 'pois_count' => $favorites->where('favoritable_type', Poi::class)->count(),
                 'events_count' => $favorites->where('favoritable_type', Event::class)->count(),
-            'tours_count' => $user->favorites()->tours()->count(),
-            'activities_count' => $user->favorites()->activities()->count(),
                 'tours_count' => $favorites->where('favoritable_type', Tour::class)->count(),
                 'activities_count' => $favorites->where('favoritable_type', Activity::class)->count(),
             ],
@@ -456,14 +460,13 @@ class FavoriteController extends Controller
         }
 
         $stats = [
-            'total_favorites' => $user->favorites()->count(),
-            'pois_count' => $user->favorites()->pois()->count(),
-            'events_count' => $user->favorites()->events()->count(),
-            'tours_count' => $user->favorites()->tours()->count(),
-            'activities_count' => $user->favorites()->activities()->count(),
-                'tours_count' => $favorites->where('favoritable_type', Tour::class)->count(),
-                'activities_count' => $favorites->where('favoritable_type', Activity::class)->count(),
-            'recent_favorites' => $user->favorites()
+            'total_favorites' => UserFavorite::forUser($user->id)->count(),
+            'pois_count' => UserFavorite::forUser($user->id)->pois()->count(),
+            'events_count' => UserFavorite::forUser($user->id)->events()->count(),
+            'tours_count' => UserFavorite::forUser($user->id)->tours()->count(),
+            'activities_count' => UserFavorite::forUser($user->id)->activities()->count(),
+
+            'recent_favorites' => UserFavorite::forUser($user->id)
                 ->with('favoritable')
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
