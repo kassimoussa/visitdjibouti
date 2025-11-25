@@ -64,6 +64,11 @@ class EventController extends Controller
                 $query->where('location', 'LIKE', '%'.$request->get('location').'%');
             }
 
+            // Filter by region
+            if ($request->filled('region')) {
+                $query->where('region', 'LIKE', '%'.$request->get('region').'%');
+            }
+
             // Filter by tour operator
             if ($request->filled('tour_operator_id')) {
                 $query->where('tour_operator_id', $request->get('tour_operator_id'));
@@ -421,6 +426,7 @@ class EventController extends Controller
             'slug' => $event->slug,
             'title' => $translation->title ?? '',
             'short_description' => $translation->short_description ?? '',
+            'region' => $event->region,
             'location' => $event->location,
             'full_location' => $event->full_location,
             'start_date' => $event->start_date->toISOString(),
@@ -481,6 +487,7 @@ class EventController extends Controller
             'requirements' => $translation->requirements ?? '',
             'program' => $translation->program ?? '',
             'additional_info' => $translation->additional_info ?? '',
+            'region' => $event->region,
             'latitude' => $event->latitude,
             'longitude' => $event->longitude,
             'contact_email' => $event->contact_email,

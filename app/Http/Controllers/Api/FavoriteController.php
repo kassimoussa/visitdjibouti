@@ -81,6 +81,7 @@ class FavoriteController extends Controller
                 $data['latitude'] = $item->latitude;
                 $data['longitude'] = $item->longitude;
             } elseif ($favorite->favoritable_type === Event::class) {
+                $data['region'] = $item->region;
                 $data['start_date'] = $item->start_date?->toISOString();
                 $data['end_date'] = $item->end_date?->toISOString();
                 $data['location'] = $item->location;
@@ -93,6 +94,7 @@ class FavoriteController extends Controller
                 $data['price'] = $item->price;
                 $data['duration_hours'] = $item->duration_hours;
                 $data['difficulty_level'] = $item->difficulty_level;
+                $data['meeting_point_address'] = $item->meeting_point_address;
             } elseif ($favorite->favoritable_type === Activity::class) {
                 $data['price'] = $item->price;
                 $data['duration_hours'] = $item->duration_hours;
