@@ -153,8 +153,7 @@ Route::prefix('comments')->group(function () {
 
 // Routes publiques pour les réservations de tours
 Route::prefix('tour-reservations')->group(function () {
-    Route::get('/{reservation}', [TourReservationController::class, 'show']);
-    Route::post('/{tour}/register', [TourReservationController::class, 'store']);  // Réserver un tour
+    Route::post('/{tour}/register', [TourReservationController::class, 'store']);  // Réserver un tour (public pour invités)
 });
 
 // Routes publiques pour les réservations
@@ -208,6 +207,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Routes protégées pour les réservations de tours (nouveau système)
     Route::prefix('tour-reservations')->group(function () {
         Route::get('/', [TourReservationController::class, 'index']); // User's tour reservations
+        Route::get('/{reservation}', [TourReservationController::class, 'show']); // Détails d'une réservation
         Route::patch('/{reservation}/cancel', [TourReservationController::class, 'cancel']);
         Route::patch('/{reservation}', [TourReservationController::class, 'update']);
         Route::delete('/{reservation}', [TourReservationController::class, 'destroy']); // Supprimer une réservation annulée
