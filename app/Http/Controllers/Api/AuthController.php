@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Mail\PasswordResetMail;
 use App\Mail\PasswordResetOtpMail;
+use App\Mail\WelcomeMail;
 use App\Models\AppUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -57,6 +58,12 @@ class AuthController extends Controller
 
             // Create token
             $token = $user->createToken('mobile-app')->plainTextToken;
+
+            // Send welcome email
+            Mail::to($user->email)->send(new WelcomeMail(
+                userName: $user->name,
+                email: $user->email
+            ));
 
             return response()->json([
                 'success' => true,
