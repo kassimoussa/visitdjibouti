@@ -21,14 +21,27 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .header {
-            text-align: center;
+            position: relative;
             padding-bottom: 20px;
             border-bottom: 3px solid #007bff;
+            margin-bottom: 20px;
+        }
+        .header .logo {
+            float: left;
+            max-width: 80px;
+            height: auto;
+            margin-right: 15px;
         }
         .header h1 {
             color: #007bff;
-            margin: 0;
-            font-size: 24px;
+            margin: 10px 0 0 0;
+            font-size: 22px;
+            padding-top: 10px;
+        }
+        .header::after {
+            content: "";
+            display: table;
+            clear: both;
         }
         .content {
             padding: 20px 0;
@@ -79,7 +92,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ $message->embed(public_path('images/logo_visitdjibouti.png')) }}" alt="Visit Djibouti" style="max-width: 200px; margin-bottom: 20px;">
+            <img src="{{ config('app.url') }}/images/logo_visitdjibouti.png" alt="Visit Djibouti" class="logo">
             <h1>🔐 Réinitialisation de mot de passe</h1>
         </div>
 

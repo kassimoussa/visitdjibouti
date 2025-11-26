@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Poi;
+use App\Models\Tour;
+use App\Models\Activity;
 use App\Models\UserFavorite;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,8 +30,13 @@ class FavoriteController extends Controller
         }
 
         $favorites = UserFavorite::forUser($user->id)
-            ->with(['favoritable' => function ($query) {
-                $query->with(['translations', 'featuredImage', 'categories.translations']);
+            ->with(['favoritable' => function (MorphTo $morphTo) {
+                $morphTo->morphWith([
+                    Poi::class => ['translations', 'featuredImage', 'categories.translations'],
+                    Event::class => ['translations', 'featuredImage', 'categories.translations'],
+                    Tour::class => ['translations', 'featuredImage'],
+                    Activity::class => ['translations', 'featuredImage'],
+                ]);
             }])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -55,14 +63,14 @@ class FavoriteController extends Controller
                     'thumbnail_url' => asset($item->featuredImage->thumbnail_path ?? $item->featuredImage->path),
                     'alt_text' => $item->featuredImage->getTranslation($locale)->alt_text ?? '',
                 ] : null,
-                'categories' => $item->categories->map(function ($category) use ($locale) {
+                'categories' => method_exists($item, 'categories') ? $item->categories->map(function ($category) use ($locale) {
                     return [
                         'id' => $category->id,
                         'name' => $category->translation($locale)?->name ?? '',
                         'color' => $category->color,
                         'icon' => $category->icon,
                     ];
-                }),
+                }) : [],
                 'favorited_at' => $favorite->created_at->toISOString(),
             ];
 
@@ -73,11 +81,27 @@ class FavoriteController extends Controller
                 $data['latitude'] = $item->latitude;
                 $data['longitude'] = $item->longitude;
             } elseif ($favorite->favoritable_type === Event::class) {
+                $data['region'] = $item->region;
                 $data['start_date'] = $item->start_date?->toISOString();
                 $data['end_date'] = $item->end_date?->toISOString();
                 $data['location'] = $item->location;
                 $data['price'] = $item->price;
                 $data['organizer'] = $item->organizer;
+
+            } elseif ($favorite->favoritable_type === Tour::class) {
+                $data['start_date'] = $item->start_date?->toISOString();
+                $data['end_date'] = $item->end_date?->toISOString();
+                $data['price'] = $item->price;
+                $data['duration_hours'] = $item->duration_hours;
+                $data['difficulty_level'] = $item->difficulty_level;
+                $data['meeting_point_address'] = $item->meeting_point_address;
+            } elseif ($favorite->favoritable_type === Activity::class) {
+                $data['price'] = $item->price;
+                $data['duration_hours'] = $item->duration_hours;
+                $data['difficulty_level'] = $item->difficulty_level;
+                $data['region'] = $item->region;
+                $data['latitude'] = $item->latitude;
+                $data['longitude'] = $item->longitude;
             }
 
             return $data;
@@ -90,6 +114,8 @@ class FavoriteController extends Controller
                 'total' => $formattedFavorites->count(),
                 'pois_count' => $favorites->where('favoritable_type', Poi::class)->count(),
                 'events_count' => $favorites->where('favoritable_type', Event::class)->count(),
+                'tours_count' => $favorites->where('favoritable_type', Tour::class)->count(),
+                'activities_count' => $favorites->where('favoritable_type', Activity::class)->count(),
             ],
         ]);
     }
@@ -294,6 +320,132 @@ class FavoriteController extends Controller
             ],
         ]);
     }
+    /**
+     * Add Tour to favorites.
+     */
+    public function addTour(Request $request, Tour $tour): JsonResponse
+    {
+        $user = Auth::guard('sanctum')->user();
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Utilisateur non authentifié',
+            ], 401);
+        }
+
+        if ($tour->status !== 'approved') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ce tour n\'est pas disponible',
+            ], 404);
+        }
+
+        $result = $user->toggleFavorite($tour);
+
+        return response()->json([
+            'success' => true,
+            'message' => $result['action'] === 'added'
+                ? 'Tour ajouté aux favoris'
+                : 'Tour retiré des favoris',
+            'data' => [
+                'is_favorited' => $result['is_favorited'],
+                'action' => $result['action'],
+            ],
+        ]);
+    }
+
+    /**
+     * Remove Tour from favorites.
+     */
+    public function removeTour(Request $request, Tour $tour): JsonResponse
+    {
+        $user = Auth::guard('sanctum')->user();
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Utilisateur non authentifié',
+            ], 401);
+        }
+
+        $removed = $user->removeFromFavorites($tour);
+
+        return response()->json([
+            'success' => true,
+            'message' => $removed
+                ? 'Tour retiré des favoris'
+                : 'Ce tour n\'était pas dans vos favoris',
+            'data' => [
+                'is_favorited' => false,
+                'removed' => $removed,
+            ],
+        ]);
+    }
+
+    /**
+     * Add Activity to favorites.
+     */
+    public function addActivity(Request $request, Activity $activity): JsonResponse
+    {
+        $user = Auth::guard('sanctum')->user();
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Utilisateur non authentifié',
+            ], 401);
+        }
+
+        if ($activity->status !== 'active') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cette activité n\'est pas disponible',
+            ], 404);
+        }
+
+        $result = $user->toggleFavorite($activity);
+
+        return response()->json([
+            'success' => true,
+            'message' => $result['action'] === 'added'
+                ? 'Activité ajoutée aux favoris'
+                : 'Activité retirée des favoris',
+            'data' => [
+                'is_favorited' => $result['is_favorited'],
+                'action' => $result['action'],
+            ],
+        ]);
+    }
+
+    /**
+     * Remove Activity from favorites.
+     */
+    public function removeActivity(Request $request, Activity $activity): JsonResponse
+    {
+        $user = Auth::guard('sanctum')->user();
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Utilisateur non authentifié',
+            ], 401);
+        }
+
+        $removed = $user->removeFromFavorites($activity);
+
+        return response()->json([
+            'success' => true,
+            'message' => $removed
+                ? 'Activité retirée des favoris'
+                : 'Cette activité n\'était pas dans vos favoris',
+            'data' => [
+                'is_favorited' => false,
+                'removed' => $removed,
+            ],
+        ]);
+    }
+
 
     /**
      * Get favorites statistics for the user.
@@ -310,10 +462,13 @@ class FavoriteController extends Controller
         }
 
         $stats = [
-            'total_favorites' => $user->favorites()->count(),
-            'pois_count' => $user->favorites()->pois()->count(),
-            'events_count' => $user->favorites()->events()->count(),
-            'recent_favorites' => $user->favorites()
+            'total_favorites' => UserFavorite::forUser($user->id)->count(),
+            'pois_count' => UserFavorite::forUser($user->id)->pois()->count(),
+            'events_count' => UserFavorite::forUser($user->id)->events()->count(),
+            'tours_count' => UserFavorite::forUser($user->id)->tours()->count(),
+            'activities_count' => UserFavorite::forUser($user->id)->activities()->count(),
+
+            'recent_favorites' => UserFavorite::forUser($user->id)
                 ->with('favoritable')
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
