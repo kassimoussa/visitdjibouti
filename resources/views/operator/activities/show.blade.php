@@ -423,7 +423,11 @@
             </div>
 
             <!-- Section Commentaires -->
-            <x-operator.comments-section :comments="$activity->approvedRootComments" title="Commentaires des utilisateurs" />
+            <x-operator.comments-section
+                :comments="$activity->approvedRootComments"
+                title="Commentaires des utilisateurs"
+                :limit="5"
+                :viewAllUrl="route('operator.activities.comments', $activity)" />
         </div>
 
         <!-- Sidebar -->

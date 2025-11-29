@@ -312,7 +312,11 @@
 
                 <!-- Section Commentaires -->
                 <div class="mt-4">
-                    <x-operator.comments-section :comments="$tour->approvedRootComments" title="Commentaires des utilisateurs" />
+                    <x-operator.comments-section
+                        :comments="$tour->approvedRootComments"
+                        title="Commentaires des utilisateurs"
+                        :limit="5"
+                        :viewAllUrl="route('operator.tours.comments', $tour)" />
                 </div>
             </div>
 

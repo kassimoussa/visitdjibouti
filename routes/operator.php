@@ -73,6 +73,7 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
         Route::get('/{tour}/edit', [\App\Http\Controllers\Operator\TourController::class, 'edit'])->name('edit');
         Route::put('/{tour}', [\App\Http\Controllers\Operator\TourController::class, 'update'])->name('update');
         Route::post('/{tour}/submit-for-approval', [\App\Http\Controllers\Operator\TourController::class, 'submitForApproval'])->name('submit-for-approval');
+        Route::get('/{tour}/comments', [\App\Http\Controllers\Operator\TourController::class, 'comments'])->name('comments');
     });
 
     // Routes pour les activités
@@ -83,6 +84,7 @@ Route::middleware('operator.auth')->prefix('operator')->name('operator.')->group
         Route::get('/{activity}/edit', [\App\Http\Controllers\Operator\ActivityController::class, 'edit'])->name('edit');
         Route::delete('/{activity}', [\App\Http\Controllers\Operator\ActivityController::class, 'destroy'])->name('destroy');
         Route::post('/{activity}/toggle-status', [\App\Http\Controllers\Operator\ActivityController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/{activity}/comments', [\App\Http\Controllers\Operator\ActivityController::class, 'comments'])->name('comments');
     });
 
     // Routes pour les inscriptions aux activités

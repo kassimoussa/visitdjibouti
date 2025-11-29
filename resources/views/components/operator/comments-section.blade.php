@@ -1,4 +1,10 @@
-@props(['comments', 'title' => 'Commentaires'])
+@props(['comments', 'title' => 'Commentaires', 'viewAllUrl' => null, 'limit' => null])
+
+@php
+    $totalComments = is_countable($comments) ? $comments->count() : 0;
+    $displayComments = $limit && $totalComments > $limit ? $comments->take($limit) : $comments;
+    $hasMore = $limit && $totalComments > $limit;
+@endphp
 
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
@@ -6,12 +12,12 @@
             <i class="fas fa-comments me-2"></i>
             {{ $title }}
         </h5>
-        <span class="badge bg-primary rounded-pill">{{ $comments->count() }}</span>
+        <span class="badge bg-primary rounded-pill">{{ $totalComments }}</span>
     </div>
     <div class="card-body">
-        @if($comments->count() > 0)
+        @if($totalComments > 0)
             <div class="comments-list">
-                @foreach($comments as $comment)
+                @foreach($displayComments as $comment)
                     <div class="comment-item mb-4 pb-4 {{ !$loop->last ? 'border-bottom' : '' }}">
                         <div class="d-flex align-items-start">
                             <!-- Avatar -->
@@ -123,6 +129,16 @@
                     </div>
                 @endforeach
             </div>
+
+            <!-- Bouton Voir tout -->
+            @if($hasMore && $viewAllUrl)
+                <div class="text-center mt-4 pt-3 border-top">
+                    <a href="{{ $viewAllUrl }}" class="btn btn-outline-primary">
+                        <i class="fas fa-eye me-2"></i>
+                        Voir tous les commentaires ({{ $totalComments }})
+                    </a>
+                </div>
+            @endif
 
             <!-- Pagination if needed -->
             @if(method_exists($comments, 'links'))

@@ -342,4 +342,33 @@ class TourController extends Controller
             ->back()
             ->with('error', 'Erreur lors de la soumission du tour.');
     }
+
+    /**
+     * Display all comments for a tour.
+     */
+    public function comments(Tour $tour): View
+    {
+        $user = Auth::guard('operator')->user();
+
+        // Verify the tour belongs to this operator
+        if ($tour->tour_operator_id !== $user->tour_operator_id) {
+            abort(403, 'Vous n\'avez pas accès à ce tour.');
+        }
+
+        // Load tour with translations
+        $tour->load(['translations']);
+
+        // Get paginated comments
+        $comments = $tour->approvedRootComments()
+            ->with([
+                'appUser',
+                'replies' => function($query) {
+                    $query->where('is_approved', true)->with('appUser')->orderBy('created_at', 'asc');
+                }
+            ])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('operator.tours.comments', compact('tour', 'comments', 'user'));
+    }
 }

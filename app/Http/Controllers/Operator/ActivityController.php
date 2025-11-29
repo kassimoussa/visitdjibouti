@@ -163,4 +163,33 @@ class ActivityController extends Controller
 
         return redirect()->back()->with('success', $message);
     }
+
+    /**
+     * Display all comments for an activity.
+     */
+    public function comments(Activity $activity): View
+    {
+        $user = Auth::guard('operator')->user();
+
+        // Vérifier que l'activité appartient à cet opérateur
+        if ($activity->tour_operator_id !== $user->tour_operator_id) {
+            abort(403, 'Vous n\'avez pas accès à cette activité.');
+        }
+
+        // Load activity with translations
+        $activity->load(['translations']);
+
+        // Get paginated comments
+        $comments = $activity->approvedRootComments()
+            ->with([
+                'appUser',
+                'replies' => function($query) {
+                    $query->where('is_approved', true)->with('appUser')->orderBy('created_at', 'asc');
+                }
+            ])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('operator.activities.comments', compact('activity', 'comments'));
+    }
 }
