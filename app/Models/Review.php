@@ -63,7 +63,11 @@ class Review extends Model
      */
     public function getAuthorNameAttribute(): string
     {
-        return $this->appUser ? $this->appUser->name : ($this->guest_name ?? 'Anonyme');
+        if ($this->appUser && $this->appUser->name) {
+            return $this->appUser->name;
+        }
+
+        return $this->guest_name ?? 'Anonyme';
     }
 
     /**
