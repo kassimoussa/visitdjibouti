@@ -82,6 +82,10 @@ class ActivityController extends Controller
             'media',
             'translations',
             'createdBy',
+            'approvedRootComments.appUser',
+            'approvedRootComments.replies' => function($query) {
+                $query->where('is_approved', true)->with('appUser');
+            },
         ]);
 
         // Statistiques des inscriptions

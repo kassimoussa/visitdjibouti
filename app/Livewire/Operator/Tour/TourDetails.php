@@ -37,6 +37,10 @@ class TourDetails extends Component
             'translations',
             'createdBy',
             'approvedBy',
+            'approvedRootComments.appUser',
+            'approvedRootComments.replies' => function($query) {
+                $query->where('is_approved', true)->with('appUser');
+            },
         ])
             ->findOrFail($tourId);
 

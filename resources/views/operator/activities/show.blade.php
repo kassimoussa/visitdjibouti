@@ -353,7 +353,7 @@
             @endif
 
             <!-- Inscriptions Récentes -->
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="fas fa-user-check me-2"></i>
@@ -421,6 +421,9 @@
                     @endif
                 </div>
             </div>
+
+            <!-- Section Commentaires -->
+            <x-operator.comments-section :comments="$activity->approvedRootComments" title="Commentaires des utilisateurs" />
         </div>
 
         <!-- Sidebar -->

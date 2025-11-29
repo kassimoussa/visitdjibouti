@@ -309,6 +309,11 @@
                         @endif
                     </div>
                 </div>
+
+                <!-- Section Commentaires -->
+                <div class="mt-4">
+                    <x-operator.comments-section :comments="$tour->approvedRootComments" title="Commentaires des utilisateurs" />
+                </div>
             </div>
 
             <!-- Colonne latérale -->
